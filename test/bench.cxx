@@ -1,5 +1,5 @@
 /*
- * dump.cxx
+ * bench.cxx
  *
  * $Id$
  *
@@ -45,19 +45,18 @@
 #include <sstream>
 #include <cstring>
 #include <cstdio>
+#include <sstream>
+#include <ctime>
 
-void dumptemplate(const char* filename);
+const unsigned RUNCOUNT = 1000;
+
+void dumptemplate();
+void start();
 
 int main(int argc, char* argv[])
 {
-	if (argc != 2)
-	{
-		std::cout << "Usage: dump <filename>" << std::endl;
-		return 0;
-	}
-
 	try {
-		dumptemplate(argv[1]);
+		start();
 	} catch(const std::exception& e) {
 		std::cout << "Exception " << e.what() << std::endl;
 	} catch(...) {
@@ -67,33 +66,31 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-#include "shared.inl"
-
-void dumptemplate(const char* filename)
+void start()
 {
-	TPT::Symbols sym;
-	sym.set("var", "this is the value of var");
-	sym.set("var1", "Supercalifragilisticexpialidocious");
-	sym.set("var2", "The red fox runs through the plain and jumps over the fence.");
-	sym.set("title", "TEST TITLE");
-	sym.push("myarray", "value1");
-	sym.push("myarray", "value2");
-	sym.push("myarray", "value3");
-	sym.push("myarray", "value4");
-
-	TPT::Buffer tptbuf(filename);
-	TPT::Parser p(tptbuf, sym);
-
-	p.addfunction("mycallback", &mycallback);
-	p.addfunction("fsum", &fsum);
-	p.run(std::cout);
-
-	TPT::ErrorList errlist;
-	if (p.geterrorlist(errlist))
+	std::cout << "Running through " << RUNCOUNT << " loops..." << std::endl;
+	std::clock_t starttime = std::clock();
+	for (unsigned i=0; i < RUNCOUNT; ++i)
 	{
-		TPT::ErrorList::const_iterator it(errlist.begin()), end(errlist.end());
-		for (; it != end; ++it)
-			std::cerr << (*it) << std::endl;
-
+		dumptemplate();
+		if (!((i+1) % (RUNCOUNT/10)))
+		{
+			std::cout << i / (RUNCOUNT/10);
+			std::cout.flush();
+		}
 	}
+	std::clock_t endtime = std::clock();
+	float totaltime = (endtime - starttime);
+	totaltime/= CLK_TCK;
+	std::cout << "\nRan through in " << totaltime << " sec" << std::endl;
+}
+
+void dumptemplate()
+{
+	std::stringstream str;
+	TPT::Buffer tptbuf("tests/bench.tpt");
+	TPT::Parser p(tptbuf);
+	p.addincludepath("./tests");
+	p.run(str);
+	// Ignore output
 }

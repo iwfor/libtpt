@@ -1,0 +1,28 @@
+@#
+@# This template is intended for use in benchmarking, and will not necessarily
+@# output a coherent text.
+@#
+@tpt_ignoreblankline\
+@include("bench.tph")\
+@push(array, "Apple")\
+@push(array, "Banana")\
+@push(array, "Cantelope")\
+@push(array, "Cheese")\
+@push(array, "Chicken")\
+@push(array, "Egg")\
+@push(array, "Grape")\
+@push(array, "Meatloaf")\
+@push(array, "Milk")\
+@push(array, "Nabana")\
+@push(array, "Orange")\
+@push(array, "Pineapple")\
+@push(array, "Spinach")\
+@push(array, "Steak")\
+@push(array, "Zuccinni")\
+
+@foreach item (array) {
+	@func(item)
+	@func2(item)
+	@func3(item)
+ 
+}

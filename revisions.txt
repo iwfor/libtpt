@@ -1,6 +1,12 @@
 LibTPT Revisions
 ================
 
+Version 1.11
+------------
+- Added bench.cxx to test directory.  This program will time a benchmark
+  template several hundred times and will be used to determine the
+  effectiveness of optimizations.
+
 Version 1.10
 ------------
 - Fixed Major bugs in lexical analyzer (hopefully last ones) causing big breaks

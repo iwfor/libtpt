@@ -1,0 +1,32 @@
+@tpt_ignoreindent\
+@tpt_ignoreblankline\
+@macro(func, item) {
+@if (!@comp(item, "Apple")) {
+	Washington \
+} @elsif (!@comp(item, "Orange")) {
+	Florida \
+} @elsif (!@comp(item, "Cheese")) {
+	California \
+}
+${item}\
+}
+
+@macro(func2, item) {
+	@set(len, @length(item))\
+	@set(i, 0)\
+	@while (i < len) {
+		@substr(item, i, 1) \
+		@set(i, i+1)\
+	}
+}
+
+@macro(func3, item) {
+	@if (!@comp(@substr(item, 1, 1), "a")) {
+		@lc(@func2(item))\
+	} @elsif (@length(item) <= 6) {
+		"${item}"\
+	} @else {
+		@uc(@func2(item))\
+	}
+}
+

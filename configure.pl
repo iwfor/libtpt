@@ -137,7 +137,6 @@ if (!$clo{'bundle'}) {
 |                                                             |
 | If you would then like to run the tests, type:              |
 |                                                             |
-|       cd test/                                              |
 |       ./test.sh                                             |
 |                                                             |
 | To install, type:                                           |
