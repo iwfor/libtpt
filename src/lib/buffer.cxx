@@ -220,6 +220,8 @@ bool Buffer::unget()
 void Buffer::reset()
 {
 	bufferindex = 0;
+	done = false;
+	instr = 0;
 }
 
 
