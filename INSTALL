@@ -8,11 +8,19 @@ See http://tazthecat.net/~isaac/libtpt/ for documentation.
 
 UNIX
 ----
-Set the CXX environment variable to the path of your C++ compiler.
+If you have multiple C++ compilers in your path, it is a good idea to specify which
+C++ compiler should be used for building LibTPT.
+
+The configure.pl script reads the CXX environment variable or you can use the
+"--cxx" option to specify where the C++ compiler is.
 
 E.g.
 
-> set CXX=/usr/local/bin/g++30 ; export CXX
+> ./configure.pl --cxx=/usr/local/bin/g++32
+
+or
+
+> CXX=/usr/local/bin/g++32 ./configure
 
 Run configure.pl to for a default configuration (use --help for more options).
 
@@ -20,7 +28,9 @@ For a default build:
 
 > ./configure.pl
 > make
+> cd test
 > ./test.sh
+> cd ..
 > make install
 
 WINDOWS
