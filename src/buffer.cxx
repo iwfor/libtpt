@@ -55,28 +55,28 @@ namespace TPTLib {
 
 struct Buffer::Impl {
 	std::istream* instr;
-	bool freestreamwhendone;
-	char* buffer;
 	unsigned long buffersize;
 	unsigned long bufferalloc;
+	char* buffer;
 	unsigned bufferindex;
+	bool freestreamwhendone;
 	bool done;
 	
 	Impl(unsigned bufsize) :
-		done(false),
 		buffersize(0),
 		bufferalloc(bufsize),
 		buffer(new char[bufsize]),
 		bufferindex(0),
-		freestreamwhendone(false)
+		freestreamwhendone(false),
+		done(false)
 		{ }
 	Impl(const char* buf, unsigned bufsize) :
-		done(!bufsize),	// if zero buffer, then done
 		buffersize(0),
 		bufferalloc(bufsize),
 		buffer(new char[bufsize]),
 		bufferindex(0),
-		freestreamwhendone(false)
+		freestreamwhendone(false),
+		done(!bufsize)	// if zero buffer, then done
 		{ memcpy(buffer, buf, bufsize); }
 	~Impl();
 

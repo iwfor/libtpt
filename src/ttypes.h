@@ -19,8 +19,11 @@ template<typename T = char> struct ChrSet {
 	ChrSet(T*);
 	ChrSet(const ChrSet<T>& cs) : names(cs.names) {}
 
-	ChrSet& operator==(const ChrSet<T>& cs) { names = cs.names; return *this }
+	// Assignment operator
+	ChrSet& operator=(const ChrSet<T>& cs)
+		{ names = cs.names; return *this }
 
+	// Boolean operator
 	friend bool operator==(T a, const ChrSet<T>& b)
 		{ return b.names.find(a) != b.names.end(); }
 	friend bool operator==(const ChrSet<T>& a, T b)
