@@ -49,9 +49,6 @@
 #include <ctime>
 
 const unsigned RUNCOUNT = 1000;
-#ifndef CLK_TCK
-#define CLK_TCK 1000000
-#endif
 
 void dumptemplate();
 void start();
@@ -84,7 +81,7 @@ void start()
 	}
 	std::clock_t endtime = std::clock();
 	float totaltime = (endtime - starttime);
-	totaltime/= CLK_TCK;
+	totaltime/= CLOCKS_PER_SEC;
 	std::cout << "\nRan through in " << totaltime << " sec" << std::endl;
 }
 
