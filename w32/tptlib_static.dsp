@@ -138,19 +138,11 @@ SOURCE=..\src\symbols.cxx
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=..\inc\tptlib\buffer.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\lexical.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\src\macro.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\inc\tptlib\parse.h
 # End Source File
 # Begin Source File
 

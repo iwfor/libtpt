@@ -42,7 +42,7 @@ bool Parser::Impl::pass1(std::ostream* os)
 			break;
 		// Process an if statement.
 		case token_if:
-			parse_if(os);
+//			parse_if(os);
 			break;
 		// Include another file.
 		case token_include:
@@ -58,6 +58,7 @@ bool Parser::Impl::pass1(std::ostream* os)
 	return errlist.size() ? true : false;
 }
 
+
 void Parser::Impl::parse_include(std::ostream* os)
 {
 	ParamList pl;
@@ -69,9 +70,15 @@ void Parser::Impl::parse_include(std::ostream* os)
 		recorderror("Include takes exactly 1 parameter");
 		return;
 	}
+	// Create another Impl which inherits symbols table
+	// to process include
 	Buffer buf(pl[0].c_str());
-	Parser p(buf, symbols);
-	p.run(*os);
+	Impl incl(buf, symbols);
+	incl.pass1(os);
+	// copy incl's error list, if any
+	ErrorList::iterator it(incl.errlist.begin()), end(incl.errlist.end());
+	for (; it != end; ++it)
+		errlist.push_back(*it);
 }
 
 void Parser::Impl::parse_macro()
@@ -122,6 +129,47 @@ void Parser::Impl::recorderror(const std::string& desc)
 	errstr+= " at line ";
 	errstr+= buf;
 	errlist.push_back(errstr);
+}
+
+
+/*
+ * Get a parenthesis enclosed, comma delimeted parameter list.
+ *
+ * DEV NOTE: For now, just read what is between the parenthesis.  The
+ * next version will incorporate a recursive descent parser.
+ *
+ * @return	false on success;
+ * @return	true on failure
+ *
+ */
+bool Parser::Impl::getparamlist(ParamList& pl)
+{
+	// Expect opening parenthesis
+	tok = lex.getstricttoken();
+	if (tok.type != token_openparen)
+	{
+		recorderror("Expected opening parenthesis");
+		return true;
+	}
+
+	std::string value;
+	tok = lex.getstricttoken();
+	while (tok.type != token_closeparen)
+	{
+		if (tok.type == token_comma)
+		{
+			pl.push_back(value);
+			value.erase();
+		}
+		else
+			value+= tok.value;
+
+		tok = lex.getstricttoken();
+	}
+	if (!value.empty())
+		pl.push_back(value);
+
+	return false;
 }
 
 

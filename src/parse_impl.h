@@ -10,6 +10,11 @@
 #ifndef __tptlib_parse_impl_h
 #define __tptlib_parse_impl_h
 
+#ifdef _MSC_VER
+// Disable long symbol name warning on MSVC++
+#pragma warning(disable:4786)
+#endif
+
 #include <tptlib/parse.h>
 #include "lexical.h"
 #include "macro.h"

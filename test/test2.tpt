@@ -1,0 +1,4 @@
+This test contains a variable.
+
+var = ${var}
+
