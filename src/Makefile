@@ -1,6 +1,7 @@
 OBJECTS=	buffer.o \
 			lexical.o \
 			parse.o \
+			parse_funcs.o \
 			parse_impl.o \
 			parse_impl_if.o \
 			parse_impl_macro.o \
@@ -8,8 +9,6 @@ OBJECTS=	buffer.o \
 			parse_impl_include.o \
 			parse_impl_rd.o \
 			symbols.o
-#			parse_impl_func.o \
-#
 CXXFLAGS=	-O2 -pipe -Wall -I../inc
 
 
