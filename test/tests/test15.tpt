@@ -1,0 +1,23 @@
+@if (1) {
+	This should display.
+} @else {
+	This should not display.
+}
+@if (0) {
+	This should not display.
+} @elsif (1) {
+	This should display.
+} @elsif (0) {
+	This should not display.
+} @elsif (0) {
+	This should not display.
+} @else {
+	This should not display.
+}
+@if (0) {
+	This should not display.
+} @elsif (0) {
+	This should not display.
+} @else {
+	This should display.
+}

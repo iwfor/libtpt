@@ -97,6 +97,7 @@ struct Parser::Impl {
 
 	void parse_include(std::ostream* os);
 	void parse_if(std::ostream* os);
+	bool parse_ifexpr(std::ostream* os);
 	void parse_set();
 	void parse_setif();
 

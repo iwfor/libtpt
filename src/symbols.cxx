@@ -243,6 +243,8 @@ unsigned Symbols::size(const SymbolKeyType& id) const
  * Determine the real final ID of a given ID, reducing
  * ${} and [].
  *
+ * TODO: Parse expression in []
+ *
  */
 bool Symbols::Impl::getrealid(const SymbolKeyType& id,
 							  SymbolKeyType& realkey, unsigned& index)

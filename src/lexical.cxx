@@ -17,6 +17,7 @@
 /*
  * TODO:
  *	Add support for array subscripts to id names.
+ *	Add support for expressions in array subscripts. (Yikes!)
  *
  */
 
