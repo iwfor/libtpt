@@ -129,6 +129,7 @@ void SymbolStack::popall(SymbolMap& symmap)
 	while (!symstack.empty())
 	{
 		Symbol_t& sym = symstack.top();
+		symstack.pop();
 		symmap.set(sym.id, sym.value);
 	}
 }
