@@ -255,6 +255,16 @@ bool Buffer::impl::readfile()
 
 /**
  *
+ * \class Buffer
+ *
+ * The TPTLib::Buffer class provides a generic way to buffer
+ * input from a file, file stream, or existing buffer one
+ * character at a time.
+ *
+ */
+
+/**
+ *
  * \example	bufferfile.cxx
  *
  * This is an example of how to use TPTLib::Buffer with a file.
