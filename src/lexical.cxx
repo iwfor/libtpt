@@ -209,7 +209,7 @@ Token<> Lex::getstricttoken()
 			else if (c == '#') // this is a comment
 			{
 				// Read everything until the end of line
-				while (c = imp->safeget(buf))
+				while ( (c = imp->safeget(buf)) )
 				{
 					t.value+= c;
 					if (c == '\n' || c == '\r')
@@ -389,7 +389,7 @@ void Lex::Impl::getidname(Token<>& t, Buffer& buf)
 {
 	char c;
 
-	while (c = safeget(buf))
+	while ( (c = safeget(buf)) )
 	{
 		if (c == '$')
 		{
@@ -421,7 +421,7 @@ void Lex::Impl::getstring(Token<>& t, Buffer& buf)
 	char c;
 	t.type = token_string;
 	t.value.erase();
-	while (c = safeget(buf))
+	while ( (c = safeget(buf)) )
 	{
 		if (c == '"')
 		{

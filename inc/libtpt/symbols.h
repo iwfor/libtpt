@@ -46,4 +46,4 @@ private:
 
 } // end namespace TPTLib
 
-#endif __tptlib_symbols_h
+#endif // __tptlib_symbols_h

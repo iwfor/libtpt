@@ -95,7 +95,7 @@ namespace TPTLib {
 		{ "template_license", tptlib_license },
 	};
 
-	const numbuiltins = (sizeof(tptlib_builtins)/sizeof(__builtin_variables));
+	const unsigned numbuiltins = (sizeof(tptlib_builtins)/sizeof(__builtin_variables));
 }
 
 #endif // __tptlib_vars_h

@@ -40,4 +40,4 @@ private:
 
 } // end namespace TPTLib
 
-#endif __tptlib_parse_h
+#endif // __tptlib_parse_h
