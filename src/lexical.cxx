@@ -85,7 +85,16 @@ Token<> Lex::getloosetoken()
 	// For simplicity, have the strict token reader process these
 	// symbols to avoid duplicate code.
 	case '\n':
+		t.type = token_whitespace;
+		++imp->lineno;
+		return t;
 	case '\r':
+		t.type = token_whitespace;
+		c = imp->safeget(buf);
+		if (c == '\n') t.value+= c;
+		else if (c) buf.unget();
+		++imp->lineno;
+		return t;
 	case '\\':	// escape character
 	case '@':	// keyword, macro, or comment
 	case '$':	// variable name
@@ -107,6 +116,7 @@ Token<> Lex::getloosetoken()
 Token<> Lex::getstricttoken()
 {
 	Token<> t;
+	t.type = token_whitespace;
 	char c;
 	Buffer& buf = imp->buf;	// I'm lazy, and don't like typing imp->buf
 
@@ -116,112 +126,118 @@ Token<> Lex::getstricttoken()
 		return t;
 	}
 
-	t.value = c;
+	// strict tokens skip white-spaces
+	while (t.type == token_whitespace)
+	{
+		t.value = c;
 
-	switch (c) {
-	case '{': t.type = token_openbrace; return t;
-	case '}': t.type = token_closebrace; return t;
-	case '(': t.type = token_openparen; return t;
-	case ')': t.type = token_closeparen; return t;
-	case ',': t.type = token_comma; return t;
-	case '+':
-	case '-':
-	case '*':
-	case '/':
-	case '%': t.type = token_operator; return t;
-	case '|':
-	case '&':
-	case '^':
-		c = imp->safeget(buf);
-		if (t.value[0] == c)
-		{
-			t.type = token_operator;
-			t.value+= c;
-		}
-		else
-		{
-			t.type = token_error;
-			if (c) buf.unget();
-		}
-		return t;
-	// Handle whitespace
-	case ' ':
-	case 255:
-	case '\t': t.type = token_whitespace; return t;
-	// Handle new lines
-	case '\n':
-		t.type = token_newline;
-		++imp->lineno;
-		return t;
-	case '\r':
-		t.type = token_newline;
-		c = imp->safeget(buf);
-		if (c == '\n') t.value+= c;
-		else if (c) buf.unget();
-		++imp->lineno;
-		return t;
-	case '"':	// quoted strings
-		imp->getstring(t, buf);
-		return t;
-	case '\\':	// escape sequences
-		c = imp->safeget(buf);
-		t.value+= c;
-		if (c == '\n')
-			t.type = token_joinline;
-		else if (c == '\r')
-		{
-			// handle cases where newlines are represented by \r\n
-			t.type = token_joinline;
+		switch (c) {
+		case '{': t.type = token_openbrace; return t;
+		case '}': t.type = token_closebrace; return t;
+		case '(': t.type = token_openparen; return t;
+		case ')': t.type = token_closeparen; return t;
+		case ',': t.type = token_comma; return t;
+		case '+':
+		case '-':
+		case '*':
+		case '/':
+		case '%': t.type = token_operator; return t;
+		case '|':
+		case '&':
+		case '^':
 			c = imp->safeget(buf);
+			if (t.value[0] == c)
+			{
+				t.type = token_operator;
+				t.value+= c;
+			}
+			else
+			{
+				t.type = token_error;
+				if (c) buf.unget();
+			}
+			return t;
+		// Handle whitespace
+		case ' ':
+		case 255:
+		case '\t': t.type = token_whitespace; return t;
+		// Handle new lines
+		case '\n':
+			t.type = token_whitespace;
+			++imp->lineno;
+			break;
+//			return t;
+		case '\r':
+			t.type = token_whitespace;
+			c = imp->safeget(buf);
+			if (c == '\n') t.value+= c;
+			else if (c) buf.unget();
+			++imp->lineno;
+			break;
+//			return t;
+		case '"':	// quoted strings
+			imp->getstring(t, buf);
+			return t;
+		case '\\':	// escape sequences
+			c = imp->safeget(buf);
+			t.value+= c;
 			if (c == '\n')
+				t.type = token_joinline;
+			else if (c == '\r')
+			{
+				// handle cases where newlines are represented by \r\n
+				t.type = token_joinline;
+				c = imp->safeget(buf);
+				if (c == '\n')
+					t.value+= c;
+				else
+					if (c) buf.unget();
+			}
+			else
+				t.type = token_escape;
+			return t;
+		case '@':	// keyword or user macro
+			c = imp->safeget(buf);
+			if (c == set_startvarname)
+			{
+				t.value+= c;
+				imp->buildtoken(t.value, buf, set_varname);
+				t.type = imp->checkreserved(&t.value[1]);
+			}
+			else if (c == '#') // this is a comment
+			{
+				// Read everything until the end of line
+				while (c = imp->safeget(buf))
+				{
+					t.value+= c;
+					if (c == '\n' || c == '\r')
+						buf.unget();
+				}
+			}
+			else
+			{
+				if (c) buf.unget();
+				t.type = token_text;
+				return t;
+			}
+			return t;
+		case '$':	// variable name
+	//		std::cout << "\nPARSING SYMBOL ID" << std::endl;
+			imp->getclosedidname(t, buf);
+			return t;
+		case '>':
+		case '<':
+		case '=':
+		case '!':
+			t.type = token_relop;
+			c = imp->safeget(buf);
+			if (c == '=')
 				t.value+= c;
 			else
 				if (c) buf.unget();
-		}
-		else
-			t.type = token_escape;
-		return t;
-	case '@':	// keyword or user macro
-		c = imp->safeget(buf);
-		if (c == set_startvarname)
-		{
-			t.value+= c;
-			imp->buildtoken(t.value, buf, set_varname);
-			t.type = imp->checkreserved(&t.value[1]);
-		}
-		else if (c == '#') // this is a comment
-		{
-			// Read everything until the end of line
-			while (c = imp->safeget(buf))
-			{
-				t.value+= c;
-				if (c == '\n' || c == '\r')
-					buf.unget();
-			}
-		}
-		else
-		{
-			if (c) buf.unget();
-			t.type = token_text;
 			return t;
+		default: t.type = token_error; break;
 		}
-		return t;
-	case '$':	// variable name
-//		std::cout << "\nPARSING SYMBOL ID" << std::endl;
-		imp->getclosedidname(t, buf);
-		return t;
-	case '>':
-	case '<':
-	case '=':
-	case '!':
-		t.type = token_relop;
-		c = imp->safeget(buf);
-		if (c == '=')
-			t.value+= c;
-		else
-			if (c) buf.unget();
-		return t;
-	default: t.type = token_error; break;
 	}
 	// Next, process tokens that are comprised of sets
 	// Group digits together
@@ -236,6 +252,19 @@ Token<> Lex::getstricttoken()
 	}
 
 	return t;
+}
+
+
+/*
+ * This is a bit of a hack, but seems like the best way
+ * to handle current design problems.
+ *
+ */
+void Lex::unget(const Token<>& tok)
+{
+	unsigned i = tok.value.size();
+	while (i--)
+		imp->buf.unget();
 }
 
 
@@ -389,6 +418,7 @@ void Lex::Impl::getstring(Token<>& t, Buffer& buf)
 {
 	char c;
 	t.type = token_string;
+	t.value.erase();
 	while (c = safeget(buf))
 	{
 		t.value+= c;

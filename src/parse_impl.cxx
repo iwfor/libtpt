@@ -30,7 +30,6 @@ bool Parser::Impl::pass1(std::ostream* os)
 		case token_joinline:
 			break;
 		// Just output whitespace and text.
-		case token_newline:
 		case token_whitespace:
 		case token_text:
 			*os << tok.value;
@@ -94,14 +93,14 @@ void Parser::Impl::parse_macro()
 		recorderror("Macro may not be defined in sub-block");
 		return;
 	}
-	if (getnextnonwhitespace())
+	if (getnextstrict(tok))
 		return;
 	if (tok.type != token_openparen)
 	{
 		recorderror("Expected macro declaration");
 		return;
 	}
-	if (getnextnonwhitespace())
+	if (getnextstrict(tok))
 		return;
 	if (tok.type != token_id)
 	{
@@ -117,14 +116,10 @@ void Parser::Impl::parse_macro()
  * @return	true on end of file
  *
  */
-bool Parser::Impl::getnextnonwhitespace()
+bool Parser::Impl::getnextstrict(Token<>& target)
 {
-	do {
-		tok = lex.getstricttoken();
-		if (tok.type == token_eof)
-			return true;
-	} while (tok.type == token_whitespace);
-	return false;
+	target = lex.getstricttoken();
+	return (target.type == token_eof);
 }
 
 void Parser::Impl::recorderror(const std::string& desc)

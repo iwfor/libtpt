@@ -1,3 +1,3 @@
 This test also includes a file.
-@include(test4inc.tph)\
+@include("test4inc.tph")\
 But this include should have used a variable.

@@ -30,6 +30,7 @@ public:
 	void set(const std::string& id, const std::string& value);
 	bool exists(const std::string& id);
 	const SymbolTable& operator=(const SymbolTable& symtab);
+	void dump();
 private:
 	SymbolTable symmap;
 };

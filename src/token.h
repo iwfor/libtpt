@@ -21,8 +21,7 @@ enum TokenTypes {
 	token_string,		// "string"
 	token_text,			// alphanum
 	token_comment,		// # comment character
-	token_whitespace,	// space, tab, carriage return symbol
-	token_newline,		// \n, \r, \r\n
+	token_whitespace,	// space, tab, \r, \n, \r\n
 	token_joinline,		// \\n, \\r, \\r\n
 	token_escape,		// \escape character
 	token_openbrace,	// {
@@ -51,6 +50,10 @@ template<typename E=TokenTypes> struct Token {
 	E type;
 	typedef E en;
 	std::string value;
+	Token<E>() {}
+	Token<E>(const Token<E>& t) : type(t.type),value(t.value) {}
+	Token<E>& operator=(const Token<E>& t)
+	{type=t.type;value=t.value; return *this;}
 };
 
 } // end namespace TPTLib
