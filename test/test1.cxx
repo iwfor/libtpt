@@ -15,9 +15,12 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <sstream>
 #include <cstring>
+#include <cstdio>
+#include <cstdlib>
 
-bool test1(const char* filename);
+bool test1(unsigned testcount);
 
 int main(int argc, char* argv[])
 {
@@ -25,13 +28,12 @@ int main(int argc, char* argv[])
 
 	if (argc != 2)
 	{
-		std::cout << "Usage: test1 <filename>" << std::endl;
+		std::cout << "Usage: test1 <testcount>" << std::endl;
 		return 0;
 	}
 
 	try {
-		std::cout << "Test1: ";
-		r = test1(argv[1]);
+		r = test1(std::atoi(argv[1]));
 		if (r) std::cout << "failed" << std::endl;
 		else std::cout << "passed" << std::endl;
 		result|= r;
@@ -50,21 +52,52 @@ int main(int argc, char* argv[])
 	return result;
 }
 
-bool test1(const char* filename)
+bool test1(unsigned testcount)
 {
-	char tptfile[256], outfile[256];
-	strcpy(tptfile, filename);
-	strcpy(outfile, filename);
-	strcat(tptfile, ".tpt");
-	strcat(outfile, ".out");
-
 	TPTLib::SymbolTable sym;
-	TPTLib::Buffer buf(tptfile);
+	bool result = false;
 
 	sym["var"] = "this is the value of var";
+	sym["var1"] = "Supercalifragilisticexpialidocious";
+	sym["var2"] = "The red fox runs through the plain and jumps over the fence.";
+	sym["title"] = "TEST TITLE";
 
-	TPTLib::Parser p(buf, &sym);
-	p.run(std::cout);
+	char tptfile[256], outfile[256];
+	unsigned i;
 
-	return false;
+	for (i = 0; i < testcount; ++i)
+	{
+		std::cout << "test" << (i+1) << ": ";
+
+		// generate test file names by rule
+		sprintf(tptfile, "test%u.tpt", i+1);
+		sprintf(outfile, "test%u.out", i+1);
+
+		// Process the tpt file and store the result in a string
+		TPTLib::Buffer tptbuf(tptfile);
+		TPTLib::Parser p(tptbuf, &sym);
+		std::string tptstr;
+		std::stringstream strs(tptstr);
+		p.run(strs);
+
+		// Load the out file
+		TPTLib::Buffer outbuf(outfile);
+		std::string outstr;
+		while (outbuf)
+			outstr+= outbuf.getnextchar();
+
+		// Compare tptstr to outstr
+		if (tptstr == outstr)
+		{
+			std::cout << "passed" << std::endl;
+		}
+		else
+		{
+			result|= true;
+			std::cout << "failed" << std::endl;
+		}
+		std::cout << std::endl << tptstr << std::endl;
+	}
+
+	return result;
 }

@@ -5,6 +5,11 @@
  *
  */
 
+// Disable warnings for long debug symbols
+#ifdef _MSC_VER
+#pragma warning(disable:4786)
+#endif
+
 #include <tptlib/symbols.h>
 #include <tptlib/parse.h>
 

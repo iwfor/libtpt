@@ -48,7 +48,7 @@
 #include <cstring>
 
 namespace {
-	const unsigned BUFFER_SIZE = 4096;
+	const unsigned BUFFER_SIZE = 8192;
 }
 
 namespace TPTLib {
@@ -66,7 +66,7 @@ struct Buffer::Impl {
 		done(false),
 		buffersize(0),
 		bufferalloc(bufsize),
-		buffer(new char[bufferalloc]),
+		buffer(new char[bufsize]),
 		bufferindex(0),
 		freestreamwhendone(false)
 		{ }
@@ -74,7 +74,7 @@ struct Buffer::Impl {
 		done(!bufsize),	// if zero buffer, then done
 		buffersize(0),
 		bufferalloc(bufsize),
-		buffer(new char[bufferalloc]),
+		buffer(new char[bufsize]),
 		bufferindex(0),
 		freestreamwhendone(false)
 		{ memcpy(buffer, buf, bufsize); }
@@ -298,6 +298,7 @@ Buffer::operator bool()
 
 Buffer::Impl::~Impl()
 {
+	delete buffer;
 	if (freestreamwhendone)
 		delete instr;
 }
@@ -337,7 +338,7 @@ bool Buffer::Impl::readfile()
 	{
 		char buf[BUFFER_SIZE];
 		size_t size;
-		size = instr->readsome(buf, BUFFER_SIZE);
+		size = instr->readsome(buf, BUFFER_SIZE-1);
 		if (size < 1)
 			done = true;
 		else
@@ -346,6 +347,7 @@ bool Buffer::Impl::readfile()
 				enlarge();
 			std::memcpy(&buffer[buffersize], buf, size);
 			buffersize+= size;
+//			buffer[buffersize] = 0;
 		}
 	}
 	else
