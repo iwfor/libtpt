@@ -53,8 +53,9 @@ struct Parser::Impl {
 
 	void parse_include(std::ostream* os);
 	void parse_if(std::ostream* os);
+	void parse_set(std::ostream* os);
+
 	void parse_macro();
-	void parse_set();
 	void parse_empty(std::ostream* os);
 	void parse_rand(std::ostream* os);
 

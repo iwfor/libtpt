@@ -55,6 +55,10 @@ bool Parser::Impl::pass1(std::ostream* os)
 		case token_include:
 			parse_include(os);
 			break;
+		// Set a variable
+		case token_set:
+			parse_set(os);
+			break;
 		// Syntax errors should be hard to create at this point.
 		default:
 			recorderror("Syntax error", &tok);
@@ -86,6 +90,57 @@ void Parser::Impl::parse_include(std::ostream* os)
 	ErrorList::iterator it(incl.errlist.begin()), end(incl.errlist.end());
 	for (; it != end; ++it)
 		errlist.push_back(*it);
+}
+
+void Parser::Impl::parse_set(std::ostream* os)
+{
+	// Set has to be manually parsed since the first parameter is the
+	// identifier to be set.
+	tok = lex.getstricttoken();
+	if (tok.type != token_openparen)
+	{
+		recorderror("Syntax error, expected open parenthesis", &tok);
+		return;
+	}
+
+	// tok holds the current token and nexttok holds the token returned
+	// by the parser.
+	tok = lex.getstricttoken();
+	if (tok.type != token_id)
+	{
+		recorderror("Syntax error, first parameter must be ID", &tok);
+		return;
+	}
+	std::string id(tok.value);
+
+	tok = lex.getstricttoken();
+	// If this is a close parenthesis, then just clear the symbol
+	if (tok.type != token_closeparen)
+	{
+		symbols.set(id, "");
+		return;
+	}
+	else if (tok.type != token_comma)
+	{
+		recorderror("Syntax error, expected comma (,)", &tok);
+		return;
+	}
+	Token<> nexttok;
+	tok = lex.getstricttoken();
+	// If this is a close parenthesis, then just clear the symbol
+	if (tok.type == token_closeparen)
+	{
+		symbols.set(id, "");
+		return;
+	}
+	// Parse the expression
+	nexttok = parse_level0(tok);
+	symbols.set(id, tok.value);
+	tok = nexttok;
+	if (tok.type != token_closeparen)
+	{
+		recorderror("Syntax error, exepected close parenthesis", &tok);
+	}
 }
 
 void Parser::Impl::parse_macro()
