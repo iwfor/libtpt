@@ -1,4 +1,4 @@
 This test also includes a file.
-@set(inc,'test4inc.tph')\
+@set(inc,'test4inc.tfh')\
 @include(inc)\
 But this include should have used a variable.
