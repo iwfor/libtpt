@@ -1,11 +1,17 @@
 LibTPT Revisions
 ================
 
-Version 1.11
-------------
+Version 1.11-beta
+-----------------
 - Added bench.cxx to test directory.  This program will time a benchmark
   template several hundred times and will be used to determine the
   effectiveness of optimizations.
+- Removed private implementation from the Buffer class, yielding improved
+  performance.
+- Fixed possible memory leak in unhandled exception in Buffer constructor
+  that creates a file stream.  (If this exception occurs, you're probably
+  already in trouble since your system is out of memory!)
+- Fixed memory leak in Buffer enlarge() and destructor.
 
 Version 1.10
 ------------

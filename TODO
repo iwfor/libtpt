@@ -8,6 +8,9 @@ optimizations - Ongoing
 	There is always room for improved speed.  Optimization of existing TPT will
 	be ongoing.
 
+@includeraw(filename) - Version 1.2
+	Includes a raw text file.
+
 @tpt_settabstop(x) - Version 1.2
 	Tells LibTPT how many spaces are in a tab.  For use with
 	@tpt_ignoreindentcount(x).  1<=x<=8.  The default is 8 spaces.

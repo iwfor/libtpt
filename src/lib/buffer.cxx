@@ -73,7 +73,13 @@ Buffer::Buffer(const char* filename) :
 	freestreamwhendone(true),
 	done(false)
 {
-	openfile(filename);
+	// Just in case there is an exception while allocating the stream.
+	try {
+		openfile(filename);
+	} catch(...) {
+		delete [] buffer;
+		throw;
+	}
 	readfile();
 }
 
@@ -150,8 +156,8 @@ Buffer::Buffer(const Buffer& buf, unsigned long start, unsigned long end) :
  */
 Buffer::~Buffer()
 {
-	delete buffer;
-	if (freestreamwhendone && instr)
+	delete [] buffer;
+	if (freestreamwhendone)
 		delete instr;
 }
 
@@ -385,7 +391,7 @@ void Buffer::enlarge()
 	bufferalloc+= BUFFER_SIZE;
 	char* temp = new char[bufferalloc];
 	std::memcpy(temp, buffer, buffersize);
-	delete buffer;
+	delete [] buffer;
 	buffer = temp;
 }
 

@@ -88,8 +88,7 @@ void start()
 void dumptemplate()
 {
 	std::stringstream str;
-	TPT::Buffer tptbuf("tests/bench.tpt");
-	TPT::Parser p(tptbuf);
+	TPT::Parser p("tests/bench.tpt");
 	p.addincludepath("./tests");
 	p.run(str);
 	// Ignore output
