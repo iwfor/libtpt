@@ -1,4 +1,4 @@
-@include("test19inc.tfh")\
+@include("test19inc.tph")\
 @header("My Title")\
 This is the body of my HTML
 @footer()\
