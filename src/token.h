@@ -29,6 +29,7 @@ enum TokenTypes {
 	token_closebrace,	// }
 	token_openparen,	// (
 	token_closeparen,	// )
+	token_comma,		// ,
 	token_quote,		// "
 	token_operator,		// + - */ % || && ^^
 	token_relop,		// < <= == != > >=

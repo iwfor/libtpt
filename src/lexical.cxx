@@ -115,6 +115,7 @@ Token<> Lex::getstricttoken()
 	case '}': t.type = token_closebrace; return t;
 	case '(': t.type = token_openparen; return t;
 	case ')': t.type = token_closeparen; return t;
+	case ',': t.type = token_comma; return t;
 	case '+':
 	case '-':
 	case '*':

@@ -43,6 +43,7 @@ public:
 	std::string run();
 	bool run(std::ostream& os);
 	bool syntax();
+	unsigned geterrorcount();
 	bool geterrorlist(ErrorList& errlist);
 
 private:
