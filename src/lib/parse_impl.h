@@ -71,12 +71,6 @@ public:
 	bool isseeded;
 	loop_control loop_cmd;
 
-	// Format control
-	unsigned tabstop_;		// Size of a tab stop (typically 4 or 8)
-	unsigned textwidth_;	// Width of text for word wrapping
-	bool tab2space_;		// true means convert tab to space
-	unsigned column_;		// current output column
-
 	// kiss_vars are used for pseudo-random number generation
 	unsigned kiss_x;
 	unsigned kiss_y;
@@ -89,48 +83,45 @@ public:
 
 	Parser_Impl(Buffer& buf) : allocbuf(0), lex(buf), level(0),
 		looplevel(0), symbols(localsymmap), macros(localmacros),
-		funcs(localfuncs), inclist(localinclist), isseeded(false),
-		tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
+		funcs(localfuncs), inclist(localinclist), isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(Buffer& buf, Symbols& sm) : allocbuf(0), lex(buf),
 		level(0), looplevel(0), symbols(sm),
 		macros(localmacros), funcs(localfuncs), inclist(localinclist),
-		isseeded(false), tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
+		isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(const char* filename) : allocbuf(new Buffer(filename)),
 		lex(*allocbuf), level(0), looplevel(0), symbols(localsymmap),
 		macros(localmacros), funcs(localfuncs), inclist(localinclist),
-		isseeded(false), tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
+		isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(const char* filename, Symbols& sm) : 
 		allocbuf(new Buffer(filename)), lex(*allocbuf), level(0),
 		looplevel(0), symbols(sm),
 		macros(localmacros), funcs(localfuncs), inclist(localinclist),
-		isseeded(false), tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
+		isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(const char* buffer, unsigned long size) :
 		allocbuf(new Buffer(buffer, size)), lex(*allocbuf), level(0),
 		looplevel(0), symbols(localsymmap), macros(localmacros),
-		funcs(localfuncs), inclist(localinclist), isseeded(false),
-		tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
+		funcs(localfuncs), inclist(localinclist), isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(const char* buffer, unsigned long size, Symbols& sm) :
 		allocbuf(new Buffer(buffer, size)), lex(*allocbuf), level(0),
 		looplevel(0), symbols(sm),
 		macros(localmacros), funcs(localfuncs), inclist(localinclist),
-		isseeded(false), tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
+		isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(Buffer& buf, Symbols& sm, MacroList& ml, FunctionList& fns,
 			IncludeList& il) :
 		allocbuf(0), lex(buf), level(0), looplevel(0), symbols(sm), macros(ml),
-		funcs(fns), inclist(il), isseeded(false), tabstop_(8), textwidth_(0),
-		tab2space_(0), column_(0)
+		funcs(fns), inclist(il), isseeded(false)
 	{ }
 	
 	~Parser_Impl() { if (allocbuf) delete allocbuf; }

@@ -1,6 +1,13 @@
 LibTPT Revisions
 ================
 
+Version 1.20
+------------
+- Initial 1.20 release version.
+- Removed text format variables from parse_impl.h.  Text formatting will
+  instead be handled by a new stream class in the an upcoming major release.
+- Added new test for @repeat.
+
 Version 1.17-beta
 -----------------
 - Added @repeat() TPT function to repeat text specified number of times.
