@@ -54,6 +54,7 @@
 #include "libtpt/buffer.h"
 #include <cstring>
 #include <iostream>
+#include <cctype>
 
 namespace TPT {
 
@@ -126,7 +127,7 @@ Token<> Lex::getloosetoken()
 	Token<> t(column_, lineno_);
 	t.type = token_text;
 	t.value = c;
-	buildtoken(t.value, set_rawtext);
+	buildrawtext(t.value);
 
 	return t;
 }
@@ -227,7 +228,7 @@ Token<> Lex::getspecialtoken()
 		t.type = token_whitespace;
 		if (c = safeget())
 		{
-			while (c == ' ' || c == '\t')
+			while (std::isspace(c))
 			{
 				t.value+= c;
 				c = safeget();
@@ -289,9 +290,9 @@ Token<> Lex::getspecialtoken()
 	case '@':	// keyword or user macro
 		c = safeget();
 		t.value+= c;
-		if (c == set_startvarname)
+		if (std::isalpha(c) || c == '_' || c == '.')
 		{
-			buildtoken(t.value, set_varname);
+			buildidentifier(t.value);
 			t.type = checkreserved(&t.value[1]);
 		}
 		else if (c == '#') // this is a @# comment
@@ -307,7 +308,7 @@ Token<> Lex::getspecialtoken()
 			// truncate space to the right
 			t.type = token_whitespace;
 			t.value.erase();
-			while ( (c = safeget()) && ((c == ' ') || (c == '\t')))
+			while ( (c = safeget()) && std::isspace(c))
 				;	// ignore
 			if (c)
 				safeunget();
@@ -351,12 +352,12 @@ Token<> Lex::getspecialtoken()
 	// Group digits together
 	if (t.type == token_error)
 	{
-		if (c == set_num)
+		if (std::isdigit(c))
 		{
 			t.type = token_integer;
-			buildtoken(t.value, set_num);
+			buildnumber(t.value);
 		}
-		else if (c == set_startvarname)
+		else if (std::isalnum(c) || c == '_' || c == '.')
 		{
 			getidname(t);
 		}
@@ -565,7 +566,7 @@ Token<>::en Lex::checkreserved(const char* str)
 			ignoreblankline_ = true;
 			return token_comment;
 		}
-		else if (!std::strcmp(str, "ignoreindent_"))
+		else if (!std::strcmp(str, "ignoreindent"))
 		{
 			ignoreindent_ = true;
 			return token_comment;
@@ -710,7 +711,7 @@ void Lex::getidname(Token<>& t)
 			else
 				t.value+= c;
 		}
-		else if (c != set_varname)
+		else if (!std::isalnum(c) && c != '_' && c != '.')
 		{
 			safeunget();
 			break;
@@ -742,7 +743,7 @@ void Lex::getbracketexpr(Token<>& t)
 				return;
 			}
 		}
-		else if (c == set_startvarname)
+		else if (std::isalpha(c) || c == '_' || c == '.')
 		{
 			safeunget();
 			getidname(t);
@@ -857,19 +858,62 @@ void Lex::getsqstring(Token<>& t)
 
 
 /*
- * Build a token based on the given testset.
  *
  */
-void Lex::buildtoken(std::string& value, const ChrSet<>& testset)
+void Lex::buildidentifier(std::string& value)
 {
 	while (char c = safeget())
 	{
-		if (c == testset)
+		if (std::isalnum(c) || c == '_' || c == '.')
 			value+= c;
 		else
 		{
 			safeunget();
 			break;
+		}
+	}
+}
+
+
+/*
+ *
+ */
+void Lex::buildnumber(std::string& value)
+{
+	while (char c = safeget())
+	{
+		if (std::isdigit(c))
+			value+= c;
+		else
+		{
+			safeunget();
+			break;
+		}
+	}
+}
+
+
+/*
+ *
+ */
+void Lex::buildrawtext(std::string& value)
+{
+	while (char c = safeget())
+	{
+		switch (c) {
+		case '$':
+		case '@':
+		case '\\':
+		case '{':
+		case '}':
+		case '\r':
+		case '\n':
+		case ' ':
+		case '\t':
+			safeunget();
+			return;
+		default:
+			value+= c;
 		}
 	}
 }

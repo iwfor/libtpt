@@ -39,7 +39,6 @@
 
 #include "conf.h"
 #include "parse_impl.h"
-#include "ttypes.h"
 #include "funcs.h"
 #include <algorithm>
 #include <sstream>

@@ -40,27 +40,13 @@
 #ifndef _libtpt_lexical_h
 #define _libtpt_lexical_h
 
-#include "ttypes.h"
 #include <libtpt/token.h>
 #include <libtpt/buffer.h>
 
 #include <iostream>
 
-namespace {
-	using ExtendedTypes::ChrSet;
-	const ChrSet<> set_num("0-9");
-	const ChrSet<> set_alpha("a-zA-Z");
-	const ChrSet<> set_alphanum("a-zA-Z0-9");
-	// rawtext contains pretty much everything but reserved (i.e. $ @ { } )
-	const ChrSet<> set_rawtext("a-zA-Z0-9()[],.!?:;&*~`-_+=");
-	const ChrSet<> set_varname("a-zA-Z0-9_.");
-	const ChrSet<> set_startvarname("a-zA-Z_.");
-	const ChrSet<> set_whitespace(" \t\r\n");
-}
-
 namespace TPT {
 
-using ExtendedTypes::ChrSet;
 class Buffer;
 
 class Lex {
@@ -90,7 +76,9 @@ public:
 	void safeunget()
 	{ --column_; buf_.unget(); }
 	Token<>::en checkreserved(const char* str);
-	void buildtoken(std::string& value, const ChrSet<>& testset);
+	void buildidentifier(std::string& value);
+	void buildnumber(std::string& value);
+	void buildrawtext(std::string& value);
 	void getwhitespace(std::string& value);
 
 	void getidname(Token<>& t);

@@ -1,9 +1,12 @@
 Results from the "bench" benchmark program.  Lower numbers are better.  Test
-system is a K6-2 400MHz running on FreeBSD compiled with GCC 3.x.
+system is a PIII 866MHz running on FreeBSD compiled with GCC 3.x.
 
-Version 1.11 - ~173.5
+Version 1.12 - ~66.7
+	Stopped using ChrSet<> template.
+
+Version 1.11 - ~68.6
 	This version removes the private implementation of Buffer, which was
 	causing a little extra overhead on accessing the template source.
 
-Version 1.10 - 178
+Version 1.10 - 68.8
 	This is the first version of LibTPT tested with the new benchmark program.

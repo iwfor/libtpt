@@ -1,6 +1,12 @@
 LibTPT Revisions
 ================
 
+Version 1.12-beta
+-----------------
+- Removed ChrSet<> template and replaced with ctype calls.  Gained about 2-3%
+  performance improvement.
+- Fixed typo that broken @ignoreindent.
+
 Version 1.10.2
 --------------
 - Fixed Win32 projects to use proper libraries.
