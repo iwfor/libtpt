@@ -269,21 +269,6 @@ Token<> Parser::Impl::parse_level7(Token<>& left)
 	case token_integer:
 		left.type = token_string;
 		break;
-	case token_include:
-	case token_macro:
-	case token_set:
-	case token_if:
-	case token_else:
-	case token_foreach:
-	case token_while:
-	case token_next:
-	case token_last:
-		{
-			std::string err(left.value);
-			err+= " not allowed in expression";
-			recorderror(err);
-		}
-		break;
 	case token_empty:
 		left = parse_empty();
 		break;

@@ -66,6 +66,7 @@ struct Parser::Impl {
 	Token<> parse_rand();
 
 	Token<> parse_empty();
+	Token<> parse_concat();
 
 	void parse_include(std::ostream* os);
 	void parse_if(std::ostream* os);

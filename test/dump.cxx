@@ -61,5 +61,4 @@ void dumptemplate(const char* filename)
 			std::cerr << (*it) << std::endl;
 
 	}
-
 }

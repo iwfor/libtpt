@@ -149,4 +149,22 @@ Token<> Parser::Impl::parse_empty()
 }
 
 
+Token<> Parser::Impl::parse_concat()
+{
+	ParamList pl;
+	Token<> result;
+	result.type = token_string;
+	if (getparamlist(pl))
+		return result;
+
+	if (!pl.empty())
+	{
+		ParamList::const_iterator it(pl.begin()), end(pl.end());
+		for (; it != end; ++it)
+			result.value+= (*it);
+	}
+
+	return result;
+}
+
 } // end namespace TPTLib
