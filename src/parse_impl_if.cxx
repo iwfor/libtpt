@@ -40,7 +40,6 @@
  */
 
 #include "parse_impl.h"
-
 #include <algorithm>
 #include <sstream>
 #include <iostream>
@@ -73,11 +72,7 @@ bool Parser::Impl::parse_ifexpr(std::ostream* os)
 	if (lwork)	// if true, then TPT if was true
 		parse_block(os);
 	else
-	{
-		std::string ignore;
-		std::stringstream ignorestr(ignore);
-		parse_block(&ignorestr);
-	}
+		ignore_block();
 
 	return !!lwork;
 }
@@ -86,33 +81,36 @@ void Parser::Impl::parse_if(std::ostream* os)
 {
 	Token<> tok;
 
-	std::string ignore;
-	std::stringstream ignorestr(ignore);
-
 	bool done;
 	done = parse_ifexpr(os);
-	tok = lex.getloosetoken();
+	size_t saveindex = lex.index();
+	tok = lex.getstricttoken();
 
 	while (tok.type == token_elsif)
 	{
 		if (done)
-			parse_ifexpr(&ignorestr);
+		{
+			ParamList pl;
+			getparamlist(pl);
+			ignore_block();
+		}
 		else
 			done = parse_ifexpr(os);
-		tok = lex.getloosetoken();
+		saveindex = lex.index();
+		tok = lex.getstricttoken();
 	}
 
 	if (tok.type == token_else)
 	{
 		if (done)
-			parse_block(&ignorestr);
+			ignore_block();
 		else
 			parse_block(os);
 	}
 	else
 	{
 		// unget token
-		lex.unget(tok);
+		lex.seek(saveindex);
 	}
 }
 

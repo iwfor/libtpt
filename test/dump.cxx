@@ -84,12 +84,7 @@ void dumptemplate(const char* filename)
 	TPTLib::Buffer tptbuf(filename);
 	TPTLib::Parser p(tptbuf, &sym);
 
-	std::string tptstr;
-	std::stringstream strs(tptstr);
-	p.run(strs);
-
-	std::cout << strs.str();
-	std::cout.flush();
+	p.run(std::cout);
 
 	TPTLib::ErrorList errlist;
 	if (p.geterrorlist(errlist))

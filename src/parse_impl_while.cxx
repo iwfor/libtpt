@@ -41,10 +41,6 @@
 
 #include "parse_impl.h"
 
-#include <algorithm>
-#include <sstream>
-#include <iostream>
-
 namespace TPTLib {
 
 void Parser::Impl::parse_while(std::ostream* os)

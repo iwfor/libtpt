@@ -74,6 +74,12 @@ void Parser::Impl::parse_main(std::ostream* os)
 }
 
 
+void Parser::Impl::ignore_block()
+{
+	if (lex.getblock().empty())
+		recorderror("Error, expected { block }");
+}
+
 /*
  * Parse a brace enclosed {} block.  This call is used for macros and
  * if/else statements.
@@ -182,9 +188,9 @@ void Parser::Impl::parse_dotoken(std::ostream* os, Token<> tok)
 		parse_if(os);
 		break;
 	// loop through an array.
-//	case token_foreach:
-//		parse_foreach(os);
-//		break;
+	case token_foreach:
+		parse_foreach(os);
+		break;
 	// loop while expression is true.
 	case token_while:
 		parse_while(os);
@@ -461,6 +467,8 @@ const char* toktypestr(const Token<>& tok)
 		return "last";
 	case token_if:
 		return "if";
+	case token_elsif:
+		return "elsif";
 	case token_else:
 		return "else";
 	case token_empty:

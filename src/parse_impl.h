@@ -126,6 +126,7 @@ struct Parser::Impl {
 	void parse_block(std::ostream* os);
 	bool parse_loopblock(std::ostream* os);
 	void parse_dotoken(std::ostream* os, Token<> tok);
+	void ignore_block();
 
 	void parse_include(std::ostream* os);
 	void parse_if(std::ostream* os);

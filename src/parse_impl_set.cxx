@@ -57,6 +57,7 @@ void Parser::Impl::parse_unset()
 
 	if (!pl.empty())
 		recorderror("Warning: @unset takes only an id parameter");
+
 	symbols.unset(id);
 }
 

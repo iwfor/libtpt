@@ -335,18 +335,24 @@ std::string Lex::getblock()
 {
 	unsigned depth = 1;
 	std::string block;
-	Token<> t;
+	Token<> t(getloosetoken());
+	size_t abortindex = imp->buf.offset();
 
 	// Ignore all whitespace before the opening brace;
-	do {
-		t = getloosetoken();
+	while (t.type == token_whitespace)
+	{
 		block+= t.value;
-	} while (t.type == token_whitespace);
+		t = getloosetoken();
+	} 
 
 	// If the current token is not an open brace, then something is
 	// wrong, so abort this function.
 	if (t.type != token_openbrace)
+	{
+		// roll back parsing and abort
+		imp->buf.seek(abortindex);
 		return "";
+	}
 	else
 		block = t.value;
 
@@ -364,9 +370,13 @@ std::string Lex::getblock()
 			continue;
 		block+= t.value;
 		if (t.type == token_openbrace)
+		{
 			++depth;
+		}
 		else if (t.type == token_closebrace)
+		{
 			--depth;
+		}
 	} while (depth > 0);
 
 	return block;
