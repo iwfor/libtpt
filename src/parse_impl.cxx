@@ -17,6 +17,14 @@ namespace TPTLib {
 
 const char* toktypestr(const Token<>& tok);
 
+bool Parser::Impl::pass1(std::ostream* os)
+{
+	parse_block(os, true);
+
+	return errlist.size() ? true : false;
+}
+
+
 void Parser::Impl::parse_block(std::ostream* os, bool istop)
 {
 	if (!istop)
@@ -65,7 +73,7 @@ void Parser::Impl::parse_block(std::ostream* os, bool istop)
 			break;
 		// Set a variable.
 		case token_set:
-			parse_set(os);
+			parse_set();
 			break;
 		// Display a random number.
 		case token_rand:
@@ -90,108 +98,6 @@ void Parser::Impl::parse_block(std::ostream* os, bool istop)
 	} while (tok.type != token_eof);
 }
 
-
-bool Parser::Impl::pass1(std::ostream* os)
-{
-	parse_block(os, true);
-
-	return errlist.size() ? true : false;
-}
-
-
-void Parser::Impl::parse_include(std::ostream* os)
-{
-	ParamList pl;
-	if (getparamlist(pl))
-		return;
-
-	if (pl.size() != 1)
-	{
-		recorderror("Include takes exactly 1 parameter");
-		return;
-	}
-	// Create another Impl which inherits symbols table
-	// to process include
-	Buffer buf(pl[0].c_str());
-	Impl incl(buf, symbols);
-	incl.pass1(os);
-	// copy incl's error list, if any
-	ErrorList::iterator it(incl.errlist.begin()), end(incl.errlist.end());
-	for (; it != end; ++it)
-		errlist.push_back(*it);
-}
-
-void Parser::Impl::parse_set(std::ostream* os)
-{
-	// Set has to be manually parsed since the first parameter is the
-	// identifier to be set.
-	tok = lex.getstricttoken();
-	if (tok.type != token_openparen)
-	{
-		recorderror("Syntax error, expected open parenthesis", &tok);
-		return;
-	}
-
-	// tok holds the current token and nexttok holds the token returned
-	// by the parser.
-	tok = lex.getstricttoken();
-	if (tok.type != token_id)
-	{
-		recorderror("Syntax error, first parameter must be ID", &tok);
-		return;
-	}
-	std::string id(tok.value);
-
-	tok = lex.getstricttoken();
-	// If this is a close parenthesis, then just clear the symbol
-	if (tok.type == token_closeparen)
-	{
-		symbols.set(id, "");
-		return;
-	}
-	if (tok.type != token_comma)
-	{
-		recorderror("Syntax error, expected comma (,)", &tok);
-		return;
-	}
-	tok = lex.getstricttoken();
-	// If this is a close parenthesis, then just clear the symbol
-	if (tok.type == token_closeparen)
-	{
-		symbols.set(id, "");
-		return;
-	}
-	// Parse the expression
-	Token<> nexttok = parse_level0(tok);
-	symbols.set(id, tok.value);
-	tok = nexttok;
-	if (tok.type != token_closeparen)
-		recorderror("Syntax error, expected close parenthesis", &tok);
-}
-
-void Parser::Impl::parse_macro()
-{
-	if (level > 0)
-	{
-		recorderror("Macro may not be defined in sub-block");
-		return;
-	}
-	if (getnextstrict(tok))
-		return;
-	if (tok.type != token_openparen)
-	{
-		recorderror("Expected macro declaration");
-		return;
-	}
-	if (getnextstrict(tok))
-		return;
-	if (tok.type != token_id)
-	{
-		recorderror("Macro requires name parameter");
-		return;
-	}
-	// TODO: Accept parameter list
-}
 
 /*
  * Skip all whitespaces and get the next strict token.
@@ -343,5 +249,6 @@ const char* toktypestr(const Token<>& tok)
 		return "undefined";
 	}
 }
+
 
 } // end namespace TPTLib

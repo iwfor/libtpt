@@ -24,6 +24,9 @@ public:
 	void unget(const Token<>& tok);
 	unsigned getlineno();
 
+	///! Extract an unparsed brace enclosed {} block
+	Buffer* extractblock();
+
 private:
 	struct Impl;
 	Impl* imp;

@@ -34,6 +34,7 @@ const ChrSet<> set_alpha("a-zA-Z");
 const ChrSet<> set_alphanum("a-zA-Z0-9");
 const ChrSet<> set_varname("a-zA-Z0-9_");
 const ChrSet<> set_startvarname("a-zA-Z_");
+const ChrSet<> set_whitespace(" \t\r\n");
 
 struct Lex::Impl {
 	Buffer& buf;
@@ -98,9 +99,10 @@ Token<> Lex::getloosetoken()
 	case '\\':	// escape character
 	case '@':	// keyword, macro, or comment
 	case '$':	// variable name
+	case '{':	// start block
+	case '}':	// end block
 		buf.unget();
 		return getstricttoken();
-	case '}': t.type = token_closebrace; return t;
 	default: t.type = token_text; break;
 	}
 	// Next, process tokens that are comprised of sets
@@ -132,8 +134,23 @@ Token<> Lex::getstricttoken()
 		t.value = c;
 
 		switch (c) {
-		case '{': t.type = token_openbrace; return t;
-		case '}': t.type = token_closebrace; return t;
+		case '{':
+			t.type = token_openbrace;
+			c = imp->safeget(buf);
+			// Ignore all whitespace after open brace
+			while (c && ((c == ' ') || (c == '\t')))
+				c = imp->safeget(buf);
+			if (c && !((c == ' ') || (c == '\t')))
+				buf.unget();
+			return t;
+		case '}':
+			t.type = token_closebrace;
+			// Ignore all whitespace after close brace
+			while (c && ((c == ' ') || (c == '\t')))
+				c = imp->safeget(buf);
+			if (c && !((c == ' ') || (c == '\t')))
+				buf.unget();
+			return t;
 		case '(': t.type = token_openparen; return t;
 		case ')': t.type = token_closeparen; return t;
 		case ',': t.type = token_comma; return t;
@@ -460,6 +477,11 @@ void Lex::Impl::getstring(Token<>& t, Buffer& buf)
 //	std::cout << "<string = '" << t.value << "'/>" << std::endl;
 }
 
+
+/*
+ * Build a token based on the given testset.
+ *
+ */
 void Lex::Impl::buildtoken(std::string& value, Buffer& buf,
 						   const ChrSet<>& testset)
 {
@@ -474,5 +496,26 @@ void Lex::Impl::buildtoken(std::string& value, Buffer& buf,
 		}
 	}
 }
+
+
+/*
+ * Create a Buffer of the next brace enclosed {} block of template.
+ *
+ * The Buffer returned by extractblock() is created with new, so should
+ * be deleted when no longer in use.
+ *
+ */
+Buffer* Lex::extractblock()
+{
+	Buffer &buf = imp->buf;
+	unsigned long bufstart = imp->buf.offset(), buffend;
+	char c = buf.getnextchar();
+
+	while (c == set_whitespace)
+	{
+		c = buf.getnextchar();
+	}
+}
+
 
 } // end namespace TPTLib
