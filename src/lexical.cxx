@@ -28,8 +28,9 @@ namespace TPTLib {
 
 using ExtendedTypes::ChrSet;
 
-const ChrSet<> set_digits("0-9");
+const ChrSet<> set_num("0-9");
 const ChrSet<> set_alpha("a-zA-Z");
+const ChrSet<> set_alphanum("a-zA-Z0-9");
 const ChrSet<> set_varname("a-zA-Z0-9_");
 const ChrSet<> set_startvarname("a-zA-Z_");
 
@@ -38,11 +39,12 @@ struct Lex::Impl {
 	Impl(Buffer& b) : buf(b) {}
 	char safeget(Buffer& buf)
 		{ if (!buf) return 0; return buf.getnextchar(); }
-	Token<>::en getfunctiontype(const char* str);
+	Token<>::en checkreserved(const char* str);
 	void buildtoken(std::string& value, Buffer& buf,
 		const ChrSet<>& testset);
 	void getidname(Token<>& t, Buffer& buf);
 	void getclosedidname(Token<>& t, Buffer& buf);
+	void getstring(Token<>& t, Buffer& buf);
 };
 
 Lex::Lex(Buffer& buf)
@@ -74,28 +76,21 @@ Token<> Lex::getloosetoken()
 	case 255:
 	case '\t': t.type = token_whitespace; return t;
 	case '\n': t.type = token_newline; return t;
-	case '\r':
-		t.type = token_newline;
-		if (c == '\r')
-		{
-			c = buf.getnextchar();
-			if (c == '\n')
-				t.value+= c;
-			else
-				buf.unget();
-		}
-		return t;
+	// For simplicity, have the strict token reader process these
+	// symbols to avoid duplicate code.
+	case '\r':	// carriage return
+	case '@':	// keyword, macro, or comment
 	case '$':	// variable name
-		imp->getclosedidname(t, buf);
-		return t;
-	default: t.type = token_symbol; break;
+		buf.unget();
+		return getstricttoken();
+	default: t.type = token_text; break;
 	}
 	// Next, process tokens that are comprised of sets
 	// Group digits together
-	if ((c == set_digits) || (c == set_alpha))
+	if (c == set_alphanum)
 	{
 		t.type = token_text;
-		imp->buildtoken(t.value, buf, set_digits);
+		imp->buildtoken(t.value, buf, set_alphanum);
 	}
 	return t;
 }
@@ -114,7 +109,6 @@ Token<> Lex::getstricttoken()
 
 	t.value = c;
 
-	// First try to process the simple tokens
 	switch (c) {
 	case '{': t.type = token_openbrace; return t;
 	case '}': t.type = token_closebrace; return t;
@@ -128,7 +122,7 @@ Token<> Lex::getstricttoken()
 	case '|':
 	case '&':
 	case '^':
-		c = buf.getnextchar();
+		c = imp->safeget(buf);
 		if (t.value[0] == c)
 		{
 			t.type = token_operator;
@@ -136,8 +130,8 @@ Token<> Lex::getstricttoken()
 		}
 		else
 		{
-			t.type = token_symbol;
-			buf.unget();
+			t.type = token_error;
+			if (c) buf.unget();
 		}
 		return t;
 	case ' ':
@@ -146,40 +140,15 @@ Token<> Lex::getstricttoken()
 	case '\n': t.type = token_newline; return t;
 	case '\r':
 		t.type = token_newline;
-		if (c == '\r')
-		{
-			c = imp->safeget(buf);
-			if (c == '\n')
-				t.value+= c;
-			else
-				if (c) buf.unget();
-		}
+		c = imp->safeget(buf);
+		if (c == '\n') t.value+= c;
+		else if (c) buf.unget();
 		return t;
 	case '"':	// quoted strings
-		t.type = token_string;
-		while (c = imp->safeget(buf))
-		{
-			t.value+= c;
-			if (c == '"')
-			{
-				c = imp->safeget(buf);
-				if (c != '"')	// hardcoded quote in string
-				{
-					if (c) buf.unget();
-					break;
-				}
-			}
-			t.value+= c;
-			if (c == '\n' || c == '\r')
-			{
-				buf.unget();
-				t.type = token_error;
-				break;
-			}
-		}
+		imp->getstring(t, buf);
 		return t;
 	case '\\':	// escape sequences
-		c = buf.getnextchar();
+		c = imp->safeget(buf);
 		t.value+= c;
 		if (c == '\n')
 			t.type = token_joinline;
@@ -187,11 +156,11 @@ Token<> Lex::getstricttoken()
 		{
 			// handle cases where newlines are represented by \r\n
 			t.type = token_joinline;
-			c = buf.getnextchar();
+			c = imp->safeget(buf);
 			if (c == '\n')
 				t.value+= c;
 			else
-				buf.unget();
+				if (c) buf.unget();
 		}
 		else
 			t.type = token_escape;
@@ -202,7 +171,7 @@ Token<> Lex::getstricttoken()
 		{
 			t.value+= c;
 			imp->buildtoken(t.value, buf, set_varname);
-			t.type = imp->getfunctiontype(&t.value[1]);
+			t.type = imp->checkreserved(&t.value[1]);
 		}
 		else if (c == '#') // this is a comment
 		{
@@ -217,7 +186,7 @@ Token<> Lex::getstricttoken()
 		else
 		{
 			if (c) buf.unget();
-			t.type = token_symbol;
+			t.type = token_text;
 			return t;
 		}
 		return t;
@@ -229,20 +198,20 @@ Token<> Lex::getstricttoken()
 	case '=':
 	case '!':
 		t.type = token_relop;
-		c = buf.getnextchar();
+		c = imp->safeget(buf);
 		if (c == '=')
 			t.value+= c;
 		else
-			buf.unget();
+			if (c) buf.unget();
 		return t;
 	default: t.type = token_error; break;
 	}
 	// Next, process tokens that are comprised of sets
 	// Group digits together
-	if (c == set_digits)
+	if (c == set_num)
 	{
 		t.type = token_integer;
-		imp->buildtoken(t.value, buf, set_digits);
+		imp->buildtoken(t.value, buf, set_num);
 	}
 	else if (c == set_startvarname)
 	{
@@ -253,38 +222,47 @@ Token<> Lex::getstricttoken()
 }
 
 
-Token<>::en Lex::Impl::getfunctiontype(const char* str)
+/*
+ * Check a function token to see if it is a reserved word, assuming the
+ * prepending @ is excluded.
+ *
+ */
+Token<>::en Lex::Impl::checkreserved(const char* str)
 {
 	// Should not be in this function unless str[0] == '@'
 	switch (*str)
 	{
+	case 'c':
+			 if (!std::strcmp(str, "concat"))	return token_concat;
+		break;
 	case 'e':
-		if (!std::strcmp(str, "else")) return token_else;
+			 if (!std::strcmp(str, "else"))		return token_else;
+		else if (!std::strcmp(str, "empty"))	return token_empty;
 		break;
 	case 'f':
-		if (!std::strcmp(str, "foreach")) return token_foreach;
+			 if (!std::strcmp(str, "foreach"))	return token_foreach;
 		break;
 	case 'i':
-		if (!std::strcmp(str, "if")) return token_if;
-		else if (!std::strcmp(str,  "include")) return token_include;
+			 if (!std::strcmp(str, "if"))		return token_if;
+		else if (!std::strcmp(str,  "include"))	return token_include;
 		break;
 	case 'l':
-		if (!std::strcmp(str, "last")) return token_last;
+			 if (!std::strcmp(str, "last"))		return token_last;
 		break;
 	case 'm':
-		if (!std::strcmp(str, "macro")) return token_macro;
+			 if (!std::strcmp(str, "macro"))	return token_macro;
 		break;
 	case 'n':
-		if (!std::strcmp(str, "next")) return token_next;
+			 if (!std::strcmp(str, "next"))		return token_next;
 		break;
 	case 'r':
-		if (!std::strcmp(str, "rand")) return token_rand;
+			 if (!std::strcmp(str, "rand"))		return token_rand;
 		break;
 	case 's':
-		if (!std::strcmp(str, "set")) return token_set;
+			 if (!std::strcmp(str, "set"))		return token_set;
 		break;
 	case 'w':
-		if (!std::strcmp(str, "while")) return token_while;
+			 if (!std::strcmp(str, "while"))	return token_while;
 		break;
 	default:
 		break;
@@ -292,6 +270,11 @@ Token<>::en Lex::Impl::getfunctiontype(const char* str)
 	return token_usermacro;
 }
 
+/*
+ * Get an enclosed id token, assuming the prepending $ has
+ * already been scanned.
+ *
+ */
 void Lex::Impl::getclosedidname(Token<>& t, Buffer& buf)
 {
 	char c;
@@ -301,7 +284,7 @@ void Lex::Impl::getclosedidname(Token<>& t, Buffer& buf)
 	if (c != '{')
 	{
 		if (c) buf.unget();
-		t.type = token_symbol;
+		t.type = token_text;
 		return;
 	}
 	t.value+= c;
@@ -346,6 +329,10 @@ void Lex::Impl::getclosedidname(Token<>& t, Buffer& buf)
 		t.type = token_error;
 }
 
+/*
+ * Get an id token, assuming the first character has been scanned.
+ *
+ */
 void Lex::Impl::getidname(Token<>& t, Buffer& buf)
 {
 	char c;
@@ -372,13 +359,45 @@ void Lex::Impl::getidname(Token<>& t, Buffer& buf)
 	t.type = token_id;
 }
 
+/*
+ * Get a string token, assuming the open quote has already been
+ * scanned.
+ *
+ */
+void Lex::Impl::getstring(Token<>& t, Buffer& buf)
+{
+	char c;
+	t.type = token_string;
+	while (c = safeget(buf))
+	{
+		t.value+= c;
+		if (c == '"')
+		{
+			c = safeget(buf);
+			if (c != '"')	// hardcoded quote in string
+			{
+				if (c) buf.unget();
+				return;
+			}
+			// else embed a quote (")
+		}
+		t.value+= c;
+		if (c == '\n' || c == '\r')
+		{
+			buf.unget();
+			t.type = token_error;
+			break;
+		}
+	}
+	if (!c)
+		t.type = token_error;
+}
+
 void Lex::Impl::buildtoken(std::string& value, Buffer& buf,
 						   const ChrSet<>& testset)
 {
-	char c;
-	while (buf)
+	while (char c = safeget(buf))
 	{
-		c = buf.getnextchar();
 		if (c == testset)
 			value+= c;
 		else

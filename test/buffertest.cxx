@@ -11,9 +11,10 @@
 #include <fstream>
 #include <stdexcept>
 
-bool test1(const char* filename);
-bool test2(const char* filename);
-bool test3(const char* filename);
+bool test1(const char* filename);	// file
+bool test2(const char* filename);	// stream
+bool test3(const char* filename);	// memory
+// TODO: Test unget, seek, reset, and []
 
 int main(int argc, char* argv[])
 {

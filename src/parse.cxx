@@ -26,6 +26,8 @@ public:
 	Parser(Buffer& buf, std::ostream& os);	///< ctor
 	~Parser();								///< dtor
 
+	std::string run();
+
 private:
 	struct Impl;
 	Impl* imp;

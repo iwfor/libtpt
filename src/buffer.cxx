@@ -48,7 +48,7 @@
 #include <cstring>
 
 namespace {
-	const unsigned BUFFER_SIZE = 512;
+	const unsigned BUFFER_SIZE = 4096;
 }
 
 namespace TPTLib {
