@@ -1,0 +1,27 @@
+@#
+@# The title macro prints a properly formed HTML title.
+@#
+@macro(title, title)
+{
+<head><title>${title}</title></head>
+}
+@#
+@# The header macro prints the opening HTML elements with
+@# the specified title.
+@#
+@macro(header, title)
+{
+<html>
+@title(title)\
+<body>
+<h1>${title}</h1>
+<hr>
+}
+@#
+@# The footer macro properly closes the HTML page.
+@#
+@macro(footer)
+{
+</body>
+</html>
+}
