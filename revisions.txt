@@ -7,6 +7,7 @@ Version 1.13-beta
   interactive parser class that allows the user's symbols table to be updated.
 - Added IParse (Interactive Parse) class that allows modifications to the
   symbols table to be passed back to the calling program.
+- Added test2 to test IParser.
 
 Version 1.10.5
 --------------
