@@ -42,9 +42,11 @@
 #include <stdexcept>
 #include <sstream>
 #include <ostream>
+#include <fstream>
 #include <cstring>
 
 bool test2(unsigned testcount);
+bool loadvars(const char* filename, std::map< std::string, std::string >& vars);
 
 int main(int argc, char* argv[])
 {
@@ -90,16 +92,17 @@ bool test2(unsigned testcount)
 	sym.push("myarray", "value3");
 	sym.push("myarray", "value4");
 
-	char tptfile[256], outfile[256];
+	char tptfile[256], varfile[256];
 	unsigned i;
+	std::map< std::string, std::string > vars;
 
 	for (i = 0; i < testcount; ++i) {
 		// generate test file names by rule
-		snprintf(tptfile, sizeof(tptfile), "tests/test%u.tpt", i+1);
-		snprintf(outfile, sizeof(outfile), "tests/test%u.out", i+1);
+		snprintf(tptfile, sizeof(tptfile), "tests/itest%u.tpt", i+1);
+		snprintf(varfile, sizeof(varfile), "tests/itest%u.var", i+1);
 
 		// Process the tpt file and store the result in a string
-		TPT::Parser p(tptfile, sym);
+		TPT::IParser p(tptfile, sym);
 		std::string tptstr;
 		std::stringstream strs(tptstr);
 		p.addfunction("mycallback", &mycallback);
@@ -115,21 +118,59 @@ bool test2(unsigned testcount)
 		}
 
 		// Load the out file
-		TPT::Buffer outbuf(outfile);
+		TPT::Buffer outbuf(varfile);
 		std::string outstr;
 		while (outbuf)
 			outstr+= outbuf.getnextchar();
 
-		// Compare tptstr to outstr
-		if (strs.str() != outstr) {
+		if (!loadvars(varfile, vars)) {
+			std::map< std::string, std::string >::iterator it(vars.begin()), end(vars.end());
+			std::string val;
+			for (; it != end; ++it) {
+				if (sym.get(it->first, val) || val != it->second) {
+					result|= true;
+					std::cout << "test " << i+1 << ": failed\n";
+					std::cout << it->first << "=" << it->second << std::endl;
+					break;
+				}
+			}
+		} else {
 			result|= true;
-			std::cout << "test" << (i+1) << ".tpt: ";
-			std::cout << "failed" << std::endl;
-std::cout << "\ntptstr = (" << strs.str().size() << ")\n<quote>" << strs.str() << "</quote>" <<std::endl;
-std::cout << "\noutstr = (" << outstr.size() << ")\n<quote>" << outstr << "</quote>" <<std::endl;
+			std::cout << "test " << i+1 << ": failed\n";
 		}
-		// TODO: Check output variables
 	}
 
 	return result;
+}
+
+// Load string variables.
+bool loadvars(const char* filename, std::map< std::string, std::string >& vars)
+{
+	std::string line, var, val;
+	std::ifstream f(filename);
+	if (!f.is_open())
+	{
+		std::cout << "Failed to open " << filename << std::endl;
+		return true;
+	}
+
+	vars.clear();
+	while (getline(f, line)) {
+		std::string::iterator it(line.begin()), end(line.end());
+		var.clear();
+		val.clear();
+		for (; it != end && *it != '='; ++it) {
+			var+= *it;
+		}
+		if (*it != '=') {
+			std::cerr << "Error in variables file: " << filename << std::endl;
+			continue;
+		}
+		++it;
+		for (; it != end; ++it) {
+			val+= *it;
+		}
+		vars[var] = val;
+	}
+	return false;
 }

@@ -96,6 +96,8 @@ public:
 	unsigned size(const SymbolKeyType& id) const;
 	bool get(const SymbolKeyType& id, SymbolValueType& val) const;
 	bool get(const SymbolKeyType& id, SymbolArrayType& sym) const;
+	//TODO bool get(const SymbolKeyType& id, SymbolHashType& sym) const;
+	//TODO Object& getbase();
 	bool unset(const SymbolKeyType& id);
 	Symbols& operator=(const Symbols&);
 private:
