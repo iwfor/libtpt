@@ -93,8 +93,8 @@ public:
 		tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
 	{ installfuncs(); }
 
-	Parser_Impl(Buffer& buf, const Symbols& st) : allocbuf(0), lex(buf),
-		level(0), looplevel(0), localsymmap(st), symbols(localsymmap),
+	Parser_Impl(Buffer& buf, Symbols& sm) : allocbuf(0), lex(buf),
+		level(0), looplevel(0), symbols(sm),
 		macros(localmacros), funcs(localfuncs), inclist(localinclist),
 		isseeded(false), tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
 	{ installfuncs(); }
@@ -105,9 +105,9 @@ public:
 		isseeded(false), tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
 	{ installfuncs(); }
 
-	Parser_Impl(const char* filename, const Symbols& sm) : 
+	Parser_Impl(const char* filename, Symbols& sm) : 
 		allocbuf(new Buffer(filename)), lex(*allocbuf), level(0),
-		looplevel(0), localsymmap(sm), symbols(localsymmap),
+		looplevel(0), symbols(sm),
 		macros(localmacros), funcs(localfuncs), inclist(localinclist),
 		isseeded(false), tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
 	{ installfuncs(); }
@@ -119,9 +119,9 @@ public:
 		tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
 	{ installfuncs(); }
 
-	Parser_Impl(const char* buffer, unsigned long size, const Symbols& sm) :
+	Parser_Impl(const char* buffer, unsigned long size, Symbols& sm) :
 		allocbuf(new Buffer(buffer, size)), lex(*allocbuf), level(0),
-		looplevel(0), localsymmap(sm), symbols(localsymmap),
+		looplevel(0), symbols(sm),
 		macros(localmacros), funcs(localfuncs), inclist(localinclist),
 		isseeded(false), tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
 	{ installfuncs(); }
