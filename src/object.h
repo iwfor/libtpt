@@ -51,7 +51,7 @@ namespace TPTLib {
  */
 enum object_types {
 	obj_not_alloc = 0,
-	obj_string,
+	obj_scalar,
 	obj_array,
 	obj_hash
 };
@@ -80,7 +80,7 @@ struct object_t {
 
 	void unalloc() {
 		switch(type) {
-		case obj_string:
+		case obj_scalar:
 			delete u.str;
 			break;
 		case obj_array:

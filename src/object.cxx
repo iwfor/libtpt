@@ -51,7 +51,7 @@ object_t::object_t(const std::string& str)
 	: type(obj_not_alloc)
 {
 	u.str = new std::string(str);
-	type = obj_string;
+	type = obj_scalar;
 }
 
 object_t::object_t(const ObjectArrayType& array)
@@ -72,7 +72,7 @@ object_t& object_t::operator=(const std::string& str)
 {
 	unalloc();
 	u.str = new std::string(str);
-	type = obj_string;
+	type = obj_scalar;
 	return *this;
 }
 
@@ -97,9 +97,9 @@ object_t& object_t::operator=(const object_t& obj)
 	unalloc();
 
 	switch(obj.type) {
-	case obj_string:
+	case obj_scalar:
 		u.str = new std::string(*obj.u.str);
-		type = obj_string;
+		type = obj_scalar;
 		break;
 	case obj_array:
 		u.array = new ObjectArrayType(*obj.u.array);
