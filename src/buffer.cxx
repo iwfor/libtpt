@@ -41,52 +41,38 @@
 
 #include "tptlib/buffer.h"
 
+#include <algorithm>
+#include <vector>
 #include <iostream>
 #include <fstream>
 
 namespace {
-	const unsigned BUFFER_SIZE = 1024;
-	const unsigned UNGET_BUFFER_SIZE = 3;
+	const unsigned BUFFER_SIZE = 8192;
 }
 
 namespace TPTLib {
 
 struct Buffer::impl {
-	std::istream* mIs;
-	bool mFreefstreamwhendone;
-
-	const char* mConstbuffer;
-	char* mBuffer;
-	unsigned mBuffersize;	// size of allocated buffer
-	unsigned mBuffercount;	// number of characters in buffer
-	unsigned mBufferindex;
-
-	char mUngetbuffer[UNGET_BUFFER_SIZE];
-	unsigned mUngetindex;
-
-	bool mDone;
+	std::istream* instr;
+	bool freestreamwhendone;
+	std::vector<char> buffer;
+	unsigned bufferindex;
+	bool done;
 	
 	impl(unsigned bufsize) :
-		mDone(false),
-		mBuffer(new char[bufsize]),
-		mBuffersize(bufsize),
-		mBuffercount(0),
-		mConstbuffer(mBuffer),
-		mBufferindex(0),
-		mFreefstreamwhendone(false),
-		mUngetindex(0)
+		done(false),
+		buffer(bufsize),
+		bufferindex(0),
+		freestreamwhendone(false)
 		{ }
-	impl(const char* buffer, unsigned bufsize) :
-		mDone(!bufsize),	// if zero buffer, then done
-		mBuffer(0),
-		mBuffersize(bufsize),
-		mBuffercount(bufsize),
-		mConstbuffer(buffer),
-		mBufferindex(0),
-		mFreefstreamwhendone(false),
-		mUngetindex(0)
-		{ }
+	impl(const char* buf, unsigned bufsize) :
+		done(!bufsize),	// if zero buffer, then done
+		buffer(bufsize),
+		bufferindex(0),
+		freestreamwhendone(false)
+		{ std::copy(&buf[0], &buf[bufsize-1], buffer.begin());}
 	~impl();
+
 	
 	void openfile(const char* filename);
 	bool readfile();
@@ -108,14 +94,14 @@ Buffer::Buffer(const char* filename)
 	imp = new impl(BUFFER_SIZE);
 
 	imp->openfile(filename);
-	imp->mFreefstreamwhendone = true;
+	imp->freestreamwhendone = true;
 	imp->readfile();
 }
 
 
 /**
  *
- * Construct a read buffer for an open fstream.  The input fstream will
+ * Construct a read buffer for an open fstream.  The input stream will
  * not be closed when Buffer is destructed.
  *
  * @param	filein			input fstream
@@ -127,7 +113,7 @@ Buffer::Buffer(std::istream* is)
 {
 	imp = new impl(BUFFER_SIZE);
 
-	imp->mIs = is;
+	imp->instr = is;
 	imp->readfile();
 }
 
@@ -160,7 +146,8 @@ Buffer::~Buffer()
 /**
  *
  * Get the next available character from the buffer.  Use operator
- * bool() to determine if more data is available.
+ * bool() to determine if more data is available.  Reading past the end
+ * of the buffer results in undefined behavior.
  *
  * @param	none
  * @return	next available character;
@@ -170,15 +157,12 @@ Buffer::~Buffer()
  */
 char Buffer::getnextchar()
 {
-	if (imp->mUngetindex)
-		return imp->mUngetbuffer[--imp->mUngetindex];
-
-	register char c = imp->mConstbuffer[imp->mBufferindex];
-	++imp->mBufferindex;
+	register char c = imp->buffer[imp->bufferindex];
+	++imp->bufferindex;
 
 	// If our buffer is empty, try reading from the stream
 	// if there is one.
-	if (imp->mBufferindex >= imp->mBuffercount)
+	if (imp->bufferindex >= imp->buffer.size())
 		imp->readfile();
 
 	return c;
@@ -187,8 +171,7 @@ char Buffer::getnextchar()
 
 /**
  *
- * Put a single character back into the buffer.  A maximum of three
- * characters may be put back on the buffer at a time.
+ * Unget a single character back into the buffer.
  *
  * @param	c			character to put back.
  * @return	false on success;
@@ -196,13 +179,12 @@ char Buffer::getnextchar()
  * @author	Isaac W. Foraker
  *
  */
-bool Buffer::unget(char c)
+bool Buffer::unget()
 {
-	if (imp->mUngetindex >= UNGET_BUFFER_SIZE)
+	if (!imp->bufferindex)
 		return true;
 
-	imp->mUngetbuffer[imp->mUngetindex];
-	++imp->mUngetindex;
+	--imp->bufferindex;
 	return false;
 }
 
@@ -210,7 +192,6 @@ bool Buffer::unget(char c)
 /**
  *
  * Reset the buffer index to the beginning of the input buffer.
- * operator bool() will return false if index could not be reset.
  *
  * @param	none
  * @return	nothing
@@ -219,17 +200,68 @@ bool Buffer::unget(char c)
  */
 void Buffer::reset()
 {
-	imp->mBufferindex = 0;
-	imp->mUngetindex = 0;
-	if (imp->mIs)
-	{
-		imp->mIs->seekg(0);
-		imp->readfile();
-	}
-	else
-		imp->mDone = !imp->mBuffersize;
+	imp->bufferindex = 0;
 }
 
+
+/**
+ *
+ * Seek to a index point in the buffer.  The seek will force reading of
+ * the file or stream if the index has not yet been buffered.  If the
+ * index is past the end of the buffer, the attempt will fail and the
+ * internal index will not be reset.
+ *
+ * @param	index			Offset into buffer from beginning.
+ * @return	false on success;
+ * @return	true if past end of buffer
+ * @author	Isaac W. Foraker
+ *
+ */
+bool Buffer::seek(unsigned long index)
+{
+	while (!imp->done && (index >= imp->buffer.size()))
+		imp->readfile();
+	if (imp->done)
+		return true;
+	imp->bufferindex = index;
+
+	return false;
+}
+
+
+/**
+ *
+ * Get the offset of the next character in the buffer to be read.  Use
+ * operator bool() to determine if there is data in the buffer.
+ * 
+ * @param	none
+ * @return	current offset into buffer of next character to be read.
+ * @author	Isaac W. Foraker
+ *
+ */
+unsigned long Buffer::offset()
+{
+	return imp->bufferindex;
+}
+
+
+/**
+ *
+ * Read from a specific index in the buffer, without losing the current
+ * position information, reading the input file or stream if necessary.
+ *
+ * @param	index			Offset into buffer from beginning.
+ * @return	character at index;
+ * @return	undefined if invalid index
+ * @author	Isaac W. Foraker
+ *
+ */
+const char Buffer::operator[](unsigned long index)
+{
+	while (!imp->done && (index >= imp->buffer.size()))
+		imp->readfile();
+	return imp->buffer[index];
+}
 
 /**
  *
@@ -251,17 +283,15 @@ void Buffer::reset()
  */
 Buffer::operator bool()
 {
-	return !imp->mDone || imp->mUngetindex;
+	return imp->done;
 }
 
 
 
 Buffer::impl::~impl()
 {
-	if (mFreefstreamwhendone)
-		delete mIs;
-	if (mBuffer)
-		delete mBuffer;
+	if (freestreamwhendone)
+		delete instr;
 }
 
 
@@ -278,13 +308,13 @@ void Buffer::impl::openfile(const char* filename)
 {
 	std::fstream* is = new std::fstream(filename, std::ios::in);
 	if (!is->is_open())
-		mDone = true;
-	mIs = is;
+		done = true;
+	instr = is;
 }
 
 
 /*
- * Read the next block of bytes from the file.  Set the mDone flag if
+ * Read the next block of bytes from the file.  Set the done flag if
  * there's no more data to read.
  *
  * @param	none
@@ -294,16 +324,19 @@ void Buffer::impl::openfile(const char* filename)
  */
 bool Buffer::impl::readfile()
 {
-	if (mIs && !mIs->eof())
+	if (!done && instr && !instr->eof())
 	{
-		mBuffercount = mIs->readsome(mBuffer, mBuffersize);
-		mBufferindex = 0;
-		if (mBuffercount < 1)
-			mDone = true;
+		char buf[BUFFER_SIZE];
+		size_t t, n = buffer.size();
+		t = instr->readsome(buf, BUFFER_SIZE);
+		if (t < 1)
+			done = true;
+		buffer.resize(buffer.max_size() + BUFFER_SIZE);
+		std::copy(buf, &buf[t-1], &buffer[n]);
 	}
 	else
-		mDone = true;
-	return mDone;
+		done = true;
+	return done;
 }
 
 
@@ -334,4 +367,3 @@ bool Buffer::impl::readfile()
 
 
 } // end namespace TPTLib
-

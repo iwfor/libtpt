@@ -27,13 +27,9 @@ namespace TPTLib {
 using ExtendedTypes::ChrSet;
 
 const ChrSet<> set_digits("0-9");
-const ChrSet<> set_hex("0-9a-fA-F");
-const ChrSet<> set_alphalower("a-z");
-const ChrSet<> set_alphaupper("A-Z");
 const ChrSet<> set_alpha("a-zA-Z");
-const ChrSet<> set_alnum("a-zA-Z0-9");
 const ChrSet<> set_varname("a-zA-Z0-9_");
-const ChrSet<> set_funcname("a-zA-Z");
+const ChrSet<> set_startvarname("a-zA-Z_");
 const ChrSet<> set_whitespace(" \t\r");
 
 
@@ -47,7 +43,7 @@ static void buildtoken(std::string& value, Buffer& buf, const ChrSet<>& testset)
 			value+= c;
 		else
 		{
-			buf.unget(c);
+			buf.unget();
 			break;
 		}
 	}
@@ -74,8 +70,30 @@ Token<> Lex::gettoken()
 	Token<> t;
 	char c;
 
+	if (!imp->buf)
+	{
+		t.type = token_eof;	
+	}
+
 	c = imp->buf.getnextchar();
 	t.value = c;
+
+	// Get the simple tokens out of the way
+	switch (c) {
+	case '{': t.type = token_openbrace; return t;
+	case '}': t.type = token_closebrace; return t;
+	case '(': t.type = token_openparen; return t;
+	case ')': t.type = token_closeparen; return t;
+	case '"': t.type = token_quote; return t;
+	case '\\': t.type = token_escape; return t;
+	case '#': t.type = token_comment; return t;
+	case '+': t.type = token_plus; return t;
+	case '-': t.type = token_minus; return t;
+	case '*': t.type = token_mult; return t;
+	case '/': t.type = token_divide; return t;
+	case '\n': t.type = token_newline; return t;
+	default: t.type = token_symbol; break;
+	}
 
 	// Group whitespace together
 	if (c == set_whitespace)
@@ -101,15 +119,15 @@ Token<> Lex::gettoken()
 		c = imp->buf.getnextchar();
 		if (c != '{')
 		{
-			imp->buf.unget(c);
+			imp->buf.unget();
 			t.type = token_symbol;
 			return t;
 		}
 		t.value+= c;
 		c = imp->buf.getnextchar();
-		if (c != set_varname)
+		if (c != set_startvarname)
 		{
-			imp->buf.unget(c);
+			imp->buf.unget();
 			t.type = token_error;
 			return t;
 		}
@@ -118,7 +136,7 @@ Token<> Lex::gettoken()
 		c = imp->buf.getnextchar();
 		if (c != '}')
 		{
-			imp->buf.unget(c);
+			imp->buf.unget();
 			t.type = token_error;
 			return t;
 		}
@@ -128,28 +146,15 @@ Token<> Lex::gettoken()
 	else if (c == '@')
 	{
 		c = imp->buf.getnextchar();
-		if (c != set_funcname)
+		if (c != set_startvarname)
 		{
-			imp->buf.unget(c);
+			imp->buf.unget();
 			t.type = token_symbol;
 			return t;
 		}
 		t.value+= c;
-		buildtoken(t.value, imp->buf, set_funcname);
+		buildtoken(t.value, imp->buf, set_varname);
 		t.type = token_function;
-	}
-	else
-	{
-		switch (c) {
-		case '{': t.type = token_openbrace; break;
-		case '}': t.type = token_closebrace; break;
-		case '(': t.type = token_openparen; break;
-		case ')': t.type = token_closeparen; break;
-		case '"': t.type = token_quote; break;
-		case '\\': t.type = token_escape; break;
-		case '#': t.type = token_comment; break;
-		default: t.type = token_symbol; break;
-		}
 	}
 
 	return t;

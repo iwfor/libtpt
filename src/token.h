@@ -15,21 +15,24 @@ namespace TPTLib {
 enum TokenTypes {
 	token_error = 0,
 	token_eof,
+	token_symbol,		// undefined symbol
 	token_variable,		// ${variable name}
 	token_function,		// @func
-	token_newline,
-	token_integer,
-	token_hex,
-	token_text,
-	token_whitespace,
-	token_symbol,		// undefined symbol
+	token_integer,		// 12345
+	token_text,			// alpha
+	token_whitespace,	// space, tab, carriage return symbol
 	token_comment,		// # comment character
 	token_escape,		// \escape character
+	token_newline,		// \n newline
 	token_openbrace,	// {
 	token_closebrace,	// }
 	token_openparen,	// (
 	token_closeparen,	// )
 	token_quote,		// "
+	token_plus,			// +
+	token_minus,		// -
+	token_mult,			// *
+	token_divide,		// /
 };
 
 template<typename E=TokenTypes> struct Token {
