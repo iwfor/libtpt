@@ -12,7 +12,7 @@
 #include "lexical.h"
 
 #include <algorithm>
-#include <strstream>
+#include <sstream>
 
 namespace TPTLib {
 
@@ -129,6 +129,7 @@ void Parser::Impl::pass_macro()
 		recorderror("Macro requires name parameter");
 		return;
 	}
+	// TODO: Accept parameter list
 }
 
 /*
@@ -169,7 +170,7 @@ Parser::~Parser()
 
 std::string Parser::run()
 {
-	std::strstream ss;
+	std::stringstream ss;
 	run(ss);
 	return ss.str();
 }
