@@ -14,17 +14,14 @@
 #include <sstream>
 #include <iostream>
 
-#ifdef _MSC_VER
-#include <native.h>
-#else
-#include <sys/types.h>
-#endif
-
 namespace TPTLib {
 
 
-// Reinventing the wheel?  Not all libraries support these functions
-int64_t str2num(const char* str)
+/*
+ * Reinventing the wheel?  Not all libraries support these functions
+ *
+ */
+int64_t Parser::Impl::str2num(const char* str)
 {
 	int64_t value = 0;
 	bool isneg(false);
@@ -45,13 +42,8 @@ int64_t str2num(const char* str)
 	return value;
 }
 
-// This inline is to help readability
-inline int64_t str2num(const std::string& str)
-{
-	return str2num(str.c_str());
-}
 
-void num2str(int64_t value, std::string& str)
+void Parser::Impl::num2str(int64_t value, std::string& str)
 {
 	char buf[32];
 
@@ -279,14 +271,13 @@ Token<> Parser::Impl::parse_level7(Token<>& left)
 		// TODO
 		break;
 	case token_concat:
-		// TODO
+		left = parse_concat();
 		break;
 	case token_string:
 		// string is okay
 		break;
 	default:
-		// don't know how to process this token
-		recorderror("Syntax error", &left);
+		// This may be a unary operator or parenthesis
 		break;
 	}
 	// Return next available token

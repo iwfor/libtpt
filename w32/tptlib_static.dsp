@@ -134,6 +134,10 @@ SOURCE=..\src\parse_impl.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\parse_impl_if.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\parse_impl_rd.cxx
 # End Source File
 # Begin Source File

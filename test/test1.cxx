@@ -82,7 +82,9 @@ bool test1(unsigned testcount)
 		if (p.geterrorlist(errlist))
 		{
 			std::cout << "Errors!" << std::endl;
-			std::cout << errlist[0] << std::endl;
+			TPTLib::ErrorList::const_iterator it(errlist.begin()), end(errlist.end());
+			for (; it != end; ++it)
+				std::cout << (*it) << std::endl;
 		}
 
 		// Load the out file

@@ -43,14 +43,14 @@
 #define __tptlib_vars_h
 
 // Ack!  A define!  Defines allow easy concatenation on strings
-#define __TPTLIB_VERSION	"0.01"
+#define __TPTLIB_VERSION	"0.02"
 
 namespace TPTLib {
 
 	const char* tptlib_version = __TPTLIB_VERSION;
 	const char* tptlib_library = "TPTLib";
 	const char* tptlib_fullname =
-		"TPTLib Class Template Processor Version " __TPTLIB_VERSION;
+		"TPTLib Class Library Template Processor Version " __TPTLIB_VERSION;
 	const char* tptlib_author = "Isaac W. Foraker";
 	const char* tptlib_copyright =
 		"Copyright (C) 2002 Isaac W. Foraker, All Rights Reserved";
@@ -64,13 +64,16 @@ namespace TPTLib {
 		"\n"
 		"1. Redistributions of source code must retain the above copyright\n"
 		"   notice, this list of conditions and the following disclaimer.\n"
+		"\n"
 		"2. Redistributions in binary form must reproduce the above copyright\n"
 		"   notice, this list of conditions and the following disclaimer in\n"
 		"   the documentation and/or other materials provided with the\n"
 		"   distribution.\n"
+		"\n"
 		"3. Neither the name of the Author nor the names of its contributors\n"
 		"   may be used to endorse or promote products derived from this\n"
 		"   software without specific prior written permission.\n"
+		"\n"
 		"THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS''\n"
 		"AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,\n"
 		"THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A\n"

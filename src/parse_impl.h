@@ -19,6 +19,12 @@
 #include "lexical.h"
 #include "macro.h"
 
+#ifdef _MSC_VER
+#include <native.h>
+#else
+#include <sys/types.h>
+#endif
+
 namespace TPTLib {
 
 struct Parser::Impl {
@@ -52,6 +58,12 @@ struct Parser::Impl {
 
 	bool pass1(std::ostream* os);
 
+	int64_t str2num(const char* str);
+	inline int64_t str2num(const std::string& str)
+	{ return str2num(str.c_str()); }
+	void num2str(int64_t value, std::string& str);
+
+
 	Token<> parse_level0(Token<>& left);
 	Token<> parse_level1(Token<>& left);
 	Token<> parse_level2(Token<>& left);
@@ -68,6 +80,7 @@ struct Parser::Impl {
 	Token<> parse_empty();
 	Token<> parse_concat();
 
+	void parse_block(std::ostream* os, bool istop=false);
 	void parse_include(std::ostream* os);
 	void parse_if(std::ostream* os);
 	void parse_set(std::ostream* os);

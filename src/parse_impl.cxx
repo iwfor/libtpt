@@ -17,16 +17,31 @@ namespace TPTLib {
 
 const char* toktypestr(const Token<>& tok);
 
-bool Parser::Impl::pass1(std::ostream* os)
+void Parser::Impl::parse_block(std::ostream* os, bool istop)
 {
-//	symbols.dump();
+	if (!istop)
+	{
+		tok = lex.getstricttoken();
+		if (tok.type != token_openbrace)
+			recorderror("Expected open brace '{'", &tok);
+	}
+
 	do {
 		// Read a loosely defined token for outer pass
 		tok = lex.getloosetoken();
 		switch (tok.type)
 		{
+		// Close brace (}) is end of block unless istop
+		case token_closebrace:
+			if (istop)
+				*os << tok.value;
+			else
+				tok.type = token_eof;	// force break out of block
+			break;
 		// Quit on end of file.
 		case token_eof:
+			if (!istop)
+				recorderror("Unexpected end of file");
 			break;
 		// Ignore join lines (i.e. backslash (\) last on line)
 		case token_joinline:
@@ -40,28 +55,31 @@ bool Parser::Impl::pass1(std::ostream* os)
 		case token_id:
 			*os << symbols.get(tok.value);
 			break;
-		// Break loop and return if this is the end of a section.
-		case token_closebrace:
-			if (level)	// if in a block, this is the end of it
-				return false;
-			else		// else, on top level, so print close brace
-				*os << tok.value;
-			break;
 		// Process an if statement.
 		case token_if:
-//			parse_if(os);
+			parse_if(os);
 			break;
 		// Include another file.
 		case token_include:
 			parse_include(os);
 			break;
-		// Set a variable
+		// Set a variable.
 		case token_set:
 			parse_set(os);
 			break;
-		// Display a random number
+		// Display a random number.
 		case token_rand:
 			tok = parse_rand();
+			*os << tok.value;
+			break;
+		// Check if a variable is empty, but why would this be raw.
+		case token_empty:
+			tok = parse_empty();
+			*os << tok.value;
+			break;
+		// Concatenate some variables, but is this needed raw?
+		case token_concat:
+			tok = parse_concat();
 			*os << tok.value;
 			break;
 		// Syntax errors should be hard to create at this point.
@@ -70,6 +88,12 @@ bool Parser::Impl::pass1(std::ostream* os)
 			break;
 		}
 	} while (tok.type != token_eof);
+}
+
+
+bool Parser::Impl::pass1(std::ostream* os)
+{
+	parse_block(os, true);
 
 	return errlist.size() ? true : false;
 }
@@ -244,7 +268,7 @@ bool Parser::Impl::getparamlist(ParamList& pl)
 		else if (tok.type == token_closeparen)
 			break;
 		else
-			recorderror("Syntax error", &tok);
+			recorderror("Syntax error in parameter", &tok);
 	}
 
 	return false;

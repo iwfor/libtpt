@@ -11,12 +11,6 @@
 #include <sstream>
 #include <iostream>
 
-#ifdef _MSC_VER
-#include <native.h>
-#else
-#include <sys/types.h>
-#endif
-
 #ifdef WIN32
 #	include <process.h>		// For Win32 (getpid)
 #else
@@ -27,15 +21,6 @@
 #include <ctime>
 
 namespace TPTLib {
-
-// TODO: Move this number stuff to a better home
-int64_t str2num(const char* str);
-// This inline is to help readability
-inline int64_t str2num(const std::string& str)
-{
-	return str2num(str.c_str());
-}
-void num2str(int64_t value, std::string& str);
 
 
 /*
@@ -72,8 +57,7 @@ unsigned int Parser::Impl::random32()
 		isseeded = true;
 	}
 
-//	kiss_x = kiss_x * 69069 + 1;
-	kiss_x*=69069;
+	kiss_x*=69069;	//	kiss_x = kiss_x * 69069 + 1;
 	++kiss_x;
 	kiss_y ^= kiss_y << 13;
 	kiss_y ^= kiss_y >> 17;
