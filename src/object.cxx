@@ -114,5 +114,20 @@ object_t& object_t::operator=(const object_t& obj)
 	return *this;
 }
 
+void object_t::unalloc() {
+	switch(type) {
+	case obj_scalar:
+		delete u.str;
+		break;
+	case obj_array:
+		delete u.array;
+		break;
+	case obj_hash:
+		delete u.hash;
+		break;
+	}
+	type = obj_not_alloc;
+}
+
 
 } // end namespace TPTLib

@@ -40,6 +40,11 @@
 #ifndef __tptlib_object_impl_h
 #define __tptlib_object_impl_h
 
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+// Older version of MSVC do not support throw() declaration
+#pragma warning(disable : 4290)
+#endif
+
 #include <string>
 #include <map>
 #include <vector>
@@ -49,23 +54,18 @@ namespace TPTLib {
 /*
  * enumeration of types of objects the object_t structure may hold.
  */
-enum object_types {
+enum obj_types {
 	obj_not_alloc = 0,
 	obj_scalar,
 	obj_array,
 	obj_hash
 };
 
-struct object_t {
+class object_t {
+public:
+	// Some typedefs
 	typedef std::vector< object_t > ObjectArrayType;
 	typedef std::map< std::string, object_t > ObjectHashType;
-
-	object_types type;
-	union {
-		std::string* str;
-		ObjectArrayType* array;
-		ObjectHashType* hash;
-	} u;
 
 	// Basic ctor
 	object_t() : type(obj_not_alloc) {}
@@ -87,20 +87,20 @@ struct object_t {
 	// Boolean operator: true=object defined; false=object undefined
 	operator bool() { return type != obj_not_alloc; }
 
-	void unalloc() {
-		switch(type) {
-		case obj_scalar:
-			delete u.str;
-			break;
-		case obj_array:
-			delete u.array;
-			break;
-		case obj_hash:
-			delete u.hash;
-			break;
-		}
-		type = obj_not_alloc;
-	}
+	void unalloc();
+
+	const std::string& getscalar() throw(std::exception);
+	const ObjectArrayType& getarray() throw(std::exception);
+	const ObjectHashType& gethash() throw(std::exception);
+
+private:
+	// The only member variables
+	obj_types type;
+	union {
+		std::string* str;
+		ObjectArrayType* array;
+		ObjectHashType* hash;
+	} u;
 };
 
 
