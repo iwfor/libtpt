@@ -28,7 +28,7 @@ public:
 	std::string run();
 	bool run(std::ostream& os);
 	bool syntax();
-	unsigned geterrorcount();
+	unsigned geterrorcount() const;
 	bool geterrorlist(ErrorList& errlist);
 
 private:

@@ -22,7 +22,7 @@ public:
 	Token<> getloosetoken();
 	Token<> getstricttoken();
 	void unget(const Token<>& tok);
-	unsigned getlineno();
+	unsigned getlineno() const;
 
 	///! Extract an unparsed brace enclosed {} block
 	std::string getblock();

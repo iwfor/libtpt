@@ -45,7 +45,7 @@ bool Parser::syntax()
 	return imp->pass1(0);
 }
 
-unsigned Parser::geterrorcount()
+unsigned Parser::geterrorcount() const
 {
 	return imp->errlist.size();
 }

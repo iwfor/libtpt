@@ -75,13 +75,13 @@ public:
 	/// Seek to index in buffer.
 	bool seek(unsigned long index);
 	/// Get current offset into buffer.
-	unsigned long offset();
+	unsigned long offset() const;
 	/// True when not at end of buffer.
-	operator bool();
+	operator bool() const;
 	/// Index access
 	const char operator[](unsigned long index);
 	/// Current size
-	unsigned long size();
+	unsigned long size() const;
 
 private:
 	struct Impl;

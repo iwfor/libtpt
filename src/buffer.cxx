@@ -274,7 +274,7 @@ bool Buffer::seek(unsigned long index)
  * @author	Isaac W. Foraker
  *
  */
-unsigned long Buffer::offset()
+unsigned long Buffer::offset() const
 {
 	return imp->bufferindex;
 }
@@ -317,7 +317,7 @@ const char Buffer::operator[](unsigned long index)
  * @author	Isaac W. Foraker
  *
  */
-Buffer::operator bool()
+Buffer::operator bool() const
 {
 	return !imp->done;
 }
@@ -334,7 +334,7 @@ Buffer::operator bool()
  * @author	Isaac W. Foraker
  *
  */
-unsigned long Buffer::size()
+unsigned long Buffer::size() const
 {
 	return imp->buffersize;
 }

@@ -63,7 +63,7 @@ Lex::~Lex()
 	delete imp;
 }
 
-unsigned Lex::getlineno()
+unsigned Lex::getlineno() const
 {
 	return imp->lineno;
 }
