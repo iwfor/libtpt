@@ -19,7 +19,7 @@ namespace TPTLib {
 struct Parser::Impl {
 	Lex lex;
 	unsigned level;	// if/loop level
-	SymbolTable symbols;
+	SymbolMap symbols;
 	ErrorList errlist;
 	Token<> tok;
 	MacroList macros;

@@ -28,7 +28,7 @@ bool Parser::Impl::pass1(std::ostream* os)
 			*os << tok.value;
 			break;
 		case token_id:
-			*os << get_symbol(tok.value, symbols);
+			*os << symbols.get(tok.value);
 		case token_closebrace:
 			if (level)	// if in a block, this is the end of it
 				return false;

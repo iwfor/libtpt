@@ -126,6 +126,10 @@ SOURCE=..\src\parse.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\parse_impl.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\symbols.cxx
 # End Source File
 # End Group
@@ -147,6 +151,10 @@ SOURCE=..\src\macro.h
 # Begin Source File
 
 SOURCE=..\inc\tptlib\parse.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\parse_impl.h
 # End Source File
 # Begin Source File
 
