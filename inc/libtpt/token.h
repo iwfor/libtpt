@@ -67,6 +67,7 @@ enum TokenTypes {
 	token_operator,		// + - */ % || && ^^
 	token_relop,		// < <= == != > >=
 	token_include,		// @include
+	token_includetext,	// @includetext
 	token_set,			// @set
 	token_setif,		// @setif
 	token_push,			// @push

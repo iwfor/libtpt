@@ -64,6 +64,7 @@ void Parser_Impl::installfuncs()
 	funcs["eval"] = func_concat;
 	funcs["lpad"] = func_lpad;
 	funcs["rpad"] = func_rpad;
+	funcs["repeat"] = func_repeat;
 }
 
 
@@ -227,6 +228,10 @@ void Parser_Impl::parse_dotoken(std::ostream* os, Token<> tok)
 	// Include another file.
 	case token_include:
 		parse_include(os);
+		break;
+	// Include a raw text file.
+	case token_includetext:
+		parse_includetext(os);
 		break;
 	// Set a variable.
 	case token_set:
@@ -549,6 +554,8 @@ const char* toktypestr(const Token<>& tok)
 		return "relop";
 	case token_include:
 		return "include";
+	case token_includetext:
+		return "includetext";
 	case token_set:
 		return "set";
 	case token_setif:

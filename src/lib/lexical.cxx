@@ -557,6 +557,7 @@ Token<>::en Lex::checkreserved(const char* str)
 	case 'i':
 		if (!std::strcmp(str, "if"))		return token_if;
 		if (!std::strcmp(str, "include"))	return token_include;
+		if (!std::strcmp(str, "includetext"))	return token_includetext;
 		if (!std::strcmp(str, "isarray"))	return token_isarray;
 		if (!std::strcmp(str, "ishash"))	return token_ishash;
 		if (!std::strcmp(str, "isscalar"))	return token_isscalar;

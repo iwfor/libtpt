@@ -8,24 +8,21 @@ optimizations - Ongoing
 	There is always room for improved speed.  Optimization of existing TPT will
 	be ongoing.
 
-@includetext(filename) - Version 1.2
-	Includes a raw text file.
-
-@tpt_settabstop(x) - Version 1.2
-	Tells LibTPT how many spaces are in a tab.  For use with
-	@tpt_ignoreindentcount(x).  1<=x<=8.  The default is 8 spaces.
-
-@tpt_ignoreindentcount(x) - Version 1.2
+@tpt_ignoreindentcount(x) - Version 1.3
 	Tells TPT to ignore the first x tabs on a line.  LibTPT will count either a
 	tab character (\t) or the number of spaces specified by @tpt_settabstop(x)
 	as one indent.  0 means indent is not ignored.  The default is 0.
 	@tpt_ignoreindentcount(x) and @tpt_ignoreindent are mutually exclusive.
 
-@tpt_tabtospace - Version 1.2
+@tpt_settabstop(x) - Version 1.4
+	Tells LibTPT how many spaces are in a tab.  For use with
+	@tpt_ignoreindentcount(x).  1<=x<=8.  The default is 8 spaces.
+
+@tpt_tabtospace - Version 1.4
 	Converts all tab characters (\t) to spaces.  Use @tpt_settabstop(x) to
 	determine the number of spaces in a tab.
 
-@tpt_wraptext(x) - Version 1.3
+@tpt_wraptext(x) - Version 1.5
 	Tells TPT to ignore carriage returns (\n) and wrap text at the specified
 	width.  Use a blank line to force a carriage return.  0 means text wrapping
 	is off.  The default is 0.
@@ -36,3 +33,12 @@ optimizations - Ongoing
 
 ${string(index)} - Version 2.x
 	Allow direct access to a string index.
+
+${x="string}, ${x=<expr>}, ${x++} - 2.x
+	Allow easier assignment of a variable.
+
+@tpt_echovariable(0|1) - 2.x
+	Specify whether variable assignments (${x=<expr>}) will be echoed.  0=no,
+	1=yes.
+
+Overhaul error reporting - 2.x

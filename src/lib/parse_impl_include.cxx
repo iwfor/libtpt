@@ -57,7 +57,7 @@ void Parser_Impl::parse_include(std::ostream* os)
 
 	if (pl.size() != 1)
 	{
-		recorderror("Include takes exactly 1 parameter");
+		recorderror("Error: @include takes exactly 1 parameter");
 		return;
 	}
 
@@ -109,5 +109,54 @@ void Parser_Impl::parse_include(std::ostream* os)
 	}
 }
 
+
+void Parser_Impl::parse_includetext(std::ostream* os)
+{
+	Object params;
+	if (getparamlist(params))
+		return;
+	Object::ArrayType& pl = params.array();
+
+	if (pl.size() != 1)
+	{
+		recorderror("Error: @includetext takes exactly 1 parameter");
+		return;
+	}
+
+	Object& obj = *pl[0].get();
+	if (obj.gettype() != Object::type_scalar)
+	{
+		recorderror("Error: @include excpects string");
+		return;
+	}
+
+	// Create another Impl which inherits symbols table
+	// to process include
+	if (!inclist.empty())
+	{
+		IncludeList::iterator it(inclist.begin()), end(inclist.end());
+		for (; it != end; ++it)
+		{
+			std::string path(*it);
+			path+= '/';
+			path+= obj.scalar().c_str();
+			Buffer buf(path.c_str());
+			if (buf)
+			{
+				while (buf)
+					*os << buf.getnextchar();
+				return;
+			}
+		}
+	}
+	Buffer buf(obj.scalar().c_str());
+	if (!buf)
+	{
+		recorderror("File Error: Could not read " + obj.scalar());
+		return;
+	}
+	while (buf)
+		*os << buf.getnextchar();
+}
 
 } // end namespace TPT

@@ -43,7 +43,7 @@
 #define include_libtpt_vars_h
 
 // Ack!  A define!  Defines allow easy concatenation on strings
-#define LIBTPT_VERSION	"1.14"
+#define LIBTPT_VERSION	"1.17"
 
 namespace TPT {
 

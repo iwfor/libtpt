@@ -1,6 +1,12 @@
 LibTPT Revisions
 ================
 
+Version 1.17-beta
+-----------------
+- Added @repeat() TPT function to repeat text specified number of times.
+- Added @includetext() to include a text file without parsing it.
+- Fixed an ambiguous error message in @include.
+
 Version 1.10.7
 --------------
 - Fixed bug in Buffer::reset() not resetting the done flag.

@@ -177,6 +177,7 @@ public:
 	void ignore_block();
 
 	void parse_include(std::ostream* os);
+	void parse_includetext(std::ostream* os);
 	void parse_if(std::ostream* os);
 	bool parse_ifexpr(std::ostream* os);
 	void parse_foreach(std::ostream* os);

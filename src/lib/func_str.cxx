@@ -254,5 +254,27 @@ bool func_rpad(std::ostream& os, Object& params)
 	return false;
 }
 
+/*
+ * Repeat the specified text n times.
+ */
+bool func_repeat(std::ostream& os, Object& params)
+{
+	Object::ArrayType& pl = params.array();
+
+	if (pl.empty() || pl.size() != 2)
+		return true;
+	Object& strobj = *pl[0].get(),
+		numobj = *pl[1].get();
+	if (strobj.gettype() != Object::type_scalar ||
+			numobj.gettype() != Object::type_scalar)
+		return true;
+	std::string& str = strobj.scalar();
+	int n = std::atoi(numobj.scalar().c_str());
+	while (n-- > 0)
+		os << str;
+	return false;
+}
+
+
 
 } // end namespacr TPT

@@ -58,6 +58,7 @@ bool func_lc(std::ostream& os, Object& params);
 bool func_uc(std::ostream& os, Object& params);
 bool func_lpad(std::ostream& os, Object& params);
 bool func_rpad(std::ostream& os, Object& params);
+bool func_repeat(std::ostream& os, Object& params);
 
 void num2str(int64_t value, std::string& str);
 int64_t str2num(const char* str);
