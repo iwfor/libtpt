@@ -15,6 +15,8 @@
 
 namespace TPTLib {
 
+const char* toktypestr(const Token<>& tok);
+
 bool Parser::Impl::pass1(std::ostream* os)
 {
 //	symbols.dump();
@@ -55,7 +57,7 @@ bool Parser::Impl::pass1(std::ostream* os)
 			break;
 		// Syntax errors should be hard to create at this point.
 		default:
-			recorderror("Syntax error");
+			recorderror("Syntax error", &tok);
 			break;
 		}
 	} while (tok.type != token_eof);
@@ -122,13 +124,21 @@ bool Parser::Impl::getnextstrict(Token<>& target)
 	return (target.type == token_eof);
 }
 
-void Parser::Impl::recorderror(const std::string& desc)
+void Parser::Impl::recorderror(const std::string& desc, const Token<>* neartoken)
 {
 	char buf[32];
 	sprintf(buf, "%u", lex.getlineno());
 	std::string errstr(desc);
 	errstr+= " at line ";
 	errstr+= buf;
+	if (neartoken)
+	{
+		errstr+= " near <";
+		errstr+= toktypestr(*neartoken);
+		errstr+= ">'";
+		errstr+= neartoken->value;
+		errstr+= "'";
+	}
 	errlist.push_back(errstr);
 }
 
@@ -136,9 +146,7 @@ void Parser::Impl::recorderror(const std::string& desc)
 /*
  * Get a parenthesis enclosed, comma delimeted parameter list.
  *
- * DEV NOTE: For now, just read what is between the parenthesis.  The
- * next version will incorporate a recursive descent parser.
- *
+ * @param	pl			Reference to List to receive parameters.
  * @return	false on success;
  * @return	true on failure
  *
@@ -153,25 +161,104 @@ bool Parser::Impl::getparamlist(ParamList& pl)
 		return true;
 	}
 
-	std::string value;
+	// tok holds the current token and nexttok holds the token returned
+	// by the parser.
+	Token<> nexttok;
 	tok = lex.getstricttoken();
-	while (tok.type != token_closeparen)
+	while (tok.type != token_eof)
 	{
+		while (tok.type == token_comma)
+		{
+			// this is an empty parameter
+			pl.push_back("");
+		}
+		nexttok = parse_level0(tok);
+		pl.push_back(tok.value);
+
+		// The next token should be a comma or a close paren
+		tok = nexttok;
 		if (tok.type == token_comma)
 		{
-			pl.push_back(value);
-			value.erase();
+			tok = lex.getstricttoken();
+			nexttok = parse_level0(tok);
 		}
+		else if (tok.type == token_closeparen)
+			break;
 		else
-			value+= tok.value;
-
-		tok = lex.getstricttoken();
+			recorderror("Syntax error", &tok);
 	}
-	if (!value.empty())
-		pl.push_back(value);
 
 	return false;
 }
 
+const char* toktypestr(const Token<>& tok)
+{
+	switch(tok.type) {
+	case token_error:
+		return "error";
+	case token_eof:
+		return "eof";
+	case token_id:
+		return "id";
+	case token_usermacro:
+		return "usermacro";
+	case token_integer:
+		return "integer";
+	case token_string:
+		return "string";
+	case token_text:
+		return "text";
+	case token_comment:
+		return "comment";
+	case token_whitespace:
+		return "whitespace";
+	case token_joinline:
+		return "joinline";
+	case token_escape:
+		return "escape";
+	case token_openbrace:
+		return "openbrace";
+	case token_closebrace:
+		return "closebrace";
+	case token_openparen:
+		return "openparen";
+	case token_closeparen:
+		return "closeparen";
+	case token_comma:
+		return "comma";
+	case token_quote:
+		return "quote";
+	case token_operator:
+		return "operator";
+	case token_relop:
+		return "relop";
+	case token_include:
+		return "include";
+	case token_set:
+		return "set";
+	case token_macro:
+		return "macro";
+	case token_foreach:
+		return "foreach";
+	case token_while:
+		return "while";
+	case token_next:
+		return "next";
+	case token_last:
+		return "last";
+	case token_if:
+		return "if";
+	case token_else:
+		return "else";
+	case token_empty:
+		return "empty";
+	case token_rand:
+		return "rand";
+	case token_concat:
+		return "concat";
+	default:
+		return "undefined";
+	}
+}
 
 } // end namespace TPTLib

@@ -421,7 +421,6 @@ void Lex::Impl::getstring(Token<>& t, Buffer& buf)
 	t.value.erase();
 	while (c = safeget(buf))
 	{
-		t.value+= c;
 		if (c == '"')
 		{
 			c = safeget(buf);
@@ -442,6 +441,7 @@ void Lex::Impl::getstring(Token<>& t, Buffer& buf)
 	}
 	if (!c)
 		t.type = token_error;
+	std::cout << "<string = '" << t.value << "'/>" << std::endl;
 }
 
 void Lex::Impl::buildtoken(std::string& value, Buffer& buf,

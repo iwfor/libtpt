@@ -35,7 +35,7 @@ struct Parser::Impl {
 		symbols(localsymmap) { if (st) localsymmap = *st; }
 	Impl(Buffer& buf, SymbolMap& sm) : lex(buf), level(0),
 		symbols(sm) { }
-	void recorderror(const std::string& desc);
+	void recorderror(const std::string& desc, const Token<>* neartoken=0);
 	bool getnextparam(std::string& value);
 	bool getnextstrict(Token<>& target);
 	bool getparamlist(ParamList& pl);
