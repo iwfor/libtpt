@@ -19,7 +19,7 @@ namespace {
 namespace TPTLib {
 
 struct Buffer::impl {
-	std::fstream* mFstream;
+	std::istream* mIs;
 	bool mFreefstreamwhendone;
 
 	const char* mConstbuffer;
@@ -90,11 +90,11 @@ Buffer::Buffer(const char* filename)
  * @author	Isaac W. Foraker
  *
  */
-Buffer::Buffer(std::fstream* filein)
+Buffer::Buffer(std::istream* is)
 {
 	imp = new impl(BUFFER_SIZE);
 
-	imp->mFstream = filein;
+	imp->mIs = is;
 	imp->readfile();
 }
 
@@ -188,9 +188,9 @@ void Buffer::reset()
 {
 	imp->mBufferindex = 0;
 	imp->mUngetindex = 0;
-	if (imp->mFstream)
+	if (imp->mIs)
 	{
-		imp->mFstream->seekg(0);
+		imp->mIs->seekg(0);
 		imp->readfile();
 	}
 	else
@@ -226,7 +226,7 @@ Buffer::operator bool()
 Buffer::impl::~impl()
 {
 	if (mFreefstreamwhendone)
-		delete mFstream;
+		delete mIs;
 	if (mBuffer)
 		delete mBuffer;
 }
@@ -243,7 +243,10 @@ Buffer::impl::~impl()
  */
 void Buffer::impl::openfile(const char* filename)
 {
-	mFstream = new std::fstream(filename, std::ios::in);
+	std::fstream* is = new std::fstream(filename, std::ios::in);
+	if (!is->is_open())
+		mDone = true;
+	mIs = is;
 }
 
 
@@ -258,9 +261,9 @@ void Buffer::impl::openfile(const char* filename)
  */
 bool Buffer::impl::readfile()
 {
-	if (mFstream && mFstream->is_open() && !mFstream->eof())
+	if (mIs && !mIs->eof())
 	{
-		mBuffercount = mFstream->readsome(mBuffer, mBuffersize);
+		mBuffercount = mIs->readsome(mBuffer, mBuffersize);
 		mBufferindex = 0;
 		if (mBuffercount < 1)
 			mDone = true;
