@@ -7,6 +7,7 @@ Version 1.20.1
   of 64-bit Solaris.
 - Enhanced configure.pl to be able to search the path for the compiler and
   alert the user if it cannot be found.  Also worked on configure messages.
+- Removed unused parameters from object.cxx to reduce warnings during compile.
 
 Version 1.20
 ------------
