@@ -22,6 +22,11 @@ Parser::Parser(Buffer& buf, const SymbolTable* st)
 	imp = new Impl(buf, st);
 }
 
+Parser::Parser(Buffer& buf, SymbolMap& sm)
+{
+	imp = new Impl(buf, sm);
+}
+
 Parser::~Parser()
 {
 	delete imp;

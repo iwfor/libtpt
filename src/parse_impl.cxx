@@ -17,26 +17,38 @@ namespace TPTLib {
 bool Parser::Impl::pass1(std::ostream* os)
 {
 	do {
+		// Read a loosely defined token for outer pass
 		tok = lex.getloosetoken();
 		switch (tok.type)
 		{
+		// Quit on end of file.
 		case token_eof:
 			break;
+		// Just output whitespace and text.
 		case token_newline:
 		case token_whitespace:
 		case token_text:
 			*os << tok.value;
 			break;
+		// Expand symbols.
 		case token_id:
 			*os << symbols.get(tok.value);
+		// Break loop and return if this is the end of a section.
 		case token_closebrace:
 			if (level)	// if in a block, this is the end of it
 				return false;
 			else		// else, on top level, so print close brace
 				*os << tok.value;
 			break;
+		// Process an if statement.
 		case token_if:
 			parse_if(os);
+			break;
+		// Include another file.
+		case token_include:
+			parse_include(os);
+			break;
+		// Syntax errors should be hard to create at this point.
 		default:
 			recorderror("Syntax error");
 			break;
@@ -57,6 +69,9 @@ void Parser::Impl::parse_include(std::ostream* os)
 		recorderror("Include takes exactly 1 parameter");
 		return;
 	}
+	Buffer buf(pl[0].c_str());
+	Parser p(buf, symbols);
+	p.run(*os);
 }
 
 void Parser::Impl::parse_macro()

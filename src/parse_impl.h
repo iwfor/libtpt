@@ -19,13 +19,17 @@ namespace TPTLib {
 struct Parser::Impl {
 	Lex lex;
 	unsigned level;	// if/loop level
-	SymbolMap symbols;
+	SymbolMap localsymmap;
+	SymbolMap& symbols;	// alias reference to whatever symbol map is in
+						// use
 	ErrorList errlist;
 	Token<> tok;
 	MacroList macros;
 
-	Impl(Buffer& buf, const SymbolTable* st) : lex(buf), level(0)
-	{ if (st) symbols = *st; }
+	Impl(Buffer& buf, const SymbolTable* st) : lex(buf), level(0),
+		symbols(localsymmap) { if (st) localsymmap = *st; }
+	Impl(Buffer& buf, SymbolMap& sm) : lex(buf), level(0),
+		symbols(localsymmap) { }
 	void recorderror(const std::string& desc);
 	bool getnextparam(std::string& value);
 	bool getnextnonwhitespace();
