@@ -375,8 +375,8 @@ bool Symbols::Impl::isnumber(const char* str)
  */
 void Symbols::dump()
 {
-	SymbolTable::const_iterator it(imp->symmap.begin());
-	SymbolTable::const_iterator end(imp->symmap.end());
+	SymbolTable::const_iterator it(imp->symmap.begin()),
+		end(imp->symmap.end());
 
 	for (; it != end; ++it)
 	{

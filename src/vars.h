@@ -43,7 +43,7 @@
 #define __tptlib_vars_h
 
 // Ack!  A define!  Defines allow easy concatenation on strings
-#define __TPTLIB_VERSION	"0.06"
+#define __TPTLIB_VERSION	"0.07"
 
 namespace TPTLib {
 

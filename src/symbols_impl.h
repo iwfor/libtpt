@@ -76,7 +76,7 @@ public:
 
 	bool getrealid(const SymbolKeyType& id, SymbolKeyType& realkey,
 		unsigned& index, const Symbols& parent);
-	bool isnumber(const char* str);
+	bool istextnumber(const char* str);
 };
 
 

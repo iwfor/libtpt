@@ -125,7 +125,6 @@ Token<> Lex::getstricttoken()
 {
 	Token<> t;
 	t.type = token_whitespace;
-	Buffer& buf = imp->buf;	// Lazy typist reference
 
 	// strict tokens skip white-spaces
 	while ((t.type == token_whitespace) || (t.type == token_comment))
@@ -334,7 +333,6 @@ void Lex::unget(const Token<>& tok)
  */
 std::string Lex::getblock()
 {
-	Buffer &buf = imp->buf;	// lazy typist reference
 	unsigned depth = 1;
 	std::string block;
 	Token<> t;
