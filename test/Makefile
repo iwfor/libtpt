@@ -14,5 +14,8 @@ test1: test1.cxx
 dump: dump.cxx
 	${CXX} -o $@ dump.cxx ${CXXFLAGS}
 
+test: test1
+	./test1 22
+
 clean:
 	rm -f core dump test1 buffertest
