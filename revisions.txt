@@ -12,6 +12,8 @@ Version 1.11-beta
   that creates a file stream.  (If this exception occurs, you're probably
   already in trouble since your system is out of memory!)
 - Fixed memory leak in Buffer enlarge() and destructor.
+- Fixed a regretable memory leak in shared_ptr<> template class for automatic
+  garbage collection.
 
 Version 1.10
 ------------

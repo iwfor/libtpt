@@ -86,6 +86,7 @@ void dumptemplate(const char* filename)
 
 	p.addfunction("mycallback", &mycallback);
 	p.addfunction("fsum", &fsum);
+	p.addincludepath("tests");
 	p.run(std::cout);
 
 	TPT::ErrorList errlist;

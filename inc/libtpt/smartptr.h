@@ -26,29 +26,24 @@
 #define __notboost_smartptr_h
 
 #include <memory>
+#include <iostream>
 
 namespace notboost {
 
 template <typename T>
-class refcounter {
-private:
+struct sp_refcount_s {
 	unsigned count;
 	T* obj;
-public:
-	refcounter() : count(0)	{ }
-	explicit refcounter(T* p) : count(1), obj(p) { }
-	~refcounter() { delete obj; }
-
-	unsigned grab()		{ return ++count; }
+	sp_refcount_s() : count(0)	{ }
+	explicit sp_refcount_s(T* p) : count(1), obj(p) { }
+	~sp_refcount_s() { if (obj) delete obj; }
 	unsigned release()	{ return --count; }
-	unsigned getcount()	{ return count; }
-	T* get() 			{ return obj; }
 };
 
 template <typename T>
 class shared_ptr {
 private:
-	mutable refcounter<T>* ptr;
+	mutable sp_refcount_s<T>* ptr;
 public:
 
 	typedef shared_ptr<T>* pointer;
@@ -57,12 +52,12 @@ public:
 	typedef const shared_ptr<T>& const_reference;
 
 	shared_ptr<T>() : ptr(0) { }
-	shared_ptr<T>(const shared_ptr<T>& sp) : ptr(sp.ptr) {
-		if (ptr) ptr->grab(); }
-	shared_ptr<T>(const T* p) : ptr(new refcounter<T>(const_cast<T*>(p)))
+	shared_ptr<T>(const shared_ptr<T>& sp) : ptr(sp.ptr)
+	{ if (ptr) ++ptr->count; }
+	shared_ptr<T>(const T* p)
 	{
 		try {
-			ptr = new refcounter<T>(const_cast<T*>(p));
+			ptr = new sp_refcount_s<T>(const_cast<T*>(p));
 		} catch (...) {
 			delete p;
 			throw;
@@ -70,38 +65,38 @@ public:
 	}
 	shared_ptr<T>(std::auto_ptr<T>& ap)
 	{
-		ptr = new refcounter<T>(ap.get());
+		ptr = new sp_refcount_s<T>(ap.get());
 		ap.release();
 	}
 	~shared_ptr<T>()
 	{
-		if (ptr && !ptr->release()) delete ptr;
+		if (ptr && !--ptr->count) delete ptr;
 	}
 	T* get() const {
-		return ptr ? ptr->get() : 0;
+		return ptr ? ptr->obj : 0;
 	}
 	shared_ptr<T>& operator=(const shared_ptr<T>& p)
 	{
-		if (ptr && !ptr->release()) delete ptr;
+		if (ptr && !--ptr->count) delete ptr;
 		ptr = p.ptr;
-		if (ptr) ptr->grab();
+		if (ptr) ++ptr->count;
 		return *this;
 	}
 	shared_ptr<T>& operator=(T* p)
 	{
 		std::auto_ptr<T> ap(p);
-		if (ptr && !ptr->release()) delete ptr;
+		if (ptr && !--ptr->count) delete ptr;
 		ptr = 0;	// just in cast new throws
-		if (p) ptr = new refcounter<T>(p);
+		if (p) ptr = new sp_refcount_s<T>(p);
 		else ptr = 0;	// allow ptr to be cleared when p is 0
 		ap.release();
 		return *this;
 	}
 	shared_ptr<T>& operator=(std::auto_ptr<T>& ap)
 	{
-		if (ptr && !ptr->release()) delete ptr;
+		if (ptr && !--ptr->count) delete ptr;
 		ptr = 0;	// just in cast new throws
-		if (p) ptr = new refcounter<T>(p);
+		if (p) ptr = new sp_refcount_s<T>(p);
 		else ptr = 0;	// allow ptr to be cleared when p is 0
 		ap.release();
 		return *this;
