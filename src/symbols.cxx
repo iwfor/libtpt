@@ -331,7 +331,7 @@ bool Symbols::Impl::getrealid(const SymbolKeyType& id,
 		}
 
 		std::string temp(id.substr(obracket+1, cbracket-obracket-2));
-		if (isnumber(temp.c_str()))
+		if (istextnumber(temp.c_str()))
 		{
 			// if temp is just a number, just get the number
 			index = std::atoi(temp.c_str());
@@ -356,7 +356,7 @@ bool Symbols::Impl::getrealid(const SymbolKeyType& id,
 }
 
 
-bool Symbols::Impl::isnumber(const char* str)
+bool Symbols::Impl::istextnumber(const char* str)
 {
 	while (*str)
 	{
