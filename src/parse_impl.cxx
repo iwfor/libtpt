@@ -46,18 +46,23 @@ void Parser::Impl::parse_main(std::ostream* os)
 }
 
 
+/*
+ * Parse a brace enclosed {} block.  This call is used for macros and
+ * if/else statements.
+ *
+ */
 void Parser::Impl::parse_block(std::ostream* os)
 {
-	Token<> tok;
-//	int x = rand() % 100;
-	tok = lex.getstricttoken();
+	Token<> tok(lex.getstricttoken());
+//	int x = rand() % 100; // id
 	if (tok.type != token_openbrace)
 		recorderror("Expected open brace '{'", &tok);
 
 	do {
 		// Read a loosely defined token for outer pass
 		tok = lex.getloosetoken();
-//std::cout << x << " <" << toktypestr(tok) << "> '" << tok.value << "'" << std::endl;
+//std::cout << x << " <" << toktypestr(tok) <<
+//	"> '" << tok.value << "'" << std::endl;
 		switch (tok.type) {
 		// Close brace (}) is end of block
 		case token_closebrace:
@@ -84,8 +89,7 @@ void Parser::Impl::parse_block(std::ostream* os)
  */
 bool Parser::Impl::parse_loopblock(std::ostream* os)
 {
-	Token<> tok;
-	tok = lex.getstricttoken();
+	Token<> tok(lex.getstricttoken());
 	if (tok.type != token_openbrace)
 		recorderror("Expected open brace '{'", &tok);
 
