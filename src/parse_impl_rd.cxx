@@ -84,17 +84,60 @@ Token<> Parser::Impl::parse_level0(Token<>& left)
 // Level 1: && || ^^
 Token<> Parser::Impl::parse_level1(Token<>& left)
 {
-	Token<> right = parse_level2(left);
+	Token<> op = parse_level4(left);
 
-	return right;
+	while ((op.type == token_operator) &&
+		((op.value == "&&") ||
+		(op.value == "||") ||
+		(op.value == "^^")))
+	{
+		Token<> right = lex.getstricttoken();
+		// we have left and operation, but no right
+		right = parse_level2(right);
+		int64_t lwork = str2num(left.value), rwork = str2num(right.value);
+		if (op.value == "&&")
+			lwork = lwork && rwork;
+		else if (op.value == "||")
+			lwork = lwork || rwork;
+		else if (op.value == "^^")
+			lwork = !lwork ^ !rwork;
+		num2str(lwork, left.value);
+		// read the next operator/terminator
+		op = lex.getstricttoken();
+	}
+
+	return op;
 }
 
 // Level 2: == != < > <= >=
 Token<> Parser::Impl::parse_level2(Token<>& left)
 {
-	Token<> right = parse_level3(left);
+	Token<> op = parse_level4(left);
 
-	return right;
+	while (op.type == token_relop)
+	{
+		Token<> right = lex.getstricttoken();
+		// we have left and operation, but no right
+		right = parse_level3(right);
+		int64_t lwork = str2num(left.value), rwork = str2num(right.value);
+		if (op.value == "==")
+			lwork = lwork == rwork;
+		else if (op.value == "!=")
+			lwork = lwork != rwork;
+		else if (op.value == "<")
+			lwork = lwork < rwork;
+		else if (op.value == ">")
+			lwork = lwork > rwork;
+		else if (op.value == "<=")
+			lwork = lwork <= rwork;
+		else if (op.value == ">=")
+			lwork = lwork >= rwork;
+		num2str(lwork, left.value);
+		// read the next operator/terminator
+		op = lex.getstricttoken();
+	}
+
+	return op;
 }
 
 // Level 3: + -

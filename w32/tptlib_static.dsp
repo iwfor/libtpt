@@ -130,6 +130,10 @@ SOURCE=..\src\parse_impl.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\parse_impl_rd.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\symbols.cxx
 # End Source File
 # End Group
@@ -171,6 +175,10 @@ SOURCE=..\src\ttypes.h
 # Begin Source File
 
 SOURCE=..\src\ttypes.inl
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\vars.h
 # End Source File
 # End Group
 # End Target
