@@ -41,8 +41,9 @@ void Parser::Impl::parse_macro()
 	std::string name(tok.value);
 
 	tok = lex.getstricttoken();
-	while ((tok.type != token_eof) && (tok.type != token_closeparen))
+	while (tok.type == token_comma)
 	{
+		tok = lex.getstricttoken();
 		if (tok.type != token_id)
 		{
 			recorderror("Syntax error, expected identifier", &tok);
@@ -51,20 +52,27 @@ void Parser::Impl::parse_macro()
 		newmacro.params.push_back(tok.value);
 		tok = lex.getstricttoken();
 
+		if (tok.type == token_closeparen)
+			break;
 		// The next token should be a comma or a close paren
-		if ( (tok.type != token_closeparen) && (tok.type != token_comma) )
+		if (tok.type != token_comma)
 		{
 			recorderror("Syntax error, expected comma or close parenthesis", &tok);
 			return;
 		}
 		tok = lex.getstricttoken();
 	}
-
 	if (tok.type == token_eof)
 	{
 		recorderror("Unexpected end of file");
 		return;
 	}
+	else if (tok.type != token_closeparen)
+	{
+		recorderror("Expected close parenthesis", &tok);
+		return;
+	}
+
 	newmacro.body = lex.getblock();
 	if (newmacro.body.empty())
 	{
