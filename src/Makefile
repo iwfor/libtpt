@@ -26,3 +26,6 @@ libtpt.a: ${OBJECTS}
 clean:
 	rm -f *.core ${OBJECTS} libtpt.a
 
+.SUFFIXES: .cxx
+.cxx.o:
+	${CXX} ${CXXFLAGS} -o $@ -c $<
