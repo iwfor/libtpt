@@ -23,7 +23,7 @@
 #include "tptlib/buffer.h"
 
 #include <cstring>
-//#include <iostream>
+#include <iostream>
 
 namespace TPTLib {
 

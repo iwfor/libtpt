@@ -193,6 +193,7 @@ bool Buffer::unget()
 		return true;
 
 	--imp->bufferindex;
+	imp->done = false;
 	return false;
 }
 
@@ -364,7 +365,6 @@ bool Buffer::Impl::readfile()
 				enlarge();
 			std::memcpy(&buffer[buffersize], buf, size);
 			buffersize+= size;
-//			buffer[buffersize] = 0;
 		}
 	}
 	else
