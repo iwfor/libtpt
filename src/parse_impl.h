@@ -134,6 +134,7 @@ struct Parser::Impl {
 	void parse_while(std::ostream* os);
 	void parse_set();
 	void parse_setif();
+	void parse_unset();
 
 	void parse_macro();
 	void user_macro(const std::string& name, std::ostream* os);

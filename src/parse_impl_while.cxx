@@ -54,13 +54,11 @@ void Parser::Impl::parse_while(std::ostream* os)
 	// ifexpr to see if the
 	size_t whilestart = lex.index();
 
-	std::string ignore;
-	std::stringstream ignorestr(ignore);
-
 	// Keep calling ifexpr until the expression is false
 	while (parse_ifexpr(os))
 		if (lex.seek(whilestart))
 		{
+			// This should never happen.
 			recorderror("Parser internal error in @while");
 			break;
 		}

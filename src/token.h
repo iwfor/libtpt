@@ -69,6 +69,7 @@ enum TokenTypes {
 	token_include,		// @include
 	token_set,			// @set
 	token_setif,		// @setif
+	token_unset,		// @unset
 	token_macro,		// @macro
 	token_foreach,		// @foreach
 	token_while,		// @while

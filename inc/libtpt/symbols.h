@@ -67,6 +67,7 @@ public:
 	unsigned size(const SymbolKeyType& id) const;
 	bool get(const SymbolKeyType& id, SymbolValueType& val) const;
 	bool get(const SymbolKeyType& id, SymbolArrayType& sym) const;
+	bool unset(const SymbolKeyType& id);
 	void dump();
 	Symbols& operator=(const Symbols&);
 private:

@@ -56,7 +56,6 @@
 namespace TPTLib {
 
 /**
- *
  * Construct an instance of the Symbols class.
  *
  */
@@ -68,12 +67,16 @@ Symbols::Symbols() :
 }
 
 
+/**
+ * Construct an copy of a Symbols instance.
+ *
+ */
 Symbols::Symbols(const Symbols& s) :
 	imp (new Impl(s.imp->symmap))
 {
 }
 
-/*
+/**
  * Destruct an instance of the Symbols class.
  *
  */
@@ -95,7 +98,6 @@ Symbols& Symbols::operator=(const Symbols& sym)
 
 
 /**
- *
  * Get the value specified by id from the symbols table, recursing to
  * process embedded symbols as needed.  If the specified id points to an
  * array symbol, only the first element of the array will be returned.
@@ -126,7 +128,6 @@ bool Symbols::get(const SymbolKeyType& id, SymbolValueType& outval) const
 }
 
 /**
- *
  * Get the array of values specified by id from the symbols table,
  * recursing to process embedded symbols as needed.
  *
@@ -162,7 +163,7 @@ bool Symbols::get(const SymbolKeyType& id, SymbolArrayType& outval) const
 }
 
 
-/*
+/**
  * Set a symbol's value
  *
  * @param	id			ID of the symbol to be pushed.
@@ -186,7 +187,7 @@ void Symbols::set(const SymbolKeyType& id, const SymbolValueType& value)
 }
 
 
-/*
+/**
  * Set a symbol's array values
  *
  * @param	id			ID of the symbol to be pushed.
@@ -205,7 +206,6 @@ void Symbols::set(const SymbolKeyType& id, const SymbolArrayType& value)
 
 
 /**
- *
  * Check whether the specified id exists in the symbol table.
  *
  * @param	id			ID of symbol to retrieve.
@@ -224,7 +224,6 @@ bool Symbols::exists(const SymbolKeyType& id) const
 
 
 /**
- *
  * Check if a symbol is empty.
  *
  * @param	id			ID of symbol to retrieve.
@@ -248,7 +247,6 @@ bool Symbols::empty(const SymbolKeyType& id) const
 
 
 /**
- *
  * Check if a symbol is a multielement array
  *
  */
@@ -268,7 +266,6 @@ bool Symbols::isarray(const SymbolKeyType& id) const
 
 
 /**
- *
  * Check size of a symbol array.
  *
  */
@@ -284,6 +281,29 @@ unsigned Symbols::size(const SymbolKeyType& id) const
 	if (index >= (*it).second.size())
 		return true;
 	return (*it).second.size();
+}
+
+
+/**
+ * Unset a symbols
+ *
+ * @return	true if symbol unset;
+ * @return	false if symbol does not exist.
+ *
+ */
+bool Symbols::unset(const SymbolKeyType& id)
+{
+	SymbolKeyType realid;
+	unsigned index;
+	imp->getrealid(id, realid, index, *this);
+
+	SymbolTable::iterator it(imp->symmap.find(realid));
+	if (it == imp->symmap.end())
+		return true;
+	if (index)	// subscripts may not be unset at this time
+		return true;
+	imp->symmap.erase(it);
+	return false;
 }
 
 

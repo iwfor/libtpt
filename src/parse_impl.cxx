@@ -200,6 +200,10 @@ void Parser::Impl::parse_dotoken(std::ostream* os, Token<> tok)
 	case token_setif:
 		parse_setif();
 		break;
+	case token_unset:
+		parse_unset();
+		break;
+	// Define a macro
 	case token_macro:
 		parse_macro();
 		break;
@@ -219,26 +223,32 @@ void Parser::Impl::parse_dotoken(std::ostream* os, Token<> tok)
 		tok = parse_concat();
 		*os << tok.value;
 		break;
+	// get length of string
 	case token_length:
 		tok = parse_length();
 		*os << tok.value;
 		break;
+	// UpperCase a string
 	case token_uc:
 		tok = parse_uc();
 		*os << tok.value;
 		break;
+	// LowerCase a string
 	case token_lc:
 		tok = parse_lc();
 		*os << tok.value;
 		break;
+	// Get size of array variable
 	case token_size:
 		tok = parse_size();
 		*os << tok.value;
 		break;
+	// Get substring of a string
 	case token_substr:
 		tok = parse_substr();
 		*os << tok.value;
 		break;
+	// Call a user defined macro
 	case token_usermacro:
 		user_macro(tok.value, os);
 		break;

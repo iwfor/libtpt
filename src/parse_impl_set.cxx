@@ -47,6 +47,18 @@
 
 namespace TPTLib {
 
+void Parser::Impl::parse_unset()
+{
+	std::string id;
+	ParamList pl;
+
+	if (getidparamlist(id, pl))
+		return;
+
+	if (!pl.empty())
+		recorderror("Warning: @unset takes only an id parameter");
+	symbols.unset(id);
+}
 
 void Parser::Impl::parse_set()
 {

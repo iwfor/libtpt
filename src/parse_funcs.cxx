@@ -121,7 +121,7 @@ Token<> Parser::Impl::parse_rand()
 	if (pl.empty())
 	{
 		// use default parameter
-		lwork = 0x80000000;
+		lwork = 0xFFFFFFFF;
 	}
 	else
 	{

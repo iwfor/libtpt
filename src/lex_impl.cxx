@@ -96,6 +96,7 @@ Token<>::en Lex::Impl::checkreserved(const char* str)
 		break;
 	case 'u':
 		if (!std::strcmp(str, "uc"))		return token_uc;
+		if (!std::strcmp(str, "unset"))		return token_unset;
 		break;
 	case 'w':
 		if (!std::strcmp(str, "while"))		return token_while;
