@@ -5,16 +5,14 @@ Main Body
 vara=${vara}
 varb=${varb}
 varc=${varc}
-@macro(mymac1, vara, varb, varc)
-{
+@macro(mymac1, vara, varb, varc) {
 @mymac2(vara, varb, varc)\
 mymac1()
 vara=${vara}
 varb=${varb}
 varc=${varc}
 }
-@macro(mymac2, vara, varb, varc)
-{
+@macro(mymac2, vara, varb, varc) {
 mymac2()
 varc=${varc}
 varb=${varb}

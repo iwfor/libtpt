@@ -14,12 +14,6 @@
  *
  */
 
-/*
- * TODO:
- *	Add \escape support to strings
- *
- */
-
 #ifdef _MSC_VER
 #	pragma	warning(disable:4786)
 #endif
@@ -38,6 +32,7 @@ using ExtendedTypes::ChrSet;
 const ChrSet<> set_num("0-9");
 const ChrSet<> set_alpha("a-zA-Z");
 const ChrSet<> set_alphanum("a-zA-Z0-9");
+const ChrSet<> set_text("a-zA-Z0-9()[]");
 const ChrSet<> set_varname("a-zA-Z0-9_");
 const ChrSet<> set_startvarname("a-zA-Z_.");
 const ChrSet<> set_whitespace(" \t\r\n");
@@ -65,6 +60,11 @@ struct Lex::Impl {
 
 	void getstring(Token<>& t, Buffer& buf);
 	void getsqstring(Token<>& t, Buffer& buf);
+
+	bool makereturn(char c, std::string& cr, Buffer& buf);
+	bool isreturn(const Token<>& t);
+
+	void buildcomment(Buffer& b, Token<>& t);
 };
 
 Lex::Lex(Buffer& buf)
@@ -85,6 +85,7 @@ unsigned Lex::getlineno() const
 Token<> Lex::getloosetoken()
 {
 	Token<> t;
+	t.type = token_error;
 	char c;
 	Buffer& buf = imp->buf;	// Lazy typist reference
 
@@ -96,72 +97,25 @@ Token<> Lex::getloosetoken()
 	t.value = c;
 
 	switch (c) {
+	// For simplicity, have the special token reader process these
+	// symbols to avoid duplicate code.
 	case ' ':
 	case '\t':
-		t.type = token_whitespace;
-		while ( (c = imp->safeget(buf)) )
-		{
-			if ((c == ' ') || (c == '\t'))
-				t.value+= c;
-			else if (c == '@')
-			{
-				// check for comment
-				c = imp->safeget(buf);
-				if (c == '#')
-				{
-					while ( (c = imp->safeget(buf)) )
-					{
-						if ((c == '\r') || (c == '\n'))
-						{
-							buf.unget();
-							break;
-						}
-					}
-					t.type = token_comment;
-				}
-				else
-				{
-					if (c) buf.unget();
-					buf.unget();
-				}
-				break;
-			}
-			else
-			{
-				buf.unget();
-				break;
-			}
-		}
-		return t;
-	// For simplicity, have the strict token reader process these
-	// symbols to avoid duplicate code.
 	case '\n':
-		t.type = token_whitespace;
-		++imp->lineno;
-		return t;
 	case '\r':
-		t.type = token_whitespace;
-		c = imp->safeget(buf);
-		if (c == '\n') t.value+= c;
-		else if (c) buf.unget();
-		++imp->lineno;
-		return t;
 	case '\\':	// escape character
 	case '@':	// keyword, macro, or comment
 	case '$':	// variable name
 	case '{':	// start block
 	case '}':	// end block
 		buf.unget();
-		return getstricttoken();
-	default: t.type = token_text; break;
-	}
-	// Next, process tokens that are comprised of sets
-	// Group digits together
-	if (c == set_alphanum)
-	{
+		return getspecialtoken();
+	default:
 		t.type = token_text;
-		imp->buildtoken(t.value, buf, set_alphanum);
+		break;
 	}
+	if (t.type == token_text)
+		imp->buildtoken(t.value, buf, set_text);
 
 	imp->lasttoken = t;
 	return t;
@@ -171,195 +125,185 @@ Token<> Lex::getstricttoken()
 {
 	Token<> t;
 	t.type = token_whitespace;
-	char c;
 	Buffer& buf = imp->buf;	// Lazy typist reference
 
 	// strict tokens skip white-spaces
 	while ((t.type == token_whitespace) || (t.type == token_comment))
 	{
-		if (!(c = imp->safeget(buf)))
+		t = getspecialtoken();
+	}
+
+	imp->lasttoken = t;
+	return t;
+}
+
+Token<> Lex::getspecialtoken()
+{
+	Token<> t;
+	t.type = token_error;
+	char c;
+	Buffer& buf = imp->buf;	// Lazy typist reference
+
+	if (!(c = imp->safeget(buf)))
+	{
+		t.type = token_eof;	
+		return t;
+	}
+
+	t.value = c;
+
+	switch (c) {
+	case '{':
+		t.type = token_openbrace;
+		// Ignore all whitespace after open brace
+		imp->eatwhitespace(t.value, buf);
+//std::cout << "'" << t.value << "'" << std::endl;
+		break;
+	case '}':
+		t.type = token_closebrace;
+		// Ignore all whitespace after close brace
+		imp->eatwhitespace(t.value, buf);
+//std::cout << "'" << t.value << "'" << std::endl;
+		break;
+	case '(':
+		t.type = token_openparen;
+		break;
+	case ')':
+		t.type = token_closeparen;
+		break;
+	case ',':
+		t.type = token_comma;
+		break;
+	case '+':
+	case '-':
+	case '*':
+	case '/':
+	case '%':
+		t.type = token_operator;
+		break;
+	case '|':
+	case '&':
+	case '^':
+		c = imp->safeget(buf);
+		if (t.value[0] == c)
 		{
-			t.type = token_eof;	
+			// as in ||, &&, ^^
+			t.type = token_operator;
+			t.value+= c;
+		}
+		else if (c) // error, no support for binary ops
+			buf.unget();
+		break;
+	// Handle whitespace
+	case ' ':
+	case '\t':
+		t.type = token_whitespace;
+		while ( (c = imp->safeget(buf)) && (c == ' ') || (c == '\t'))
+			t.value+= c;
+		if (c == '@')
+		{
+			// check for comment
+			c = imp->safeget(buf);
+			if (c == '#')
+			{
+				buf.unget();
+				buf.unget();
+				t = getspecialtoken();
+			}
+			else {
+				if (c) buf.unget();
+				buf.unget();
+			}
+		}
+		else if (c)
+			buf.unget();
+		break;
+	// Handle new lines
+	case '\n':
+	case '\r':
+		t.type = token_whitespace;
+		imp->makereturn(c, t.value, buf);
+		++imp->lineno;
+		break;
+	case '"':	// quoted strings
+		imp->getstring(t, buf);
+		break;
+	case '\'':
+		imp->getsqstring(t, buf);
+		break;
+	case '\\':	// escape sequences
+		c = imp->safeget(buf);
+		if (imp->makereturn(c, t.value, buf))
+		{
+//std::cout << "Ignore CR" << std::endl;
+			++imp->lineno;
+			t.type = token_joinline;
+			t.value+= token_escape;
+		}
+		else
+		{
+			t.type = token_escape;
+			t.value = c;
+		}
+		break;
+	case '@':	// keyword or user macro
+		c = imp->safeget(buf);
+		t.value+= c;
+		if (c == set_startvarname)
+		{
+			imp->buildtoken(t.value, buf, set_varname);
+			t.type = imp->checkreserved(&t.value[1]);
+		}
+		else if (c == '#') // this is a @# comment
+			imp->buildcomment(buf, t);
+		else
+		{
+			if (c) buf.unget();
+			t.type = token_text;
 			return t;
 		}
-
-		t.value = c;
-
-		switch (c) {
-		case '{':
-			t.type = token_openbrace;
-			// Ignore all whitespace after open brace
-			imp->eatwhitespace(t.value, buf);
-			return t;
-		case '}':
-			t.type = token_closebrace;
-			// Ignore all whitespace after close brace
-			imp->eatwhitespace(t.value, buf);
-			return t;
-		case '(': t.type = token_openparen; return t;
-		case ')': t.type = token_closeparen; return t;
-		case ',': t.type = token_comma; return t;
-		case '+':
-		case '-':
-		case '*':
-		case '/':
-		case '%': t.type = token_operator; return t;
-		case '|':
-		case '&':
-		case '^':
-			c = imp->safeget(buf);
-			if (t.value[0] == c)
-			{
-				t.type = token_operator;
-				t.value+= c;
-			}
-			else
-			{
-				t.type = token_error;
-				if (c) buf.unget();
-			}
-			return t;
-		// Handle whitespace
-		case ' ':
-		case 255:
-		case '\t':
-			t.type = token_whitespace;
-			break;
-		// Handle new lines
-		case '\n':
-			t.type = token_whitespace;
-			++imp->lineno;
-			break;
-		case '\r':
-			t.type = token_whitespace;
-			c = imp->safeget(buf);
-			if (c == '\n') t.value+= c;
-			else if (c) buf.unget();
-			++imp->lineno;
-			break;
-		case '"':	// quoted strings
-			imp->getstring(t, buf);
-			return t;
-		case '\'':
-			imp->getsqstring(t, buf);
-			return t;
-		case '\\':	// escape sequences
-			c = imp->safeget(buf);
-			t.value+= c;
-			if (c == '\n')
-			{
-				++imp->lineno;
-				t.type = token_joinline;
-			}
-			else if (c == '\r')
-			{
-				++imp->lineno;
-				// handle cases where newlines are represented by \r\n
-				t.type = token_joinline;
-				c = imp->safeget(buf);
-				if (c == '\n')
-					t.value+= c;
-				else
-					if (c) buf.unget();
-			}
-			else
-			{
-				t.type = token_escape;
-				t.value = c;
-			}
-			return t;
-		case '@':	// keyword or user macro
-			c = imp->safeget(buf);
-			t.value+= c;
-			if (c == set_startvarname)
-			{
-				imp->buildtoken(t.value, buf, set_varname);
-				t.type = imp->checkreserved(&t.value[1]);
-			}
-			else if (c == '#') // this is a @# comment
-			{
-				// Read everything until the end of line
-				while ( (c = imp->safeget(buf)) )
-				{
-					if (c == '\n')
-					{
-						if (imp->lasttoken.type == token_whitespace)
-						{
-							// Don't forget the line number!
-							++imp->lineno;
-						}
-						else
-						{
-							buf.unget();
-						}
-						break;
-					}
-					else if (c == '\r')
-					{
-						if (imp->lasttoken.type == token_whitespace)
-						{
-							c = imp->safeget(buf);
-							if (c && (c != '\n')) buf.unget();
-							// Don't forget the line number!
-							++imp->lineno;
-						}
-						else
-						{
-							buf.unget();
-						}
-					}
-					t.value+= c;
-				}
-				t.type = token_comment;
-			}
-			else
-			{
-				if (c) buf.unget();
-				t.type = token_text;
-				return t;
-			}
-			if (t.type == token_comment)
-				continue;
-			return t;
-		case '$':	// variable name
-			imp->getclosedidname(t, buf);
-			return t;
-		case '!':
-			c = imp->safeget(buf);
-			if (c == '=')
-			{
-				t.type = token_relop;
-				t.value+= c;
-			}
-			else
-			{
-				t.type = token_operator;
-				if (c) buf.unget();
-			}
-			return t;
-		case '>':
-		case '<':
-		case '=':
+		break;
+	case '$':	// variable name
+		imp->getclosedidname(t, buf);
+		break;
+	case '!':
+		c = imp->safeget(buf);
+		if (c == '=')
+		{
 			t.type = token_relop;
-			c = imp->safeget(buf);
-			if (c == '=')
-				t.value+= c;
-			else
-				if (c) buf.unget();
-			return t;
-		default: t.type = token_error; break;
+			t.value+= c;
 		}
+		else
+		{
+			t.type = token_operator;
+			if (c) buf.unget();
+		}
+		break;
+	case '>':
+	case '<':
+	case '=':
+		t.type = token_relop;
+		c = imp->safeget(buf);
+		if (c == '=')
+			t.value+= c;
+		else
+			if (c) buf.unget();
+		break;
+	default: t.type = token_error; break;
 	}
 	// Next, process tokens that are comprised of sets
 	// Group digits together
-	if (c == set_num)
+	if (t.type == token_error)
 	{
-		t.type = token_integer;
-		imp->buildtoken(t.value, buf, set_num);
-	}
-	else if (c == set_startvarname)
-	{
-		imp->getidname(t, buf);
+		if (c == set_num)
+		{
+			t.type = token_integer;
+			imp->buildtoken(t.value, buf, set_num);
+		}
+		else if (c == set_startvarname)
+		{
+			imp->getidname(t, buf);
+		}
 	}
 
 	imp->lasttoken = t;
@@ -672,32 +616,16 @@ void Lex::Impl::buildtoken(std::string& value, Buffer& buf,
 void Lex::Impl::eatwhitespace(std::string& value, Buffer& buf)
 {
 	char c;
-	while ( (c = safeget(buf)) )
+	std::string cr;
+	while ( (c = safeget(buf)) && ((c == ' ') || (c == '\t')))
+		value+= c;
+	if (makereturn(c, cr, buf))
 	{
-		if ((c == ' ') || (c == '\t'))
-			value+= c;
-		else
-			break;
+		value+= cr;
+		++lineno;
 	}
 	// eat a newline
-	if (c == '\r')
-	{
-		++lineno;
-		value+= c;
-		c = safeget(buf);
-		if (!c)
-			return;
-		if (c == '\n')
-			value+= c;
-		else
-			buf.unget();
-	}
-	else if (c == '\n')
-	{
-		++lineno;
-		value+= c;
-	}
-	else
+	else if (c)
 		buf.unget();
 }
 
@@ -712,51 +640,105 @@ void Lex::Impl::eatwhitespace(std::string& value, Buffer& buf)
 std::string Lex::getblock()
 {
 	Buffer &buf = imp->buf;	// lazy typist reference
-	char c = imp->safeget(buf);
-	unsigned depth = 0;
+	unsigned depth = 1;
 	std::string block;
+	Token<> t;
 
 	// Ignore all whitespace before the opening brace;
-	while (c == set_whitespace)
-		c = imp->safeget(buf);
+	do {
+		t = getloosetoken();
+		block+= t.value;
+	} while (t.type == token_whitespace);
 
-	// If the current character is not an open brace, then something is
+	// If the current token is not an open brace, then something is
 	// wrong, so abort this function.
-	if (c != '{')
+	if (t.type != token_openbrace)
 		return "";
-
-	block = c;
+	else
+		block = t.value;
 
 	// Iterate through the buffer until the close brace for this block is found
-	while (c)
+	do
 	{
-		c = imp->safeget(buf);
-		block+= c;
-		if (c == '\\')	// escaped sequence
-		{
-			c = imp->safeget(buf);
-			if (!c)
-				return "";
-			// Now just ignore this character, whatever it is.
-			block+= c;
-		}
-		else if (c == '{')
+		t = getloosetoken();
+		if (t.type == token_eof)
+			break;
+		if (t.type == token_escape)
+			block+= '\\';
+		if (t.type != token_joinline)
+			block+= t.value;
+		if (t.type == token_openbrace)
 			++depth;
-		else if (c == '}')
-		{
-			imp->eatwhitespace(block, buf);	
-			if (depth > 0)
-				--depth;
-			else
-				break;
-		}
-	}
-
-	if (c != '}')
-		return "";
+		else if (t.type == token_closebrace)
+			--depth;
+	} while (depth > 0);
 
 	return block;
 }
 
+bool Lex::Impl::makereturn(char c, std::string& cr, Buffer& buf)
+{
+	if (c == '\n')
+	{
+		cr = c;
+		return true;
+	}
+	else if (c == '\r')
+	{
+		cr = c;
+		c = safeget(buf);
+		if (c == '\n') cr+= c;
+		else if (c) buf.unget();
+		return true;
+	}
+	return false;
+}
+
+bool Lex::Impl::isreturn(const Token<>& t)
+{
+	if ((t.type == token_whitespace) &&
+		((t.value[0] == '\n') ||
+		(t.value[0] == '\r')))
+		return true;
+	return false;
+}
+
+void Lex::Impl::buildcomment(Buffer& b, Token<>& t)
+{
+	char c;
+	std::string cr;
+	t.type = token_comment;
+
+	while ( (c = safeget(buf)) )
+	{
+		if (c == '\\')
+		{
+			// backslash at the end of the line means ignore cr
+			c = safeget(buf);
+			if (makereturn(c, cr, buf))
+			{
+				++lineno;
+				break;
+			}
+			else if (c)
+				buf.unget();
+		}
+		else if (makereturn(c, cr, buf))
+		{
+			// If the last token was a newline, then this is a full
+			// line comment and should include the next carriage return
+			if (isreturn(lasttoken))
+				++lineno;
+			else
+			{
+				buf.unget();
+				if (cr.size() > 1)
+					buf.unget();
+			}
+			break;
+		}
+		t.value+= c;
+	}
+}
 
 } // end namespace TPTLib

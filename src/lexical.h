@@ -21,6 +21,7 @@ public:
 
 	Token<> getloosetoken();
 	Token<> getstricttoken();
+	Token<> getspecialtoken();
 	void unget(const Token<>& tok);
 	unsigned getlineno() const;
 

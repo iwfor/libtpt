@@ -132,7 +132,6 @@ void Parser::Impl::parse_dotoken(std::ostream* os, Token<> tok)
 	case token_joinline:
 		break;
 	// Just output whitespace and text.
-	case token_closebrace:
 	case token_whitespace:
 	case token_text:
 	case token_escape:

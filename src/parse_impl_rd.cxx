@@ -65,7 +65,6 @@ void Parser::Impl::num2str(int64_t value, std::string& str)
 		}
 		do {
 			--i;
-//std::cout << "(buf[" << i << "] = " << buf[i] << ")";
 			str+= buf[i];
 		} while (i);
 	}
@@ -103,9 +102,9 @@ Token<> Parser::Impl::parse_level1(Token<>& left)
 		(op.value == "||") ||
 		(op.value == "^^")))
 	{
-		Token<> right = lex.getstricttoken();
+		Token<> right = lex.getstricttoken(), nextop;
 		// we have left and operation, but no right
-		right = parse_level2(right);
+		nextop = parse_level2(right);
 		int64_t lwork = str2num(left.value), rwork = str2num(right.value);
 		if (op.value == "&&")
 			lwork = lwork && rwork;
@@ -115,7 +114,7 @@ Token<> Parser::Impl::parse_level1(Token<>& left)
 			lwork = !lwork ^ !rwork;
 		num2str(lwork, left.value);
 		// read the next operator/terminator
-		op = lex.getstricttoken();
+		op = nextop;
 	}
 
 	return op;
@@ -301,10 +300,6 @@ Token<> Parser::Impl::parse_level7(Token<>& left)
 	case token_string:
 		// string is okay
 		break;
-//	case token_comment:
-		// This should never happen unless lex is broken.
-//		std::cout << "A COMMENT?!" << std::endl;
-//		break;
 	default:
 		// This may be a unary operator or parenthesis
 		break;

@@ -1,0 +1,9 @@
+@# This is the comment test.  This line shouldn't even show up
+	@# This offset comment should generate a blank line with no space.
+Comment test.	@# All the space leading up to this comment should be ignored.
+
+@set(x, 100)	@# set my variable.\
+@if (x &&		@# check my variable,
+	1 < 2) {		@# and another condition.\
+Expression was true.
+}
