@@ -16,22 +16,28 @@
 
 namespace TPTLib {
 
-typedef std::vector< std::string > ParamList;
+// The Symbol struct is intended for use in a Symbol stack in macros
+struct Symbol {
+	std::string name;
+	std::string value;
+};
 
+// The macro struct defines parameters of a macro
+typedef std::vector< std::string > ParamList;
 struct Macro {
 	std::string name;
 	ParamList params;
+	std::string body;
 };
 
 struct Parser::Impl {
 	Lex lex;
-	unsigned lineno;
 	unsigned level;	// if/loop level
 	SymbolTable symbols;
 	ErrorList errlist;
 	Token<> tok;
 
-	Impl(Buffer& buf, const SymbolTable* st) : lex(buf), lineno(1), level(0)
+	Impl(Buffer& buf, const SymbolTable* st) : lex(buf), level(0)
 	{ if (st) symbols = *st; }
 	std::string get_symbol(const std::string& id);
 	void recorderror(const std::string& desc);
@@ -59,8 +65,6 @@ bool Parser::Impl::pass1(std::ostream* os)
 		case token_eof:
 			break;
 		case token_newline:
-			++lineno;
-			// no break; let output
 		case token_whitespace:
 		case token_text:
 			*os << tok.value;
@@ -151,7 +155,7 @@ bool Parser::Impl::getnextnonwhitespace()
 void Parser::Impl::recorderror(const std::string& desc)
 {
 	char buf[32];
-	sprintf(buf, "%u", lineno);
+	sprintf(buf, "%u", lex.getlineno());
 	std::string errstr(desc);
 	errstr+= " at line ";
 	errstr+= buf;

@@ -21,6 +21,7 @@ public:
 
 	Token<> getloosetoken();
 	Token<> getstricttoken();
+	unsigned getlineno();
 
 private:
 	struct Impl;

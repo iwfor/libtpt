@@ -36,7 +36,8 @@ const ChrSet<> set_startvarname("a-zA-Z_");
 
 struct Lex::Impl {
 	Buffer& buf;
-	Impl(Buffer& b) : buf(b) {}
+	unsigned lineno;
+	Impl(Buffer& b) : buf(b), lineno(1) {}
 	char safeget(Buffer& buf)
 		{ if (!buf) return 0; return buf.getnextchar(); }
 	Token<>::en checkreserved(const char* str);
@@ -57,6 +58,11 @@ Lex::~Lex()
 	delete imp;
 }
 
+unsigned Lex::getlineno()
+{
+	return imp->lineno;
+}
+
 Token<> Lex::getloosetoken()
 {
 	Token<> t;
@@ -75,10 +81,10 @@ Token<> Lex::getloosetoken()
 	case ' ':
 	case 255:
 	case '\t': t.type = token_whitespace; return t;
-	case '\n': t.type = token_newline; return t;
 	// For simplicity, have the strict token reader process these
 	// symbols to avoid duplicate code.
-	case '\r':	// carriage return
+	case '\n':
+	case '\r':
 	case '@':	// keyword, macro, or comment
 	case '$':	// variable name
 		buf.unget();
@@ -136,15 +142,21 @@ Token<> Lex::getstricttoken()
 			if (c) buf.unget();
 		}
 		return t;
+	// Handle whitespace
 	case ' ':
 	case 255:
 	case '\t': t.type = token_whitespace; return t;
-	case '\n': t.type = token_newline; return t;
+	// Handle new lines
+	case '\n':
+		t.type = token_newline;
+		++imp->lineno;
+		return t;
 	case '\r':
 		t.type = token_newline;
 		c = imp->safeget(buf);
 		if (c == '\n') t.value+= c;
 		else if (c) buf.unget();
+		++imp->lineno;
 		return t;
 	case '"':	// quoted strings
 		imp->getstring(t, buf);
