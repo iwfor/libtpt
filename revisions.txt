@@ -4,11 +4,13 @@ LibTPT Revisions
 Version 1.20.1
 --------------
 - Fixed unsafe typecast that was causing compilation to fail on some versions
-  of Solaris.
+  of 64-bit Solaris.
+- Enhanced configure.pl to be able to search the path for the compiler and
+  alert the user if it cannot be found.  Also worked on configure messages.
 
 Version 1.20
 ------------
-- Initial 1.20 release version.
+- Stable 1.20 release version.
 - Removed text format variables from parse_impl.h.  Text formatting will
   instead be handled by a new stream class in the an upcoming major release.
 - Added new test for @repeat.

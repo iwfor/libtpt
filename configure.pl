@@ -111,18 +111,15 @@ $opt_bindir	||= "$opt_prefix/bin";
 $opt_incdir	||= "$opt_prefix/include";
 $opt_libdir	||= "$opt_prefix/lib";
 $opt_disable_shared = 1 if $opt_bundle;
-	
+
 if ($opt_developer) {
-	$mkmf_flags .= "--developer ";
+	print "Developer extensions... enabled\n";
+	$mkmf_flags.= "--developer ";
 }
 
 #####
 # Determine C++ compiler settings
 $opt_cxx ||= $ENV{'CXX'};
-if (not -e $opt_cxx) {
-	print "ERROR The C++ compiler does not appear to be valid: $opt_cxx\n";
-	exit;
-}
 if (not $opt_cxx) {
 	print "Checking C++ compiler... ";
 	my $path;
@@ -145,6 +142,10 @@ EOT
 		exit;
 	}
 } else {
+	if (not -e $opt_cxx) {
+		print "ERROR The C++ compiler does not appear to be valid: $opt_cxx\n";
+		exit;
+	}
 	print "Using C++ compiler... $opt_cxx\n";
 }
 $ENV{'CXX'} = $opt_cxx;		# This will be passed into mkmf
@@ -156,8 +157,16 @@ generate_cmdline_makefile();
 generate_tests_makefile();
 print "\n";
 if (!$opt_bundle) {
+	print "\n";
+	print "Install Prefix:          $opt_prefix\n";
+	print "Binary Install Path:     $opt_bindir\n";
+	print "Includes Install Path:   $opt_incdir\n";
+	print "Libraries Install Path:  $opt_libdir\n";
+	print "\n";
+
 	print <<EOT;
 ===============================================================================
+
 Configuration complete.  To build, type:
 
 	make
