@@ -45,8 +45,12 @@ const ChrSet<> set_whitespace(" \t\r\n");
 struct Lex::Impl {
 	Buffer& buf;
 	unsigned lineno;
+	Token<> lasttoken;
 
-	Impl(Buffer& b) : buf(b), lineno(1) { }
+	Impl(Buffer& b) : buf(b), lineno(1) {
+		lasttoken.type = token_whitespace;
+		lasttoken.value = "\n";
+	}
 
 	char safeget(Buffer& buf)
 	{ if (!buf) return 0; return buf.getnextchar(); }
@@ -94,17 +98,40 @@ Token<> Lex::getloosetoken()
 	switch (c) {
 	case ' ':
 	case '\t':
+		t.type = token_whitespace;
 		while ( (c = imp->safeget(buf)) )
 		{
 			if ((c == ' ') || (c == '\t'))
 				t.value+= c;
+			else if (c == '@')
+			{
+				// check for comment
+				c = imp->safeget(buf);
+				if (c == '#')
+				{
+					while ( (c = imp->safeget(buf)) )
+					{
+						if ((c == '\r') || (c == '\n'))
+						{
+							buf.unget();
+							break;
+						}
+					}
+					t.type = token_comment;
+				}
+				else
+				{
+					if (c) buf.unget();
+					buf.unget();
+				}
+				break;
+			}
 			else
 			{
 				buf.unget();
 				break;
 			}
 		}
-		t.type = token_whitespace;
 		return t;
 	// For simplicity, have the strict token reader process these
 	// symbols to avoid duplicate code.
@@ -135,6 +162,8 @@ Token<> Lex::getloosetoken()
 		t.type = token_text;
 		imp->buildtoken(t.value, buf, set_alphanum);
 	}
+
+	imp->lasttoken = t;
 	return t;
 }
 
@@ -146,7 +175,7 @@ Token<> Lex::getstricttoken()
 	Buffer& buf = imp->buf;	// Lazy typist reference
 
 	// strict tokens skip white-spaces
-	while (t.type == token_whitespace)
+	while ((t.type == token_whitespace) || (t.type == token_comment))
 	{
 		if (!(c = imp->safeget(buf)))
 		{
@@ -247,15 +276,41 @@ Token<> Lex::getstricttoken()
 				imp->buildtoken(t.value, buf, set_varname);
 				t.type = imp->checkreserved(&t.value[1]);
 			}
-			else if (c == '#') // this is a comment
+			else if (c == '#') // this is a @# comment
 			{
 				// Read everything until the end of line
 				while ( (c = imp->safeget(buf)) )
 				{
-					if (c == '\n' || c == '\r')
-						buf.unget();
+					if (c == '\n')
+					{
+						if (imp->lasttoken.type == token_whitespace)
+						{
+							// Don't forget the line number!
+							++imp->lineno;
+						}
+						else
+						{
+							buf.unget();
+						}
+						break;
+					}
+					else if (c == '\r')
+					{
+						if (imp->lasttoken.type == token_whitespace)
+						{
+							c = imp->safeget(buf);
+							if (c && (c != '\n')) buf.unget();
+							// Don't forget the line number!
+							++imp->lineno;
+						}
+						else
+						{
+							buf.unget();
+						}
+					}
 					t.value+= c;
 				}
+				t.type = token_comment;
 			}
 			else
 			{
@@ -263,6 +318,8 @@ Token<> Lex::getstricttoken()
 				t.type = token_text;
 				return t;
 			}
+			if (t.type == token_comment)
+				continue;
 			return t;
 		case '$':	// variable name
 			imp->getclosedidname(t, buf);
@@ -305,6 +362,7 @@ Token<> Lex::getstricttoken()
 		imp->getidname(t, buf);
 	}
 
+	imp->lasttoken = t;
 	return t;
 }
 

@@ -19,12 +19,17 @@ namespace TPTLib {
 std::string eval(const std::string& expr, const Symbols* sym)
 {
 	Buffer buf(expr.c_str(), expr.size());
-	Symbols copy;
 	if (sym)
-		copy = *sym;
-	Parser p(buf, &copy);
-	std::string temp = p.run();
-	return temp;
+	{
+		Symbols copy(*sym);
+		Parser p(buf, &copy);
+		return p.run();
+	}
+	else
+	{
+		Parser p(buf);
+		return p.run();
+	}
 }
 
 

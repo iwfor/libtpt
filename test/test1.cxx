@@ -75,6 +75,11 @@ bool test1(unsigned testcount)
 
 		// Process the tpt file and store the result in a string
 		TPTLib::Buffer tptbuf(tptfile);
+		if (!tptbuf)
+		{
+			std::cout << "failed to read file" << std::endl;
+			continue;
+		}
 		TPTLib::Parser p(tptbuf, &sym);
 		std::string tptstr;
 		std::stringstream strs(tptstr);

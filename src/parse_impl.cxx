@@ -119,6 +119,7 @@ bool Parser::Impl::parse_loopblock(std::ostream* os)
  */
 void Parser::Impl::parse_dotoken(std::ostream* os, Token<> tok)
 {
+//	std::cout << "TOK: <" << toktypestr(tok) << "> " << tok.value << std::endl;
 	switch (tok.type)
 	{
 	// Quit on end of file.
@@ -126,6 +127,8 @@ void Parser::Impl::parse_dotoken(std::ostream* os, Token<> tok)
 		recorderror("Unexpected end of file");
 		break;
 	// Ignore join lines (i.e. backslash (\) last on line)
+	// and comments.
+	case token_comment:
 	case token_joinline:
 		break;
 	// Just output whitespace and text.

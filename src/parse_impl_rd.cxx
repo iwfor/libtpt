@@ -301,6 +301,10 @@ Token<> Parser::Impl::parse_level7(Token<>& left)
 	case token_string:
 		// string is okay
 		break;
+//	case token_comment:
+		// This should never happen unless lex is broken.
+//		std::cout << "A COMMENT?!" << std::endl;
+//		break;
 	default:
 		// This may be a unary operator or parenthesis
 		break;
