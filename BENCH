@@ -1,0 +1,9 @@
+Results from the "bench" benchmark program.  Lower numbers are better.  Test
+system is a K6-2 400MHz running on FreeBSD compiled with GCC 3.x.
+
+Version 1.11 - 173.453
+	This version removes the private implementation of Buffer, which was
+	causing a little extra overhead on accessing the template source.
+
+Version 1.10 - 178
+	This is the first version of LibTPT tested with the new benchmark program.

@@ -41,62 +41,19 @@
 
 #include "conf.h"
 #include "libtpt/buffer.h"
+#include "libtpt/tptexcept.h"
 #include <algorithm>
 #include <vector>
 #include <iostream>
 #include <fstream>
 #include <cstring>
 
+// Anonymous namespace for local constants
 namespace {
-	const unsigned BUFFER_SIZE = 8192;
+	const unsigned BUFFER_SIZE = 4096;
 }
 
 namespace TPT {
-
-struct Buffer::Impl {
-	std::istream* instr;
-	unsigned long buffersize;
-	unsigned long bufferalloc;
-	char* buffer;
-	unsigned bufferindex;
-	bool freestreamwhendone;
-	bool done;
-	
-	Impl(unsigned bufsize) :
-		buffersize(0),
-		bufferalloc(bufsize),
-		buffer(new char[bufsize]),
-		bufferindex(0),
-		freestreamwhendone(false),
-		done(false)
-		{ }
-	Impl(const char* buf, unsigned long bufsize) :
-		instr(0),
-		buffersize(bufsize),
-		bufferalloc(bufsize),
-		buffer(new char[bufsize]),
-		bufferindex(0),
-		freestreamwhendone(false),
-		done(!bufsize)	// if zero buffer, then done
-		{ memcpy(buffer, buf, bufsize); }
-	Impl(const Impl& subimp, unsigned long start, unsigned long end) :
-		instr(0),
-		buffersize(end-start),
-		bufferalloc(end-start),
-		buffer(new char[end-start]),
-		bufferindex(0),
-		freestreamwhendone(false),
-		done(!(end-start))
-		{ memcpy(buffer, &subimp.buffer[start], end-start); }
-	~Impl();
-
-	
-	void openfile(const char* filename);
-	bool readfile();
-	void enlarge();	// increase buffer size
-
-}; // end struct Buffer::Impl
-
 
 /**
  *
@@ -107,13 +64,17 @@ struct Buffer::Impl {
  * @author	Isaac W. Foraker
  *
  */
-Buffer::Buffer(const char* filename)
+Buffer::Buffer(const char* filename) :
+	instr(0),
+	buffersize(0),
+	bufferalloc(BUFFER_SIZE),
+	buffer(new char[BUFFER_SIZE]),
+	bufferindex(0),
+	freestreamwhendone(true),
+	done(false)
 {
-	imp = new Impl(BUFFER_SIZE);
-
-	imp->openfile(filename);
-	imp->freestreamwhendone = true;
-	imp->readfile();
+	openfile(filename);
+	readfile();
 }
 
 
@@ -127,12 +88,16 @@ Buffer::Buffer(const char* filename)
  * @author	Isaac W. Foraker
  *
  */
-Buffer::Buffer(std::istream* is)
+Buffer::Buffer(std::istream* is) :
+	instr(is),
+	buffersize(0),
+	bufferalloc(BUFFER_SIZE),
+	buffer(new char[BUFFER_SIZE]),
+	bufferindex(0),
+	freestreamwhendone(false),
+	done(false)
 {
-	imp = new Impl(BUFFER_SIZE);
-
-	imp->instr = is;
-	imp->readfile();
+	readfile();
 }
 
 
@@ -144,9 +109,16 @@ Buffer::Buffer(std::istream* is)
  * @author	Isaac W. Foraker
  *
  */
-Buffer::Buffer(const char* buffer, unsigned long size)
+Buffer::Buffer(const char* buf, unsigned long bufsize) :
+	instr(0),
+	buffersize(bufsize),
+	bufferalloc(bufsize),
+	buffer(new char[bufsize]),
+	bufferindex(0),
+	freestreamwhendone(false),
+	done(!bufsize)	// if zero buffer, then done
 {
-	imp = new Impl(buffer, size);
+	memcpy(buffer, buf, bufsize);
 }
 
 
@@ -158,9 +130,16 @@ Buffer::Buffer(const char* buffer, unsigned long size)
  * @author	Isaac W. Foraker
  *
  */
-Buffer::Buffer(const Buffer& buf, unsigned long start, unsigned long end)
+Buffer::Buffer(const Buffer& buf, unsigned long start, unsigned long end) :
+	instr(0),
+	buffersize(end-start),
+	bufferalloc(end-start),
+	buffer(new char[end-start]),
+	bufferindex(0),
+	freestreamwhendone(false),
+	done(!(end-start))
 {
-	imp = new Impl(*buf.imp, start, end);
+	memcpy(buffer, &buf.buffer[start], end-start);
 }
 
 
@@ -171,7 +150,9 @@ Buffer::Buffer(const Buffer& buf, unsigned long start, unsigned long end)
  */
 Buffer::~Buffer()
 {
-	delete imp;
+	delete buffer;
+	if (freestreamwhendone && instr)
+		delete instr;
 }
 
 
@@ -189,15 +170,13 @@ Buffer::~Buffer()
  */
 char Buffer::getnextchar()
 {
-	register char c = imp->buffer[imp->bufferindex];
-	++imp->bufferindex;
+	register char c = buffer[bufferindex];
+	++bufferindex;
 
 	// If our buffer is empty, try reading from the stream
 	// if there is one.
-	if (imp->bufferindex >= imp->buffersize)
-	{
-		imp->readfile();
-	}
+	if (bufferindex >= buffersize)
+		readfile();
 
 	return c;
 }
@@ -215,11 +194,11 @@ char Buffer::getnextchar()
  */
 bool Buffer::unget()
 {
-	if (!imp->bufferindex)
+	if (!bufferindex)
 		return true;
 
-	--imp->bufferindex;
-	imp->done = false;
+	--bufferindex;
+	done = false;
 	return false;
 }
 
@@ -235,7 +214,7 @@ bool Buffer::unget()
  */
 void Buffer::reset()
 {
-	imp->bufferindex = 0;
+	bufferindex = 0;
 }
 
 
@@ -254,12 +233,13 @@ void Buffer::reset()
  */
 bool Buffer::seek(unsigned long index)
 {
-	while (!imp->done && (index >= imp->buffersize))
-		imp->readfile();
-	if (index >= imp->buffersize)
+	// This loop allows seeking to part of buffer that has not yet been read.
+	while (!done && (index >= buffersize))
+		readfile();
+	if (index >= buffersize)
 		return true;
-	imp->bufferindex = index;
-	imp->done = false;
+	bufferindex = index;
+	done = false;
 
 	return false;
 }
@@ -277,7 +257,7 @@ bool Buffer::seek(unsigned long index)
  */
 unsigned long Buffer::offset() const
 {
-	return imp->bufferindex;
+	return bufferindex;
 }
 
 
@@ -294,9 +274,11 @@ unsigned long Buffer::offset() const
  */
 const char Buffer::operator[](unsigned long index)
 {
-	while (!imp->done && (index >= imp->buffersize))
-		imp->readfile();
-	return imp->buffer[index];
+	while (!done && (index >= buffersize))
+		readfile();
+	if (index >= buffersize)
+		throw tptexception("Index out of bounds");
+	return buffer[index];
 }
 
 
@@ -320,7 +302,7 @@ const char Buffer::operator[](unsigned long index)
  */
 Buffer::operator bool() const
 {
-	return !imp->done;
+	return !done;
 }
 
 
@@ -337,15 +319,7 @@ Buffer::operator bool() const
  */
 unsigned long Buffer::size() const
 {
-	return imp->buffersize;
-}
-
-
-Buffer::Impl::~Impl()
-{
-	delete buffer;
-	if (freestreamwhendone)
-		delete instr;
+	return buffersize;
 }
 
 
@@ -358,7 +332,7 @@ Buffer::Impl::~Impl()
  * @author	Isaac W. Foraker
  *
  */
-void Buffer::Impl::openfile(const char* filename)
+void Buffer::openfile(const char* filename)
 {
 	std::fstream* is = new std::fstream(filename, std::ios::in | std::ios::binary);
 
@@ -377,13 +351,13 @@ void Buffer::Impl::openfile(const char* filename)
  * @return	true if no more data
  *
  */
-bool Buffer::Impl::readfile()
+bool Buffer::readfile()
 {
 	if (!done && instr && !instr->eof())
 	{
 		char buf[BUFFER_SIZE];
 		size_t size = 0;
-		if (instr->read(buf, BUFFER_SIZE-1) || instr->gcount())
+		if (instr->read(buf, BUFFER_SIZE) || instr->gcount())
 			size = instr->gcount();
 		if (!size)
 			done = true;
@@ -406,7 +380,7 @@ bool Buffer::Impl::readfile()
  * Increase the size of the buffer by BUFFER_SIZE
  *
  */
-void Buffer::Impl::enlarge()
+void Buffer::enlarge()
 {
 	bufferalloc+= BUFFER_SIZE;
 	char* temp = new char[bufferalloc];

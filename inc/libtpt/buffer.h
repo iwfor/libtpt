@@ -84,9 +84,19 @@ public:
 	unsigned long size() const;
 
 private:
-	struct Impl;
-	Impl* imp;
+	std::istream* instr;
+	unsigned long buffersize;
+	unsigned long bufferalloc;
+	char* buffer;
+	unsigned bufferindex;
+	bool freestreamwhendone;
+	bool done;
 
+	void openfile(const char* filename);
+	bool readfile();
+	void enlarge();	// increase buffer size
+
+	// Prevent use of this constructor
 	Buffer();
 	
 }; // end class Buffer
