@@ -48,8 +48,14 @@ use Cwd qw(cwd chdir);
 
 #####
 # Global Variables
+use vars qw{$opt_help $opt_bundle $opt_developer $opt_prefix $opt_bindir
+			$opt_incdir $opt_incdir $opt_libdir $opt_cxx $opt_disable_shared};
+
+# Possible names for the compiler
+my @cxx_guess = qw(g++ c++ CC cl bcc32);
+
+# The current directory
 my $cwd = cwd();
-my %clo;
 
 my $mkmf	= "${cwd}/tools/mkmf";
 my $cxxflags	= "${cwd}/tools/cxxflags";
@@ -61,6 +67,7 @@ my $install_spec= "doc/install.spec";
 my $includes	= "--include '${cwd}/inc' ";
 my $libraries	= "--slinkwith '${cwd}/src/lib,$libname' ";
 
+# All the directories that get compiled
 my @extra_compile = (
 	"${cwd}/src/lib",
 	"${cwd}/src/cli",
@@ -72,7 +79,6 @@ my @extra_compile = (
 $|++;
 
 GetOptions(
-	\%clo,
 	'help',
 	'bundle',			# do not display build info
 	'disable-shared',	# For future use
@@ -83,7 +89,7 @@ GetOptions(
 	'libdir=s',
 	'cxx=s'
 ) or usage();
-$clo{'help'} && usage();
+$opt_help && usage();
 
 sub usage {
 	print "Usage: $0 [options]\n", <<EOT;
@@ -100,30 +106,48 @@ EOT
 	exit;
 }
 
-if ($clo{'cxx'}) {
-	$ENV{'CXX'} = $clo{'cxx'};
-}
-
-if (not defined $ENV{'CXX'}) {
-	print STDERR <<EOT;
-*** You must specify your compiler either with the --cxx command ***
-*** line parameter or by setting the CXX environment variable.   ***
-*** Please specify the path to your compiler when you re-run     ***
-*** configure.pl.  Thanks.                                       ***
-EOT
-	exit 1;
-}
-
-
-$clo{'prefix'}	||= "/usr/local";
-$clo{'bindir'}	||= "$clo{'prefix'}/bin";
-$clo{'incdir'}	||= "$clo{'prefix'}/include";
-$clo{'libdir'}	||= "$clo{'prefix'}/lib";
-$clo{'disable-shared'} = 1 if $clo{'bundle'};
+$opt_prefix	||= "/usr/local";
+$opt_bindir	||= "$opt_prefix/bin";
+$opt_incdir	||= "$opt_prefix/include";
+$opt_libdir	||= "$opt_prefix/lib";
+$opt_disable_shared = 1 if $opt_bundle;
 	
-if ($clo{'developer'}) {
+if ($opt_developer) {
 	$mkmf_flags .= "--developer ";
 }
+
+#####
+# Determine C++ compiler settings
+$opt_cxx ||= $ENV{'CXX'};
+if (not -e $opt_cxx) {
+	print "ERROR The C++ compiler does not appear to be valid: $opt_cxx\n";
+	exit;
+}
+if (not $opt_cxx) {
+	print "Checking C++ compiler... ";
+	my $path;
+	# search for a compiler
+	foreach (@cxx_guess) {
+		if ($path = search_path($_)) {
+			$opt_cxx = "$path/$_";
+			last;
+		}
+	}
+	if ($opt_cxx) {
+		print "$opt_cxx\n";
+	} else {
+		print <<EOT;
+Not found.
+
+You must specify your C++ compiler with the --cxx parameter or by setting the
+CXX environment variable.
+EOT
+		exit;
+	}
+} else {
+	print "Using C++ compiler... $opt_cxx\n";
+}
+$ENV{'CXX'} = $opt_cxx;		# This will be passed into mkmf
 
 print "Generating libtpt Makefiles ";
 generate_toplevel_makefile();
@@ -131,24 +155,23 @@ generate_library_makefile();
 generate_cmdline_makefile();
 generate_tests_makefile();
 print "\n";
-if (!$clo{'bundle'}) {
+if (!$opt_bundle) {
 	print <<EOT;
-+-------------------------------------------------------------+
-| Okay, looks like you are ready to go.  To build, type:      |
-|                                                             |
-|       make                                                  |
-|                                                             |
-| If you would then like to run the tests, type:              |
-|                                                             |
-|       cd test/                                              |
-|       ./test.sh                                             |
-|                                                             |
-| To install, type:                                           |
-|                                                             |
-|       make install                                          |
-|                                                             |
-| While you wait, why not drop a note to isaac\@tazthecat.net? |
-+-------------------------------------------------------------+
+===============================================================================
+Configuration complete.  To build, type:
+
+	make
+
+To run the tests, type:
+
+	cd test/
+	./test.sh
+
+To install, type:
+
+	make install
+
+===============================================================================
 EOT
 }
 
@@ -158,11 +181,11 @@ sub generate_toplevel_makefile {
 		exit 1;
 	}
 
-	print SPEC "bindir=$clo{'bindir'}\n";
+	print SPEC "bindir=$opt_bindir\n";
 	print SPEC "binary src/cli/tpt\n";
-	print SPEC "libdir=$clo{'libdir'}\n";
+	print SPEC "libdir=$opt_libdir\n";
 	print SPEC "static-lib src/lib tpt\n";
-	print SPEC "includedir=$clo{'incdir'}\n";
+	print SPEC "includedir=$opt_incdir\n";
 	print SPEC "include-dir inc/libtpt libtpt\n";
 	close SPEC;
 
@@ -204,4 +227,37 @@ sub generate_tests_makefile {
 	system("$^X $mkmf $mkmf_flags $includes $libraries --quiet --many-exec *.cxx");
 	print ".";
 	chdir $cwd;
+}
+
+sub search_path {
+	my $prog = shift;
+	# Determine search paths
+	my $path = $ENV{'PATH'} || $ENV{'Path'} || $ENV{'path'};
+	my @paths = split /[;| |:]/, $path;
+
+	my $ext = $^O =~ /win/i ? '.exe' : '';
+
+	foreach (@paths) {
+		if (-e "$_/$prog$ext") {
+			return $_;
+		}
+	}
+	return undef;
+}
+
+sub run_command {
+	my $cmd = shift;
+	my $output;
+
+	# Note, INSTREAM is ignored.
+	my $pid = open3(\*INSTREAM, \*OUTSTREAM, \*OUTSTREAM, $cmd);
+
+	if (not $pid) {
+		return undef;
+	}
+	while (<OUTSTREAM>) {
+		$output.= $_;
+	}
+	waitpid($pid, 0);
+	return $output;
 }
