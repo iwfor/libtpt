@@ -68,9 +68,6 @@ void Parser_Impl::srandom32()
 	kiss_seed = time(NULL);
 	// Then we mix the time with the process id.
 	kiss_seed = (kiss_seed << 16) ^ kiss_seed ^ (getpid()<<1);
-	// and end by mixing in the address of *this.
-	// is this cast okay?
-	kiss_seed^= reinterpret_cast<unsigned int>(this);
 	kiss_x = kiss_seed | 1;
 	kiss_y = kiss_seed | 2;
 	kiss_z = kiss_seed | 4;
