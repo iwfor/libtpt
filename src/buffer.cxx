@@ -372,6 +372,11 @@ bool Buffer::Impl::readfile()
 	return done;
 }
 
+
+/*
+ * Increase the size of the buffer by BUFFER_SIZE
+ *
+ */
 void Buffer::Impl::enlarge()
 {
 	bufferalloc+= BUFFER_SIZE;
