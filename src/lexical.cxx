@@ -458,7 +458,7 @@ void Lex::Impl::getidname(Token<>& t, Buffer& buf)
 void Lex::Impl::getbracketexpr(Token<>& t, Buffer& buf)
 {
 	// assume last char was '['
-	char c;
+	char c = 0;
 	while ( (t.type != token_error) && (c = safeget(buf)) )
 	{
 		if (c == ']')
