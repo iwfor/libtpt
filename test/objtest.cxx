@@ -16,7 +16,7 @@ using TPT::Object;
 
 void test1();
 
-int main(int argc, char* argv[])
+int main()
 {
 	try {
 		test1();
