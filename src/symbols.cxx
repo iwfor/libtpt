@@ -225,11 +225,11 @@ bool Symbols::Impl::getrealid(const SymbolKeyType& id,
 
 	// Check for array ref
 	size_t obracket(id.find('['));
-	if (obracket != SymbolKeyType.npos)
+	if (obracket != SymbolKeyType::npos)
 	{
 		// There is an array index here
 		size_t cbracket(id.find(']'));
-		if (cbracket == SymbolKeyType.npos)
+		if (cbracket == SymbolKeyType::npos)
 		{
 			// syntax error (lex should prevent this)
 			return false;
