@@ -23,6 +23,7 @@
 #include "tptlib/buffer.h"
 
 #include <cstring>
+//#include <iostream>
 
 namespace TPTLib {
 
@@ -205,6 +206,7 @@ Token<> Lex::getstricttoken()
 		}
 		return t;
 	case '$':	// variable name
+//		std::cout << "\nPARSING SYMBOL ID" << std::endl;
 		imp->getclosedidname(t, buf);
 		return t;
 	case '>':
@@ -297,6 +299,7 @@ void Lex::Impl::getclosedidname(Token<>& t, Buffer& buf)
 	c = safeget(buf);
 	if (c != '{')
 	{
+//		std::cout << "\nNOT A SYMBOL AFTER ALL" << std::endl;
 		if (c) buf.unget();
 		t.type = token_text;
 		return;
@@ -306,7 +309,7 @@ void Lex::Impl::getclosedidname(Token<>& t, Buffer& buf)
 	// Start keeping track of open braces
 	c = safeget(buf);
 	if (c == set_startvarname)
-		t.value = c;
+		t.value+= c;
 	else if (c == '$')
 	{
 		t.value+= c;
@@ -326,6 +329,8 @@ void Lex::Impl::getclosedidname(Token<>& t, Buffer& buf)
 			t.value+= c;
 			getclosedidname(t, buf);
 		}
+		else if (c == '}')
+			continue;
 		else if (c != set_varname)
 		{
 			t.type = token_error;
@@ -341,6 +346,7 @@ void Lex::Impl::getclosedidname(Token<>& t, Buffer& buf)
 	}
 	else
 		t.type = token_error;
+//	std::cout << "\nCREATED ID: " << t.value << std::endl;
 }
 
 /*

@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include <iostream>
 
 namespace TPTLib {
 
@@ -33,6 +34,7 @@ bool Parser::Impl::pass1(std::ostream* os)
 		// Expand symbols.
 		case token_id:
 			*os << symbols.get(tok.value);
+			break;
 		// Break loop and return if this is the end of a section.
 		case token_closebrace:
 			if (level)	// if in a block, this is the end of it

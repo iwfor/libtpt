@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <cstring>
 
 bool test1(const char* filename);
 
@@ -51,12 +52,19 @@ int main(int argc, char* argv[])
 
 bool test1(const char* filename)
 {
+	char tptfile[256], outfile[256];
+	strcpy(tptfile, filename);
+	strcpy(outfile, filename);
+	strcat(tptfile, ".tpt");
+	strcat(outfile, ".out");
+
 	TPTLib::SymbolTable sym;
-	TPTLib::Buffer buf(filename);
+	TPTLib::Buffer buf(tptfile);
 
 	sym["var"] = "this is the value of var";
 
 	TPTLib::Parser p(buf, &sym);
+	p.run(std::cout);
 
 	return false;
 }
