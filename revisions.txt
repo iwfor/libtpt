@@ -3,6 +3,8 @@ LibTPT Revisions
 
 Version 1.13-beta
 -----------------
+- Changed the way symbols are copied into the parser to allow for an
+  interactive parser class that allows the user's symbols table to be updated.
 - Added IParse (Interactive Parse) class that allows modifications to the
   symbols table to be passed back to the calling program.
 

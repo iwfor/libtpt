@@ -1,5 +1,5 @@
 /*
- * test1.cxx
+ * test2.cxx
  *
  * $Id$
  */
@@ -44,7 +44,7 @@
 #include <ostream>
 #include <cstring>
 
-bool test1(unsigned testcount);
+bool test2(unsigned testcount);
 
 int main(int argc, char* argv[])
 {
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 	}
 
 	try {
-		r = test1(std::atoi(argv[1]));
+		r = test2(std::atoi(argv[1]));
 		result|= r;
 	} catch(const std::exception& e) {
 		result = true;
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 
 #include "shared.inl"
 
-bool test1(unsigned testcount)
+bool test2(unsigned testcount)
 {
 	TPT::ErrorList errlist;
 	bool result = false;
@@ -95,8 +95,8 @@ bool test1(unsigned testcount)
 
 	for (i = 0; i < testcount; ++i) {
 		// generate test file names by rule
-		sprintf(tptfile, "tests/test%u.tpt", i+1);
-		sprintf(outfile, "tests/test%u.out", i+1);
+		snprintf(tptfile, sizeof(tptfile), "tests/test%u.tpt", i+1);
+		snprintf(outfile, sizeof(outfile), "tests/test%u.out", i+1);
 
 		// Process the tpt file and store the result in a string
 		TPT::Parser p(tptfile, sym);
@@ -128,6 +128,7 @@ bool test1(unsigned testcount)
 std::cout << "\ntptstr = (" << strs.str().size() << ")\n<quote>" << strs.str() << "</quote>" <<std::endl;
 std::cout << "\noutstr = (" << outstr.size() << ")\n<quote>" << outstr << "</quote>" <<std::endl;
 		}
+		// TODO: Check output variables
 	}
 
 	return result;
