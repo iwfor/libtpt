@@ -27,13 +27,21 @@ namespace TPTLib {
 int64_t str2num(const char* str)
 {
 	int64_t value = 0;
+	bool isneg(false);
 
+	if (*str == '-')
+	{
+		++str;
+		isneg = true;
+	}
 	while (*str)
 	{
 		value*= 10;
 		value+= (*str) - '0';
-		str++;
+		++str;
 	}
+	if (isneg)
+		value = -value;
 	return value;
 }
 
@@ -53,16 +61,19 @@ void num2str(int64_t value, std::string& str)
 	else
 	{
 		int i=0;
-		bool sign = value < 0;
+		if (value < 0)
+		{
+			str = '-';
+			value = -value;
+		}
 		while (value)
 		{
 			buf[i++] = static_cast<char>(value % 10) + '0';
 			value/= 10;
 		}
-		if (sign)
-			str+= '-';
 		do {
 			--i;
+//std::cout << "(buf[" << i << "] = " << buf[i] << ")";
 			str+= buf[i];
 		} while (i);
 	}

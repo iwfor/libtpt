@@ -1,0 +1,9 @@
+@set(x, 100)\
+@set(y, 0)\
+@set(z, 16)\
+@set(result, 64 * (x + y) / -z)\
+x = ${x}
+y = ${y}
+z = ${z}
+64 * (x + y) / -z = ${result}
+
