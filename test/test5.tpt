@@ -1,0 +1,2 @@
+This variable should be undefined: "${undefined}"
+template_library: "${template_library}"
