@@ -10,6 +10,7 @@ default: libtpt.a
 
 libtpt.a: ${OBJECTS}
 	${AR} ${ARFLAGS} libtpt.a ${OBJECTS}
+	cp -p libtpt.a ../lib/
 
 clean:
 	rm -f *.core ${OBJECTS} libtpt.a
