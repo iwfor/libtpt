@@ -86,6 +86,7 @@ Token<> Lex::getloosetoken()
 	// symbols to avoid duplicate code.
 	case '\n':
 	case '\r':
+	case '\\':	// escape character
 	case '@':	// keyword, macro, or comment
 	case '$':	// variable name
 		buf.unget();

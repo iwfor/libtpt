@@ -17,6 +17,7 @@ namespace TPTLib {
 
 bool Parser::Impl::pass1(std::ostream* os)
 {
+	symbols.dump();
 	do {
 		// Read a loosely defined token for outer pass
 		tok = lex.getloosetoken();
@@ -24,6 +25,9 @@ bool Parser::Impl::pass1(std::ostream* os)
 		{
 		// Quit on end of file.
 		case token_eof:
+			break;
+		// Ignore join lines (i.e. backslash (\) last on line)
+		case token_joinline:
 			break;
 		// Just output whitespace and text.
 		case token_newline:

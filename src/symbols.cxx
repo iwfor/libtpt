@@ -13,6 +13,8 @@
 #include <tptlib/symbols.h>
 #include <tptlib/parse.h>
 
+#include <iostream>
+
 namespace TPTLib {
 
 /**
@@ -37,7 +39,8 @@ std::string SymbolMap::get(const std::string& id)
 	{
 		SymbolTable::const_iterator it(symmap.find(id));
 		if (it == symmap.end())
-			return "";
+//			return "";
+			return "<not found>";
 		return (*it).second;
 	}
 
@@ -138,5 +141,19 @@ void SymbolStack::popall(SymbolMap& symmap)
 		symmap.set(sym.id, sym.value);
 	}
 }
+
+/**
+ *
+ * For debugging purposes
+ *
+ */
+void SymbolMap::dump()
+{
+	SymbolTable::const_iterator it(symmap.begin()), end(symmap.end());
+
+	for (; it != end; ++it)
+		std::cout << (*it).first << " = " << (*it).second << std::endl;
+}
+
 
 } // end namespace TPTLib

@@ -34,7 +34,7 @@ struct Parser::Impl {
 	Impl(Buffer& buf, const SymbolTable* st) : lex(buf), level(0),
 		symbols(localsymmap) { if (st) localsymmap = *st; }
 	Impl(Buffer& buf, SymbolMap& sm) : lex(buf), level(0),
-		symbols(localsymmap) { }
+		symbols(sm) { }
 	void recorderror(const std::string& desc);
 	bool getnextparam(std::string& value);
 	bool getnextnonwhitespace();
