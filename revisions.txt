@@ -1,6 +1,11 @@
 LibTPT Revisions
 ================
 
+Version 1.20.1a
+---------------
+- Bundled with a new version of cxxtools which work around a problem in Perl
+  5.8.  This only affects configure.pl.
+
 Version 1.20.1
 --------------
 - Fixed unsafe typecast that was causing compilation to fail on some versions

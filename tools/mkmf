@@ -104,11 +104,19 @@ GetOptions(
     'install=s',
     'test-cmds=s',
     'with-test:s',
+    'append=s@',
+    'clean-target=s@',
+    'clean-file=s@',
+    'fake-header=s@',
     'mt!',
 ) or usage();
 $clo{'help'} && usage();
 $clo{'linkwith'} ||= [];
 $clo{'include'} ||= [];
+$clo{'append'}	||= [];
+$clo{'clean-target'} ||= [];
+$clo{'clean-file'} ||= [];
+$clo{'fake-header'} ||= [];
 
 sub usage {
     print "Usage: $0 <options> <source files>\n", <<EOT;
@@ -137,6 +145,10 @@ sub usage {
 			 directories to include in the wrap. Default to all.
   --test-cmds            Add a test target that executes the given
                          comma seperated list of commands
+  --append filename      Append the given file to the Makefile
+  --clean-target target  Add another target to the clean target
+  --clean-file filename  Remove the given file on a make clean
+  --fake-header filename Create a temp file for dependancies
 
 You must give a target type as well, target types are:
   --one-exec
@@ -158,6 +170,7 @@ $ENV{'CXX'}	    ||= 'c++';
 $ENV{'CXXFLAGS'}    ||= '';
 $ENV{'LD'}	    ||= `$^X $clo{'cxxflags'} --linker`; chomp $ENV{'LD'};
 $ENV{'LDFLAGS'}	    ||= '';
+$ENV{'POST_LDFLAGS'}||= '';
 
 if ($clo{'setid'}) {
     addflags($clo{'cxxflags'}, " --setid $clo{'setid'}");
@@ -229,7 +242,7 @@ foreach (@{$clo{'linkwith'}}) {
 }
 
 foreach (@{$clo{'include'}}) {
-    addflags($ENV{'CXXFLAGS'}, "-I'$_'");
+    addflags($ENV{'CXXFLAGS'}, "-I$_");
 }
 
 if (!$clo{'static-lib'} && !$clo{'shared-lib'} && !$clo{'many-exec'} && !$clo{'one-exec'} && !$clo{'wrapper'}) {
@@ -260,6 +273,7 @@ if (!$clo{'wrapper'}) {
     print MF "SARFLAGS=$sarflags\n";
     print MF "LD=$ENV{LD}\n";
     print MF "LDFLAGS=$ENV{LDFLAGS}\n";
+    print MF "POST_LDFLAGS=$ENV{POST_LDFLAGS}\n";
     print MF "OBJECTS=", join(' ', @objects), "\n";
 }
 
@@ -288,7 +302,7 @@ if ($clo{'one-exec'}) {
     print MF "\n";
 
     print MF "$target: \$(OBJECTS)\n";
-    print MF "\t\$(LD) $mkexec \$(OBJECTS) \$(LDFLAGS)\n";
+    print MF "\t\$(LD) $mkexec \$(OBJECTS) \$(LDFLAGS) \$(POST_LDFLAGS)\n";
 } elsif ($clo{'many-exec'}) {
     my $x;
 
@@ -308,7 +322,7 @@ if ($clo{'one-exec'}) {
 	my $mkexec; chomp($mkexec = `$^X $clo{'cxxflags'} --mkexec $exec`);
 
 	print MF "$exec: $obj\n";
-	print MF "\t\$(LD) $mkexec $obj \$(LDFLAGS)\n";
+	print MF "\t\$(LD) $mkexec $obj \$(LDFLAGS) \$(POST_LDFLAGS)\n";
 	print MF "\n";
     }
 } elsif ($clo{'static-lib'} or $clo{'shared-lib'}) {
@@ -337,7 +351,7 @@ if ($clo{'one-exec'}) {
 
     if ($clo{'shared-lib'}) {
 	print MF "$shared_target: \$(OBJECTS)\n";
-	print MF "\t\$(SAR) \$(SARFLAGS) $shared_lib \$(OBJECTS)\n";
+	print MF "\t\$(SAR) \$(SARFLAGS) $shared_lib \$(OBJECTS) \$(POST_LDFLAGS)\n";
 	print MF "\n";
     }
 } elsif ($clo{'wrapper'}) {
@@ -351,7 +365,8 @@ if ($clo{'one-exec'}) {
     }
     print MF "\n";
 
-    print MF "clean:\n";
+    print MF "clean: ", join(' ', @{$clo{'clean-target'}}), "\n";
+    print MF "\t- $rmf ", join(' ', @{$clo{'clean-file'}}), "\n" if @{$clo{'clean-file'}};
     foreach my $dir (@ARGV) {
 	print MF "\t\@(cd $dir; \${MAKE} clean)\n";
     }
@@ -381,6 +396,24 @@ if ($clo{'test-cmds'}) {
 }
 	
 if ($depend_flag && $clo{'developer'} && !$clo{'wrapper'}) {
+    my @to_unlink;
+
+    foreach my $fake_header (@{$clo{'fake-header'}}) {
+	if (-e $fake_header) {
+	    print STDERR "$0: $fake_header already exists\n";
+	    next;
+	}
+
+	unless (open(FH, ">$fake_header")) {
+	    print STDERR "$0: could not create $fake_header: $!\n";
+	    next;
+	}
+
+	print FH "/* fake header */\n";
+	close FH;
+	push(@to_unlink, $fake_header);
+    }
+
     foreach (@ARGV) {
 	print "  ===> Generating Dependancy Information for $_\n"
 	    unless $clo{'quiet'};
@@ -388,11 +421,14 @@ if ($depend_flag && $clo{'developer'} && !$clo{'wrapper'}) {
 	print MF `$ENV{'CXX'} $ENV{'CXXFLAGS'} $depend_flag $_`;
 	print MF "\n";
     }
+
+    unlink(@to_unlink);
 }
 
 if (!$clo{'wrapper'}) {
-    print MF "clean:\n";
-    print MF "\t- $rmf \$(OBJECTS) \$(TARGETS) *.core core\n";
+    print MF "clean: ", join(' ', @{$clo{'clean-target'}}), "\n";
+    print MF "\t- $rmf \$(OBJECTS) \$(TARGETS) *.core core ", join(' ', @{$clo{'clean-file'}}), "\n";
+    print MF "\t- rm -rf SunWS_cache ir.out\n" if $^O eq 'solaris';
     print MF "\n";
 
     print MF "realclean: clean\n";
@@ -404,10 +440,20 @@ if (!$clo{'wrapper'}) {
     print MF "\n";
 
     print MF ".cxx.o:\n";
+
+    if ($^O eq 'solaris' and $clo{'many-exec'}) {
+	print MF "\t\@if test -d SunWS_cache ; then rm -rf SunWS_cache; fi\n";
+    }
+
     print MF "\t\$(CXX) \$(CXXFLAGS) -c \$<\n";
     print MF "\n";
 
     print MF ".cxx.obj:\n";
+
+    if ($^O eq 'solaris' and $clo{'many-exec'}) {
+	print MF "\t\@if test -d SunWS_cache ; then rm -rf SunWS_cache; fi\n";
+    }
+
     print MF "\t\$(CXX) \$(CXXFLAGS) -c \$<\n";
     print MF "\n";
 }
@@ -427,6 +473,7 @@ if ($clo{'install'} and $^O !~ /mswin/) {
     );
 
     my @binaries;
+    my @pkgconfig;
     my @include_files;
     my @include_dirs;
     my @static_libraries;
@@ -448,7 +495,7 @@ if ($clo{'install'} and $^O !~ /mswin/) {
 	    }
 
 	    $vars{$key} = $value;
-	} elsif (/^include-dir\s+([^\s]+)\s+([^\s]+)$/) {
+	} elsif (/^include-dir\s+(\S+)\s+(\S+)$/) {
 	    if (! -d $1) {
 		print STDERR "$0: warning, $1 is not a directory.\n";
 		print STDERR "$0: from $clo{'install'}:$.\n";
@@ -456,7 +503,7 @@ if ($clo{'install'} and $^O !~ /mswin/) {
 	    }
 
 	    push(@include_dirs, [$1, $2]);
-	} elsif (/^include-files?\s+([^\s]+)$/) {
+	} elsif (/^include-files?\s+(\S+)$/) {
 	    my @files = glob($1);
 
 	    if (!@files) {
@@ -470,12 +517,14 @@ if ($clo{'install'} and $^O !~ /mswin/) {
 	    for (my $i=0; $i<@files; ++$i) {
 		push(@include_files, [$files[$i], $names[$i]]);
 	    }
-	} elsif (/^binary\s+([^\s]+)$/) {
+	} elsif (/^binary\s+(\S+)$/) {
 	    my ($full, $base) = ($1, $1);
 	    $base =~ s(^.*/)();
 
 	    push(@binaries, [$full, $base]);
-	} elsif (/^(static-lib|shared-lib)\s+([^\s]+)\s+([^\s]+)\s*(\d+)?$/) {
+	} elsif (/^pkgconfig\s+(\S+)$/) {
+	    push(@pkgconfig, $1);
+	} elsif (/^(static-lib|shared-lib)\s+(\S+)\s+(\S+)\s*(\d+)?$/) {
 	    if (! -d $2) {
 		print STDERR "$0: first option to $1 should be a directory.\n";
 		print STDERR "$0: $2 is not a directory.\n";
@@ -509,11 +558,17 @@ if ($clo{'install'} and $^O !~ /mswin/) {
 	print MF "\tmkdir -p $vars{'BINDIR'}\n" if @binaries;
 	print MF "\tmkdir -p $vars{'INCLUDEDIR'}\n" if @include_files or @include_dirs;
 	print MF "\tmkdir -p $vars{'LIBDIR'}\n" if @static_libraries or @shared_libraries;
+	print MF "\tmkdir -p $vars{'LIBDIR'}/pkgconfig\n" if @pkgconfig;
 	print MF "\tmkdir -p $vars{'MANDIR'}\n" if @man_pages;
 
 	foreach my $binary (@binaries) {
 	    print MF "\tcp $binary->[0] $vars{'BINDIR'}/$binary->[1]\n";
 	    print MF "\tchmod 755 $vars{'BINDIR'}/$binary->[1]\n";
+	}
+
+	foreach my $pc (@pkgconfig) {
+	    print MF "\tcp $pc $vars{'LIBDIR'}/pkgconfig/$pc\n";
+	    print MF "\tchmod 644 $vars{'LIBDIR'}/pkgconfig/$pc\n";
 	}
 
 	foreach my $directory (@include_dirs) {
@@ -556,6 +611,17 @@ if ($clo{'install'} and $^O !~ /mswin/) {
 
 	print MF "\n";
     }
+}
+
+foreach my $append (@{$clo{'append'}}) {
+    unless (open(AP, $append)) {
+	print STDERR "$0: can't open '$append' so that I could append it to the Makefile\n";
+	exit 1;
+    }
+
+    print MF "\n";
+    while (<AP>) { print MF; }
+    close AP;
 }
 
 close MF;

@@ -244,7 +244,7 @@ sub stat_compiler {
 	$flags{'ar'}		= $ENV{'AR'} || 'ar';
 	$flags{'arflags'}	= $ENV{'ARFLAGS'} || 'rc';
 	$flags{'sar'}		= $clo{'cxx'};
-	$flags{'sarflags'}	= "";
+	$flags{'sarflags'}	= $ENV{'LDFLAGS'} || '';
 	$flags{'warn'}		= '-Wall -W -Wcast-align -Wwrite-strings';
 	$flags{'object-ext'}	= '.o';
 	$flags{'static-ext'}	= '.a';
@@ -276,7 +276,7 @@ sub stat_compiler {
 	    my ($path, $lib) = split(/,/, $_, 2);
 	    if ($lib) {
 		$lib =~ s/^lib//;
-		$flags{'linkwith'} .= "-L'$path' -l$lib ";
+		$flags{'linkwith'} .= "-L$path -l$lib ";
 	    } else {
 		$path =~ s/^lib//;
 		$flags{'linkwith'} .= "-l$path";
@@ -287,12 +287,12 @@ sub stat_compiler {
 	    $flags{'mtlink'} .= " -pthread";
 	    $flags{'arextra'}.= "ranlib";
 	} elsif ($^O =~ /darwin/i) {
-	    $flags{'pic'} = '-shared';
+	    $flags{'pic'} = '';
 	    $flags{'shared.ext'} = '.dylib';
 	    $flags{'exec-ext'} = '';
 	    $flags{'arextra'} = "ranlib";
 	} elsif ($^O =~ /cygwin/i) {
-	    $flags{'pic'} = '-shared';
+	    $flags{'pic'} = '';
 	} else {
 	    $flags{'mtlink'} .= " -lpthread";
 	    $flags{'pic'} = '-fpic -shared';
@@ -300,6 +300,44 @@ sub stat_compiler {
 
 	$flags{'getid'} = "gcc-$linker";
 	return;
+    }
+
+    ################################################################################
+    # Microsoft Visual C++ (cl.exe)
+    if ($clo{'setid'} && $clo{'setid'} =~ /^microsoft/) {
+	$output = 'Microsoft';
+    } else {
+	$output = `$clo{'cxx'} -verbose=version 2>&1`;
+    }
+    if ($output =~ /Microsoft/) {
+
+	$flags{'debug'}		= '/Od /Gz /Zi';
+	$flags{'debug'}        .= '/GA' if ($clo{'mkstatic'});
+	$flags{'debug'}        .= '/GD' if ($clo{'mkshared'});
+	$flags{'depend'}	= '';
+	$flags{'pic'}		= '';
+	$flags{'optimize'}	= '/O2 /GB';
+	$flags{'ar'}		= $clo{'cxx'};
+	$flags{'ar'}		=~ s/^(.*)([\/\\]).*$/$1$2lib.exe/;
+#	$flags{'arflags'}	= '-xar -o';
+	$flags{'sar'}		= $flags{'ar'};
+	$flags{'sarflags'}	= "/SL";
+	$flags{'sarflags'}     .= 'd' if ($flags{'debug'});
+	$flags{'warn'}		= '/W3';
+	$flags{'object-ext'}	= '.obj';
+	$flags{'static-ext'}	= '.lib';
+	$flags{'shared-ext'}	= '.dll';
+	$flags{'static-pre'}	= '';
+	$flags{'shared-pre'}	= '';
+	$flags{'mkexec'}	= "/o $clo{'mkexec'}" if $clo{'mkexec'};
+	$flags{'mkstatic'}	= "$clo{'mkstatic'}" if $clo{'mkstatic'};
+	# Figure out linker name
+	$flags{'linker'}	= $clo{'cxx'};
+	$flags{'linker'}	=~ s/^(.*)([\/\\]).*$/$1$2link.exe/;
+	$flags{'mtcompile'}    .= '/MT';
+	$flags{'mtcompile'}    .= 'd' if ($flags{'debug'});
+	$flags{'mtlink'}       .= '/MT';
+	$flags{'mtlink'}       .= 'd' if ($flags{'debug'});
     }
 
     ################################################################################
@@ -319,7 +357,7 @@ sub stat_compiler {
 	$flags{'ar'}		= $clo{'cxx'};
 	$flags{'arflags'}	= '-xar -o';
 	$flags{'sar'}		= $clo{'cxx'};
-	$flags{'sarflags'}	= "";
+	$flags{'sarflags'}	= $ENV{'LDFLAGS'} || '';
 	$flags{'warn'}		= '+w';
 	$flags{'object-ext'}	= '.o';
 	$flags{'static-ext'}	= '.a';
@@ -336,7 +374,7 @@ sub stat_compiler {
 	    my ($path, $lib) = split(/,/, $_, 2);
 	    if ($lib) {
 		$lib =~ s/^lib//;
-		$flags{'linkwith'} .= "-L'$path' -l$lib ";
+		$flags{'linkwith'} .= "-L$path -l$lib ";
 	    } else {
 		$path =~ s/^lib//;
 		$flags{'linkwith'} .= "-l$path";
