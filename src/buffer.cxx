@@ -7,8 +7,41 @@
  *
  */
 
+/*
+ * Copyright (C) 2001 Isaac W. Foraker (isaac*nospam*@tazthecat.net)
+ * All Rights Reserved
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ * 3. Neither the name of the Author nor the names of its contributors
+ *    may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ * PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
 #include "tptlib/buffer.h"
 
+#include <iostream>
 #include <fstream>
 
 namespace {
@@ -82,8 +115,8 @@ Buffer::Buffer(const char* filename)
 
 /**
  *
- * Construct a read buffer for an open fstream.  The input
- * fstream will not be closed when Buffer is destructed.
+ * Construct a read buffer for an open fstream.  The input fstream will
+ * not be closed when Buffer is destructed.
  *
  * @param	filein			input fstream
  * @return	nothing
@@ -126,8 +159,8 @@ Buffer::~Buffer()
 
 /**
  *
- * Get the next available character from the buffer.  Use
- * operator bool() to determine if more data is available.
+ * Get the next available character from the buffer.  Use operator
+ * bool() to determine if more data is available.
  *
  * @param	none
  * @return	next available character;
@@ -154,16 +187,16 @@ char Buffer::getnextchar()
 
 /**
  *
- * Put a single character back into the buffer.  A maximum
- * of three characters may be put back on the buffer at a time.
+ * Put a single character back into the buffer.  A maximum of three
+ * characters may be put back on the buffer at a time.
  *
  * @param	c			character to put back.
  * @return	false on success;
- * @return	true if putback buffer full
+ * @return	true if unget buffer full
  * @author	Isaac W. Foraker
  *
  */
-bool Buffer::putback(char c)
+bool Buffer::unget(char c)
 {
 	if (imp->mUngetindex >= UNGET_BUFFER_SIZE)
 		return true;
@@ -200,8 +233,8 @@ void Buffer::reset()
 
 /**
  *
- * Perform a boolean check for availability of data in the
- * buffer.  Usage can look like:
+ * Perform a boolean check for availability of data in the buffer.
+ * Usage can look like:
  *
  * TPTLib::Buffer readbuf("input.txt");\n
  * if (readbuf) {\n
@@ -251,8 +284,8 @@ void Buffer::impl::openfile(const char* filename)
 
 
 /*
- * Read the next block of bytes from the file.  Set
- * the mDone flag if there's no more data to read.
+ * Read the next block of bytes from the file.  Set the mDone flag if
+ * there's no more data to read.
  *
  * @param	none
  * @return	false on success;
@@ -286,7 +319,8 @@ bool Buffer::impl::readfile()
  *
  * \example	bufferfstream.cxx
  *
- * This is an example of how to use TPTLib::Buffer with an input fstream.
+ * This is an example of how to use TPTLib::Buffer with an input
+ * fstream.
  *
  */
 
