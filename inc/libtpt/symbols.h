@@ -30,6 +30,7 @@ public:
 	bool exists(const SymbolKeyType& id) const;
 	bool empty(const SymbolKeyType& id) const;
 	bool isarray(const SymbolKeyType& id) const;
+	unsigned size(const SymbolKeyType& id) const;
 	bool get(const SymbolKeyType& id, SymbolValueType& val) const;
 	bool get(const SymbolKeyType& id, SymbolArrayType& sym) const;
 	void dump();

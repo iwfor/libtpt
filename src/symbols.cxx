@@ -5,6 +5,14 @@
  *
  */
 
+/*
+ * TODO:
+ *	Remove brace references to symmap and use find so symbols will not
+ *	be created in the map on lookup. (Should that even compile on const
+ *	functions?)
+ *
+ */
+
 // Disable warnings for long debug symbols
 #ifdef _MSC_VER
 #pragma warning(disable:4786)
@@ -168,7 +176,7 @@ void Symbols::set(const SymbolKeyType& id, const SymbolArrayType& value)
 }
 
 
-/*
+/**
  *
  * Check whether the specified id exists in the symbol table.
  *
@@ -187,7 +195,8 @@ bool Symbols::exists(const SymbolKeyType& id) const
 }
 
 
-/*
+/**
+ *
  * Check if a symbol is empty.
  *
  */
@@ -197,6 +206,36 @@ bool Symbols::empty(const SymbolKeyType& id) const
 	unsigned index;
 	imp->getrealid(id, realid, index);
 	return imp->symmap[realid][index].empty();
+}
+
+
+/**
+ *
+ * Check if a symbol is a multielement array
+ *
+ */
+bool Symbols::isarray(const SymbolKeyType& id) const
+{
+	SymbolKeyType realid;
+	unsigned index;
+	imp->getrealid(id, realid, index);
+
+	return imp->symmap[realid].size() > 1;
+}
+
+
+/**
+ *
+ * Check size of a symbol array.
+ *
+ */
+unsigned Symbols::size(const SymbolKeyType& id) const
+{
+	SymbolKeyType realid;
+	unsigned index;
+	imp->getrealid(id, realid, index);
+
+	return imp->symmap[realid].size();
 }
 
 

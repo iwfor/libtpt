@@ -14,6 +14,12 @@
  *
  */
 
+/*
+ * TODO:
+ *	Add support for array subscripts to id names.
+ *
+ */
+
 #ifdef _MSC_VER
 #	pragma	warning(disable:4786)
 #endif
@@ -51,6 +57,7 @@ struct Lex::Impl {
 	void getidname(Token<>& t, Buffer& buf);
 	void getclosedidname(Token<>& t, Buffer& buf);
 	void getstring(Token<>& t, Buffer& buf);
+	void getsqstring(Token<>& t, Buffer& buf);
 };
 
 Lex::Lex(Buffer& buf)
@@ -200,6 +207,9 @@ Token<> Lex::getstricttoken()
 			break;
 		case '"':	// quoted strings
 			imp->getstring(t, buf);
+			return t;
+		case '\'':
+			imp->getsqstring(t, buf);
 			return t;
 		case '\\':	// escape sequences
 			c = imp->safeget(buf);
@@ -487,6 +497,40 @@ void Lex::Impl::getstring(Token<>& t, Buffer& buf)
 		t.type = token_error;
 }
 
+
+/*
+ * Get a string token, assuming open single quote has already been
+ * scanned.
+ *
+ */
+void Lex::Impl::getsqstring(Token<>& t, Buffer& buf)
+{
+	char c;
+	t.type = token_string;
+	t.value.erase();
+	while ( (c = safeget(buf)) )
+	{
+		if (c == '\'')
+		{
+			c = safeget(buf);
+			if (c != '\'')	// hardcoded quote in string
+			{
+				if (c) buf.unget();
+				return;
+			}
+			// else embed a quote (")
+		}
+		t.value+= c;
+		if (c == '\n' || c == '\r')
+		{
+			buf.unget();
+			t.type = token_error;
+			break;
+		}
+	}
+	if (!c)
+		t.type = token_error;
+}
 
 /*
  * Build a token based on the given testset.

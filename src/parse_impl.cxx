@@ -154,6 +154,9 @@ void Parser::Impl::parse_dotoken(std::ostream* os, Token<> tok)
 	case token_set:
 		parse_set();
 		break;
+	case token_setif:
+		parse_setif();
+		break;
 	case token_macro:
 		parse_macro();
 		break;
@@ -174,6 +177,18 @@ void Parser::Impl::parse_dotoken(std::ostream* os, Token<> tok)
 		break;
 	case token_length:
 		tok = parse_length();
+		*os << tok.value;
+		break;
+	case token_uc:
+		tok = parse_uc();
+		*os << tok.value;
+		break;
+	case token_lc:
+		tok = parse_lc();
+		*os << tok.value;
+		break;
+	case token_size:
+		tok = parse_size();
 		*os << tok.value;
 		break;
 	case token_usermacro:
@@ -233,7 +248,8 @@ bool Parser::Impl::getparamlist(ParamList& pl)
 	tok = lex.getstricttoken();
 	if (tok.type != token_openparen)
 	{
-		recorderror("Syntax error, expected opening parenthesis");
+		recorderror("Syntax error, parameters must be enclosed in "
+			"parenthesis", &tok);
 		return true;
 	}
 
@@ -265,6 +281,68 @@ bool Parser::Impl::getparamlist(ParamList& pl)
 
 	return false;
 }
+
+
+/*
+ * Get a parenthesis enclosed, comma delimeted id and parameter list.
+ *
+ * @param	id			Reference to String to receive id.
+ * @param	pl			Reference to List to receive parameters.
+ * @return	false on success;
+ * @return	true on failure
+ *
+ */
+bool Parser::Impl::getidparamlist(std::string& id,  ParamList& pl)
+{
+	Token<> tok;
+	// Expect opening parenthesis
+	tok = lex.getstricttoken();
+	if (tok.type != token_openparen)
+	{
+		recorderror("Syntax error, parameters must be enclosed in "
+			"parenthesis", &tok);
+		return true;
+	}
+
+	// tok holds the current token and nexttok holds the next token
+	// returned by the rd parser.
+	Token<> nexttok;
+	tok = lex.getstricttoken();
+	if (tok.type != token_id)
+	{
+		recorderror("Syntax error, expected id", &tok);
+		return true;
+	}
+	id = tok.value;
+	tok = lex.getstricttoken();
+	if (tok.type == token_comma)
+		tok = lex.getstricttoken();
+
+	while ((tok.type != token_eof) && (tok.type != token_closeparen))
+	{
+		nexttok = parse_level0(tok);
+		if (tok.type != token_string)
+		{
+			recorderror("Syntax error, expected expression parameter", &tok);
+			return true;
+		}
+		pl.push_back(tok.value);
+
+		tok = nexttok;
+		// The next token should be a comma or a close paren
+		if (tok.type == token_closeparen)
+			break;
+		else if (tok.type != token_comma)
+		{
+			recorderror("Syntax error, expected comma or close parenthesis", &tok);
+			return true;
+		}
+		tok = lex.getstricttoken();
+	}
+
+	return false;
+}
+
 
 const char* toktypestr(const Token<>& tok)
 {
@@ -311,6 +389,8 @@ const char* toktypestr(const Token<>& tok)
 		return "include";
 	case token_set:
 		return "set";
+	case token_setif:
+		return "setif";
 	case token_macro:
 		return "macro";
 	case token_foreach:

@@ -268,4 +268,24 @@ Token<> Parser::Impl::parse_lc()
 }
 
 
+/*
+ *
+ */
+Token<> Parser::Impl::parse_size()
+{
+	ParamList pl;
+	Token<> result;
+	result.type = token_integer;
+	std::string id;
+	if (getidparamlist(id, pl))
+		return result;
+
+	if (!pl.empty())
+		recorderror("Warning: @size takes only one id parameter");
+
+	num2str(symbols.size(id), result.value);
+
+	return result;
+}
+
 } // end namespace TPTLib

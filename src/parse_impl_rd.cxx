@@ -89,6 +89,7 @@ Token<> Parser::Impl::parse_level0(Token<>& left)
 
 	Token<> right = parse_level1(left);
 
+	left.type = token_string;
 	return right;
 }
 
@@ -226,6 +227,7 @@ Token<> Parser::Impl::parse_level5(Token<>& left)
 			work = -work;
 		// else + ignore (forces string to 0)
 		num2str(work, left.value);
+		left.type = token_string;
 	}
 	else
 		right = parse_level6(left);
@@ -287,6 +289,10 @@ Token<> Parser::Impl::parse_level7(Token<>& left)
 		break;
 	case token_lc:
 		left = parse_lc();
+		break;
+	case token_size:
+		left = parse_size();
+		break;
 	case token_string:
 		// string is okay
 		break;

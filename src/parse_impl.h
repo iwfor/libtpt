@@ -60,6 +60,7 @@ struct Parser::Impl {
 	bool getnextparam(std::string& value);
 	bool getnextstrict(Token<>& target);
 	bool getparamlist(ParamList& pl);
+	bool getidparamlist(std::string& id, ParamList& pl);
 
 	bool pass1(std::ostream* os);
 
@@ -67,7 +68,6 @@ struct Parser::Impl {
 	inline int64_t str2num(const std::string& str)
 	{ return str2num(str.c_str()); }
 	void num2str(int64_t value, std::string& str);
-
 
 	Token<> parse_level0(Token<>& left);
 	Token<> parse_level1(Token<>& left);
