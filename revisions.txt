@@ -1,6 +1,14 @@
 LibTPT Revisions
 ================
 
+Version 1.10.7
+--------------
+- Fixed bug in Buffer::reset() not resetting the done flag.
+
+Version 1.14-beta
+-----------------
+- Fixed bug in Buffer::reset() not resetting the done flag.
+
 Version 1.10.6
 --------------
 - Changed obsolete CLK_TCK constant to CLOCKS_PER_SEC in bench.cxx.
