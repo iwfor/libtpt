@@ -45,39 +45,47 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <cstring>
 
 namespace {
-	const unsigned BUFFER_SIZE = 8192;
+	const unsigned BUFFER_SIZE = 512;
 }
 
 namespace TPTLib {
 
-struct Buffer::impl {
+struct Buffer::Impl {
 	std::istream* instr;
 	bool freestreamwhendone;
-	std::vector<char> buffer;
+	char* buffer;
+	unsigned long buffersize;
+	unsigned long bufferalloc;
 	unsigned bufferindex;
 	bool done;
 	
-	impl(unsigned bufsize) :
+	Impl(unsigned bufsize) :
 		done(false),
-		buffer(bufsize),
+		buffersize(0),
+		bufferalloc(bufsize),
+		buffer(new char[bufferalloc]),
 		bufferindex(0),
 		freestreamwhendone(false)
 		{ }
-	impl(const char* buf, unsigned bufsize) :
+	Impl(const char* buf, unsigned bufsize) :
 		done(!bufsize),	// if zero buffer, then done
-		buffer(bufsize),
+		buffersize(0),
+		bufferalloc(bufsize),
+		buffer(new char[bufferalloc]),
 		bufferindex(0),
 		freestreamwhendone(false)
-		{ std::copy(&buf[0], &buf[bufsize-1], buffer.begin());}
-	~impl();
+		{ memcpy(buffer, buf, bufsize); }
+	~Impl();
 
 	
 	void openfile(const char* filename);
 	bool readfile();
+	void enlarge();	// increase buffer size
 
-}; // end struct Buffer::impl
+}; // end struct Buffer::Impl
 
 
 /**
@@ -91,7 +99,7 @@ struct Buffer::impl {
  */
 Buffer::Buffer(const char* filename)
 {
-	imp = new impl(BUFFER_SIZE);
+	imp = new Impl(BUFFER_SIZE);
 
 	imp->openfile(filename);
 	imp->freestreamwhendone = true;
@@ -111,7 +119,7 @@ Buffer::Buffer(const char* filename)
  */
 Buffer::Buffer(std::istream* is)
 {
-	imp = new impl(BUFFER_SIZE);
+	imp = new Impl(BUFFER_SIZE);
 
 	imp->instr = is;
 	imp->readfile();
@@ -128,7 +136,7 @@ Buffer::Buffer(std::istream* is)
  */
 Buffer::Buffer(const char* buffer, int size)
 {
-	imp = new impl(buffer, size);
+	imp = new Impl(buffer, size);
 }
 
 
@@ -162,7 +170,7 @@ char Buffer::getnextchar()
 
 	// If our buffer is empty, try reading from the stream
 	// if there is one.
-	if (imp->bufferindex >= imp->buffer.size())
+	if (imp->bufferindex >= imp->buffersize)
 		imp->readfile();
 
 	return c;
@@ -219,7 +227,7 @@ void Buffer::reset()
  */
 bool Buffer::seek(unsigned long index)
 {
-	while (!imp->done && (index >= imp->buffer.size()))
+	while (!imp->done && (index >= imp->buffersize))
 		imp->readfile();
 	if (imp->done)
 		return true;
@@ -258,7 +266,7 @@ unsigned long Buffer::offset()
  */
 const char Buffer::operator[](unsigned long index)
 {
-	while (!imp->done && (index >= imp->buffer.size()))
+	while (!imp->done && (index >= imp->buffersize))
 		imp->readfile();
 	return imp->buffer[index];
 }
@@ -284,11 +292,11 @@ const char Buffer::operator[](unsigned long index)
  */
 Buffer::operator bool()
 {
-	return imp->done;
+	return !imp->done;
 }
 
 
-Buffer::impl::~impl()
+Buffer::Impl::~Impl()
 {
 	if (freestreamwhendone)
 		delete instr;
@@ -304,9 +312,10 @@ Buffer::impl::~impl()
  * @author	Isaac W. Foraker
  *
  */
-void Buffer::impl::openfile(const char* filename)
+void Buffer::Impl::openfile(const char* filename)
 {
-	std::fstream* is = new std::fstream(filename, std::ios::in);
+	std::fstream* is = new std::fstream(filename, std::ios::in | std::ios::binary);
+
 	if (!is->is_open())
 		done = true;
 	instr = is;
@@ -322,23 +331,36 @@ void Buffer::impl::openfile(const char* filename)
  * @return	true if no more data
  *
  */
-bool Buffer::impl::readfile()
+bool Buffer::Impl::readfile()
 {
 	if (!done && instr && !instr->eof())
 	{
 		char buf[BUFFER_SIZE];
-		size_t t, n = buffer.size();
-		t = instr->readsome(buf, BUFFER_SIZE);
-		if (t < 1)
+		size_t size;
+		size = instr->readsome(buf, BUFFER_SIZE);
+		if (size < 1)
 			done = true;
-		buffer.resize(buffer.max_size() + BUFFER_SIZE);
-		std::copy(buf, &buf[t-1], &buffer[n]);
+		else
+		{
+			if ((buffersize + size) >= bufferalloc)
+				enlarge();
+			std::memcpy(&buffer[buffersize], buf, size);
+			buffersize+= size;
+		}
 	}
 	else
 		done = true;
 	return done;
 }
 
+void Buffer::Impl::enlarge()
+{
+	bufferalloc+= BUFFER_SIZE;
+	char* temp = new char[bufferalloc];
+	std::memcpy(temp, buffer, buffersize);
+	delete buffer;
+	buffer = temp;
+}
 
 /**
  *

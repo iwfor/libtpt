@@ -80,8 +80,8 @@ public:
 	const char operator[](unsigned long index);
 
 private:
-	struct impl;
-	impl* imp;
+	struct Impl;
+	Impl* imp;
 
 	Buffer();
 	
