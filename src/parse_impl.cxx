@@ -17,7 +17,7 @@ namespace TPTLib {
 
 bool Parser::Impl::pass1(std::ostream* os)
 {
-	symbols.dump();
+//	symbols.dump();
 	do {
 		// Read a loosely defined token for outer pass
 		tok = lex.getloosetoken();

@@ -12,6 +12,7 @@
 
 #include <tptlib/symbols.h>
 #include <tptlib/parse.h>
+#include "vars.h"		// Default variables
 
 #include <iostream>
 
@@ -39,8 +40,18 @@ std::string SymbolMap::get(const std::string& id)
 	{
 		SymbolTable::const_iterator it(symmap.find(id));
 		if (it == symmap.end())
-//			return "";
-			return "<not found>";
+		{
+			// Attempt to match id against internally defined keywords
+			if (id.substr(0, 9) == "template_")
+			{
+				for (unsigned i=0; i<numbuiltins; ++i)
+					if (id == tptlib_builtins[i].id)
+						return tptlib_builtins[i].value;
+			}
+			// otherwise just return a blank
+			return "";
+//			return "<not found>";	// For debug use
+		}
 		return (*it).second;
 	}
 
@@ -50,7 +61,6 @@ std::string SymbolMap::get(const std::string& id)
 	std::string newid(p.run());
 	return get(newid);
 }
-
 
 /**
  *
