@@ -42,6 +42,7 @@ struct Lex::Impl {
 	void buildtoken(std::string& value, Buffer& buf,
 		const ChrSet<>& testset);
 	void getidname(Token<>& t, Buffer& buf);
+	void getclosedidname(Token<>& t, Buffer& buf);
 };
 
 Lex::Lex(Buffer& buf)
@@ -54,18 +55,63 @@ Lex::~Lex()
 	delete imp;
 }
 
-Token<> Lex::gettoken()
+Token<> Lex::getloosetoken()
 {
 	Token<> t;
 	char c;
 	Buffer& buf = imp->buf;	// I'm lazy, and don't like typing imp->buf
 
-	if (!buf)
+	if (!(c = imp->safeget(buf)))
 	{
 		t.type = token_eof;	
+		return t;
 	}
 
-	c = buf.getnextchar();
+	t.value = c;
+
+	switch (c) {
+	case ' ':
+	case 255:
+	case '\t': t.type = token_whitespace; return t;
+	case '\n': t.type = token_newline; return t;
+	case '\r':
+		t.type = token_newline;
+		if (c == '\r')
+		{
+			c = buf.getnextchar();
+			if (c == '\n')
+				t.value+= c;
+			else
+				buf.unget();
+		}
+		return t;
+	case '$':	// variable name
+		imp->getclosedidname(t, buf);
+		return t;
+	default: t.type = token_symbol; break;
+	}
+	// Next, process tokens that are comprised of sets
+	// Group digits together
+	if ((c == set_digits) || (c == set_alpha))
+	{
+		t.type = token_text;
+		imp->buildtoken(t.value, buf, set_digits);
+	}
+	return t;
+}
+
+Token<> Lex::getstricttoken()
+{
+	Token<> t;
+	char c;
+	Buffer& buf = imp->buf;	// I'm lazy, and don't like typing imp->buf
+
+	if (!(c = imp->safeget(buf)))
+	{
+		t.type = token_eof;	
+		return t;
+	}
+
 	t.value = c;
 
 	// First try to process the simple tokens
@@ -102,25 +148,32 @@ Token<> Lex::gettoken()
 		t.type = token_newline;
 		if (c == '\r')
 		{
-			c = buf.getnextchar();
+			c = imp->safeget(buf);
 			if (c == '\n')
 				t.value+= c;
 			else
-				buf.unget();
+				if (c) buf.unget();
 		}
 		return t;
 	case '"':	// quoted strings
 		t.type = token_string;
-		while (buf)
+		while (c = imp->safeget(buf))
 		{
-			c = buf.getnextchar();
 			t.value+= c;
 			if (c == '"')
-				break;
+			{
+				c = imp->safeget(buf);
+				if (c != '"')	// hardcoded quote in string
+				{
+					if (c) buf.unget();
+					break;
+				}
+			}
+			t.value+= c;
 			if (c == '\n' || c == '\r')
 			{
 				buf.unget();
-				t.type = token_escape;
+				t.type = token_error;
 				break;
 			}
 		}
@@ -144,8 +197,8 @@ Token<> Lex::gettoken()
 			t.type = token_escape;
 		return t;
 	case '@':	// keyword or user macro
-		c = buf.getnextchar();
-		if (c ==set_varname)
+		c = imp->safeget(buf);
+		if (c == set_startvarname)
 		{
 			t.value+= c;
 			imp->buildtoken(t.value, buf, set_varname);
@@ -153,9 +206,9 @@ Token<> Lex::gettoken()
 		}
 		else if (c == '#') // this is a comment
 		{
-			while (buf)
+			// Read everything until the end of line
+			while (c = imp->safeget(buf))
 			{
-				c = buf.getnextchar();
 				t.value+= c;
 				if (c == '\n' || c == '\r')
 					buf.unget();
@@ -163,13 +216,13 @@ Token<> Lex::gettoken()
 		}
 		else
 		{
-			buf.unget();
+			if (c) buf.unget();
 			t.type = token_symbol;
 			return t;
 		}
 		return t;
 	case '$':	// variable name
-		imp->getidname(t, buf);
+		imp->getclosedidname(t, buf);
 		return t;
 	case '>':
 	case '<':
@@ -182,7 +235,7 @@ Token<> Lex::gettoken()
 		else
 			buf.unget();
 		return t;
-	default: t.type = token_symbol; break;
+	default: t.type = token_error; break;
 	}
 	// Next, process tokens that are comprised of sets
 	// Group digits together
@@ -191,11 +244,9 @@ Token<> Lex::gettoken()
 		t.type = token_integer;
 		imp->buildtoken(t.value, buf, set_digits);
 	}
-	// Extract words
-	else if (c == set_alpha)
+	else if (c == set_startvarname)
 	{
-		t.type = token_text;
-		imp->buildtoken(t.value, buf, set_alpha);
+		imp->getidname(t, buf);
 	}
 
 	return t;
@@ -241,7 +292,7 @@ Token<>::en Lex::Impl::getfunctiontype(const char* str)
 	return token_usermacro;
 }
 
-void Lex::Impl::getidname(Token<>& t, Buffer& buf)
+void Lex::Impl::getclosedidname(Token<>& t, Buffer& buf)
 {
 	char c;
 
@@ -261,8 +312,8 @@ void Lex::Impl::getidname(Token<>& t, Buffer& buf)
 		t.value = c;
 	else if (c == '$')
 	{
-		buf.unget();
-		getidname(t, buf);
+		t.value+= c;
+		getclosedidname(t, buf);
 	}
 	else
 	{
@@ -271,12 +322,12 @@ void Lex::Impl::getidname(Token<>& t, Buffer& buf)
 		return;
 	}
 
-	while ((c == '}') && (c = safeget(buf)))
+	while ((c != '}') && (c = safeget(buf)))
 	{
 		if (c == '$')
 		{
-			buf.unget();
-			getidname(t, buf);
+			t.value+= c;
+			getclosedidname(t, buf);
 		}
 		else if (c != set_varname)
 		{
@@ -287,9 +338,38 @@ void Lex::Impl::getidname(Token<>& t, Buffer& buf)
 		t.value+= c;
 	}
 	if (c == '}')
+	{
+		t.value+= c;
 		t.type = token_id;
+	}
 	else
 		t.type = token_error;
+}
+
+void Lex::Impl::getidname(Token<>& t, Buffer& buf)
+{
+	char c;
+
+	while (c = safeget(buf))
+	{
+		if (c == '$')
+		{
+			t.value+= c;
+			getclosedidname(t, buf);
+			if (t.type != token_id)
+			{
+				t.type = token_error;
+				return;
+			}
+		}
+		else if (c != set_varname)
+		{
+			buf.unget();
+			break;
+		}
+		t.value+= c;
+	}
+	t.type = token_id;
 }
 
 void Lex::Impl::buildtoken(std::string& value, Buffer& buf,

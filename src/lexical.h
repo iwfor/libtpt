@@ -19,7 +19,8 @@ public:
 	Lex(Buffer& buf);
 	~Lex();
 
-	Token<> gettoken();
+	Token<> getloosetoken();
+	Token<> getstricttoken();
 
 private:
 	struct Impl;
