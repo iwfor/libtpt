@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,23 +39,23 @@
  *
  */
 
-#ifndef _libtpt_vars_h
-#define _libtpt_vars_h
+#ifndef include_libtpt_vars_h
+#define include_libtpt_vars_h
 
 // Ack!  A define!  Defines allow easy concatenation on strings
-#define _LIBTPT_VERSION	"1.12"
+#define LIBTPT_VERSION	"1.13"
 
 namespace TPT {
 
-	const char* libtpt_version = _LIBTPT_VERSION;
+	const char* libtpt_version = LIBTPT_VERSION;
 	const char* libtpt_library = "LibTPT";
 	const char* libtpt_fullname =
-		"LibTPT Template Processor Version " _LIBTPT_VERSION;
+		"LibTPT Template Processor Version " LIBTPT_VERSION;
 	const char* libtpt_author = "Isaac W. Foraker";
 	const char* libtpt_copyright =
-		"Copyright (C) 2002 Isaac W. Foraker, All Rights Reserved";
+		"Copyright (C) 2002-2003 Isaac W. Foraker, All Rights Reserved";
 	const char* libtpt_license =
-		"Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)\n"
+		"Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)\n"
 		"All Rights Reserved\n"
 		"\n"
 		"Redistribution and use in source and binary forms, with or without\n"
@@ -86,7 +86,7 @@ namespace TPT {
 		"(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n"
 		"OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.";
 
-	struct _builtin_variables {
+	struct builtin_variables {
 		const char* id;
 		const char* value;
 	} libtpt_builtins[] = {
@@ -100,7 +100,7 @@ namespace TPT {
 		{ "PML", libtpt_fullname }
 	};
 
-	const unsigned numbuiltins = (sizeof(libtpt_builtins)/sizeof(_builtin_variables));
+	const unsigned numbuiltins = (sizeof(libtpt_builtins)/sizeof(builtin_variables));
 }
 
-#endif // _libtpt_vars_h
+#endif // include_libtpt_vars_h

@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@
  *
  */
 
-#ifndef _libtpt_symbols_impl_h
-#define _libtpt_symbols_impl_h
+#ifndef include_libtpt_symbols_impl_h
+#define include_libtpt_symbols_impl_h
 
 #include <libtpt/object.h>
 #include <libtpt/symbols.h>
@@ -79,6 +79,8 @@ public:
 	Symbols_Impl(Symbols& p, const Object& obj) : parent(p), symbols(obj), emptyobject("") {}
 	~Symbols_Impl() {};
 
+	void copy(Object& table);
+
 	Object& getobject(const SymbolKeyType& id, Object& table);
 	bool setobject(const SymbolKeyType& id, const std::string& value,
 		Object& table);
@@ -112,4 +114,4 @@ public:
 
 } // end namespace TPT
 
-#endif // _libtpt_symbols_impl_h
+#endif // include_libtpt_symbols_impl_h

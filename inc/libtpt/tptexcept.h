@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@
  *
  */
 
-#ifndef _libtpt_tptexcept_impl_h
-#define _libtpt_tptexcept_impl_h
+#ifndef include_libtpt_tptexcept_impl_h
+#define include_libtpt_tptexcept_impl_h
 
 #include <stdexcept>
 #include <string>
@@ -55,4 +55,4 @@ public:
 
 } // end namespace TPT
 
-#endif // _libtpt_tptexcept_impl_h
+#endif // include_libtpt_tptexcept_impl_h

@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@
  *
  */
 
-#ifndef _libtpt_token_h
-#define _libtpt_token_h
+#ifndef include_libtpt_token_h
+#define include_libtpt_token_h
 
 #include <string>
 
@@ -121,4 +121,4 @@ template<typename E=TokenTypes> struct Token {
 
 } // end namespace TPT
 
-#endif // _libtpt_token_h
+#endif // include_libtpt_token_h

@@ -9,7 +9,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,8 +40,8 @@
  *
  */
 
-#ifndef _libtpt_conf_h
-#define _libtpt_conf_h
+#ifndef include_libtpt_conf_h
+#define include_libtpt_conf_h
 
 #ifdef _MSC_VER
 #	include <cstdio>		// for va_list, required by native.h
@@ -59,4 +59,4 @@
 
 #include <libtpt/compat.h>
 
-#endif // _libtpt_conf_h
+#endif // include_libtpt_conf_h

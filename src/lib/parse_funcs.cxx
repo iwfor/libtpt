@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -229,7 +229,7 @@ Token<> Parser_Impl::parse_compare()
 	}
 	else
 	{
-		int lwork = strcmp(obj0.scalar().c_str(), obj1.scalar().c_str());
+		int lwork = std::strcmp(obj0.scalar().c_str(), obj1.scalar().c_str());
 		num2str(lwork, result.value);
 	}
 	

@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@
  *
  */
 
-#ifndef _libtpt_macro_h
-#define _libtpt_macro_h
+#ifndef include_libtpt_macro_h
+#define include_libtpt_macro_h
 
 #include <map>
 #include <string>
@@ -60,4 +60,4 @@ typedef std::map< std::string, Macro > MacroList;
 
 } // end namespace TPT
 
-#endif // _libtpt_macro_h
+#endif // include_libtpt_macro_h

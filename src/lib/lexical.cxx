@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -226,7 +226,7 @@ Token<> Lex::getspecialtoken()
 	case ' ':
 	case '\t':
 		t.type = token_whitespace;
-		if (c = safeget())
+		if ( (c = safeget()) )
 		{
 			while (std::isspace(c))
 			{
@@ -390,7 +390,6 @@ bool Lex::getblock(std::string& block, unsigned& lineno)
 	Token<> t(getloosetoken());
 	size_t abortindex = buf_.offset();
 	lineno = lineno_;
-	bool instr1 = false, instr2 = false;
 
 	// Ignore all whitespace before the opening brace;
 	while (t.type == token_whitespace)
@@ -438,7 +437,7 @@ bool Lex::ignoreblock()
 	unsigned depth = 1;
 	Token<> t(getloosetoken());
 	size_t abortindex = buf_.offset();
-	unsigned lineno_ = t.lineno;	// preservice line number
+	unsigned lineno = t.lineno;	// preservice line number
 
 	// Ignore all whitespace before the opening brace;
 	while (t.type == token_whitespace)
@@ -450,7 +449,7 @@ bool Lex::ignoreblock()
 	{
 		// roll back parsing and abort
 		buf_.seek(abortindex);
-		lineno_ = lineno_;
+		lineno_ = lineno;
 		return true;
 	}
 

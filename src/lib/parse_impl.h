@@ -4,11 +4,10 @@
  * Parser Implementation
  *
  * $Id$
- *
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,13 +35,13 @@
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  */
 
-#ifndef _libtpt_parse_impl_h
-#define _libtpt_parse_impl_h
+#ifndef include_libtpt_parse_impl_h
+#define include_libtpt_parse_impl_h
 
 #include <libtpt/object.h>
+#include <libtpt/tpttypes.h>
 #include "conf.h"
 #include "lexical.h"
 #include "macro.h"
@@ -206,4 +205,4 @@ struct cntguard {
 
 } // end namespace TPT
 
-#endif // _libtpt_parse_impl_h
+#endif // include_libtpt_parse_impl_h

@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -193,7 +193,7 @@ bool test3(const char* filename)
 		fsize+=size;
 		falloc+= 65536;
 		char* t = new char[falloc];
-		memcpy(t, buffer, fsize);
+		std::memcpy(t, buffer, fsize);
 		delete buffer;
 		buffer = t;
 	}

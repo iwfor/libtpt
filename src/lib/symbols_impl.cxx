@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,8 +48,25 @@
 namespace TPT {
 
 /*
+ * Non-destructive copy of objects
+ */
+void Symbols_Impl::copy(Object& object)
+{
+	if (object.gettype() != Object::type_hash)
+		throw tptexception("Tried to copy non-hash symbols table");
+
+	// Create references to object hashes
+	Object::HashType& rhash = object.hash();
+	Object::HashType& lhash = symbols.hash();
+	// Create iterators for the source hash
+	Object::HashType::iterator it(rhash.begin()), end(rhash.end());
+	for (; it != end; ++it) {
+		lhash[it->first] = it->second;
+	}
+}
+	
+/*
  * Recursively get an object based on the specified id.
- *
  */
 Object& Symbols_Impl::getobject(const SymbolKeyType& id, Object& table)
 {
@@ -65,7 +82,6 @@ Object& Symbols_Impl::getobject(const SymbolKeyType& id, Object& table)
  *
  * @return	false on success;
  * @return	true if id is invalid.
- *
  */
 bool Symbols_Impl::setobject(const SymbolKeyType& id,
 							  const std::string& value,
@@ -89,7 +105,6 @@ bool Symbols_Impl::setobject(const SymbolKeyType& id,
  *
  * @return	false on success;
  * @return	true if id is invalid.
- *
  */
 bool Symbols_Impl::setobject(const SymbolKeyType& id,
 							  const SymbolArrayType& value,
@@ -122,7 +137,6 @@ bool Symbols_Impl::setobject(const SymbolKeyType& id,
  *
  * @return	false on success;
  * @return	true if id is invalid.
- *
  */
 bool Symbols_Impl::setobject(const SymbolKeyType& id,
 	const SymbolHashType& value, Object& table)
@@ -151,7 +165,6 @@ bool Symbols_Impl::setobject(const SymbolKeyType& id,
  *
  * @return	false on success;
  * @return	true if id is invalid.
- *
  */
 bool Symbols_Impl::setobject(const SymbolKeyType& id,
 	Object& value, Object& table)
@@ -174,7 +187,6 @@ bool Symbols_Impl::setobject(const SymbolKeyType& id,
  *
  * @return	false on success;
  * @return	true if id was invalid
- *
  */
 bool Symbols_Impl::pushobject(const SymbolKeyType& id,
 							  const std::string& value,
@@ -199,7 +211,6 @@ bool Symbols_Impl::pushobject(const SymbolKeyType& id,
  *
  * @return	false on success;
  * @return	true if id was invalid
- *
  */
 bool Symbols_Impl::pushobject(const SymbolKeyType& id,
 							  const SymbolArrayType& value,
@@ -233,7 +244,6 @@ bool Symbols_Impl::pushobject(const SymbolKeyType& id,
  *
  * @return	false on success;
  * @return	true if id was invalid
- *
  */
 bool Symbols_Impl::pushobject(const SymbolKeyType& id,
 							  const SymbolHashType& value,
@@ -265,7 +275,6 @@ bool Symbols_Impl::pushobject(const SymbolKeyType& id,
  *
  * @return	false on success;
  * @return	true if id was invalid
- *
  */
 bool Symbols_Impl::pushobject(const SymbolKeyType& id,
 							  Object& value,
@@ -550,7 +559,7 @@ size_t Symbols_Impl::getarrayindex(const std::string& expr)
 		std::string temp("@eval(");
 		temp+= expr;
 		temp+= ")";
-		arrayindex = atoi(eval(temp, &parent).c_str());
+		arrayindex = std::atoi(eval(temp, &parent).c_str());
 	}
 	return arrayindex;
 }

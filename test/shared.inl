@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ bool fsum(std::ostream& os, TPT::Object& params)
 	{
 		TPT::Object& obj = *(*it).get();
 		if (obj.gettype() == TPT::Object::type_scalar)
-			work+= atof(obj.scalar().c_str());
+			work+= std::atof(obj.scalar().c_str());
 		else
 			return true;	// expected scalar!
 	}

@@ -8,6 +8,9 @@ optimizations - Ongoing
 	There is always room for improved speed.  Optimization of existing TPT will
 	be ongoing.
 
+Add IParse - Version 1.2
+	Interactive Parse class that allows the Symbols table to be updated.
+
 @includeraw(filename) - Version 1.2
 	Includes a raw text file.
 

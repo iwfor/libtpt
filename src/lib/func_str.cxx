@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -162,7 +162,7 @@ bool func_uc(std::ostream& os, Object& params)
 	std::string::iterator it(result.begin()),
 		end(result.end());
 	for (; it != end; ++it)
-		(*it) = toupper((*it));
+		(*it) = std::toupper((*it));
 	
 	os << result;
 	return iserr;
@@ -189,7 +189,7 @@ bool func_lc(std::ostream& os, Object& params)
 	std::string::iterator it(result.begin()),
 		end(result.end());
 	for (; it != end; ++it)
-		(*it) = tolower((*it));
+		(*it) = std::tolower((*it));
 	
 	os << result;
 	return iserr;
@@ -202,7 +202,6 @@ bool func_lc(std::ostream& os, Object& params)
 bool func_lpad(std::ostream& os, Object& params)
 {
 	Object::ArrayType& pl = params.array();
-	bool iserr = false;
 
 	if (pl.empty() || pl.size() != 2)
 		return true;
@@ -232,7 +231,6 @@ bool func_lpad(std::ostream& os, Object& params)
 bool func_rpad(std::ostream& os, Object& params)
 {
 	Object::ArrayType& pl = params.array();
-	bool iserr = false;
 
 	if (pl.empty() || pl.size() != 2)
 		return true;

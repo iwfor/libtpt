@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@
  *
  */
 
-#ifndef _libtpt_symbols_h
-#define _libtpt_symbols_h
+#ifndef include_libtpt_symbols_h
+#define include_libtpt_symbols_h
 
 #include <string>
 #include <map>
@@ -74,6 +74,8 @@ public:
 	Symbols(const Symbols& s);
 	~Symbols();
 
+	void copy(const Symbols& s);
+
 	bool set(const SymbolKeyType& id, const SymbolValueType& value);
 	bool set(const SymbolKeyType& id, int value);
 	bool set(const SymbolKeyType& id, const SymbolArrayType& value);
@@ -104,4 +106,4 @@ private:
 
 } // end namespace TPT
 
-#endif // _libtpt_symbols_h
+#endif // include_libtpt_symbols_h

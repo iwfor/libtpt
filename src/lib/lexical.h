@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@
  *
  */
 
-#ifndef _libtpt_lexical_h
-#define _libtpt_lexical_h
+#ifndef include_libtpt_lexical_h
+#define include_libtpt_lexical_h
 
 #include <libtpt/token.h>
 #include <libtpt/buffer.h>
@@ -107,4 +107,4 @@ private:
 
 } // end namespace TPT
 
-#endif // _libtpt_lexical_h
+#endif // include_libtpt_lexical_h

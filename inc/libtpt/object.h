@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,13 +37,10 @@
  *
  */
 
-#ifndef _libtpt_object_impl_h
-#define _libtpt_object_impl_h
+#ifndef include_libtpt_object_impl_h
+#define include_libtpt_object_impl_h
 
-#ifdef _MSC_VER
-#	pragma warning(disable:4290)
-#endif
-
+#include "compat.h"
 #include "token.h"
 #include "smartptr.h"
 #include "tptexcept.h"
@@ -134,4 +131,4 @@ private:
 
 } // end namespace TPT
 
-#endif // _libtpt_object_impl_h
+#endif // include_libtpt_object_impl_h

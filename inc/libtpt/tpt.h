@@ -9,7 +9,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,5 +43,7 @@
 #include "buffer.h"
 #include "symbols.h"
 #include "parse.h"
+#include "iparse.h"
 #include "object.h"
 #include "tptexcept.h"
+#include "tpttypes.h"

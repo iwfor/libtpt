@@ -1,11 +1,33 @@
 LibTPT Revisions
 ================
 
+Version 1.13-beta
+-----------------
+- Added IParse (Interactive Parse) class that allows modifications to the
+  symbols table to be passed back to the calling program.
+
+Version 1.10.5
+--------------
+- Updated copyright.
+- Fixed line number bug in lexical analyzer.
+- Cleaned up unused variables.
+- Fixed missing std qualifiers in func_str.cxx.
+
+Version 1.10.4
+--------------
+- Updated to newer version of cxxtools to get rid of "shared" warning on OS X.
+- Fixed missing std:: qualificiation on some standard function calls.  This was
+  specifically breaking compilation on Forte with the STLPort.
+
+Version 1.10.3
+--------------
+- Fixed typo that broke @ignoreindent.
+
 Version 1.12-beta
 -----------------
 - Removed ChrSet<> template and replaced with ctype calls.  Gained about 2-3%
   performance improvement.
-- Fixed typo that broken @ignoreindent.
+- Fixed typo that broke @ignoreindent.
 
 Version 1.10.2
 --------------

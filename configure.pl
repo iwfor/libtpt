@@ -4,7 +4,7 @@
 # Isaac W. Foraker (isaac@tazthecat.net)
 # Use on *nix platforms.
 #
-# Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+# Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
 # All Rights Reserved
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -74,7 +74,8 @@ $|++;
 GetOptions(
 	\%clo,
 	'help',
-	'bundle',	# do not display build info
+	'bundle',			# do not display build info
+	'disable-shared',	# For future use
 	'developer',
 	'prefix=s',
 	'bindir=s',
@@ -87,6 +88,7 @@ $clo{'help'} && usage();
 sub usage {
 	print "Usage: $0 [options]\n", <<EOT;
   --developer        Turn on developer mode
+  --bundle           Supress banners for bundling with other projects
 
   --prefix path      Set the install prefix to path  [/usr/local]
   --bindir path      Set the install bin dir to path [PREFIX/bin]
@@ -117,6 +119,7 @@ $clo{'prefix'}	||= "/usr/local";
 $clo{'bindir'}	||= "$clo{'prefix'}/bin";
 $clo{'incdir'}	||= "$clo{'prefix'}/include";
 $clo{'libdir'}	||= "$clo{'prefix'}/lib";
+$clo{'disable-shared'} = 1 if $clo{'bundle'};
 	
 if ($clo{'developer'}) {
 	$mkmf_flags .= "--developer ";
@@ -137,6 +140,7 @@ if (!$clo{'bundle'}) {
 |                                                             |
 | If you would then like to run the tests, type:              |
 |                                                             |
+|       cd test/                                              |
 |       ./test.sh                                             |
 |                                                             |
 | To install, type:                                           |

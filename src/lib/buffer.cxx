@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,6 @@
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  */
 
 #include "conf.h"
@@ -124,7 +123,7 @@ Buffer::Buffer(const char* buf, unsigned long bufsize) :
 	freestreamwhendone(false),
 	done(!bufsize)	// if zero buffer, then done
 {
-	memcpy(buffer, buf, bufsize);
+	std::memcpy(buffer, buf, bufsize);
 }
 
 
@@ -145,7 +144,7 @@ Buffer::Buffer(const Buffer& buf, unsigned long start, unsigned long end) :
 	freestreamwhendone(false),
 	done(!(end-start))
 {
-	memcpy(buffer, &buf.buffer[start], end-start);
+	std::memcpy(buffer, &buf.buffer[start], end-start);
 }
 
 

@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,6 @@ namespace TPT {
  * @param	setdefaults		When true, set the default variables
  * (default true).
  * @return	nothing
- *
  */
 Symbols::Symbols(bool setdefaults)
 {
@@ -72,19 +71,18 @@ Symbols::Symbols(bool setdefaults)
  *
  * @param	s				The Symbols table to copy.
  * @return	nothing
- *
  */
 Symbols::Symbols(const Symbols& s)
 {
-	imp = new Symbols_Impl(*this, s.imp->symbols);
+	imp->copy(s.imp->symbols);
 }
+
 
 /**
  * Destruct this instance of the Symbols class.
  *
  * @param	none
  * @return	nothing
- *
  */
 Symbols::~Symbols()
 {
@@ -93,11 +91,24 @@ Symbols::~Symbols()
 
 
 /**
+ * Copy the specified symbols table.  This differs from the operator= copy
+ * function in that it does not remove existing symbols unless the symbol also
+ * exists in the source symbols table.
+ *
+ * @param	sym		The source symbols table.
+ * @return	nothing
+ */
+void Symbols::copy(const Symbols& sym)
+{
+	imp->copy(const_cast<Object&>(sym.imp->symbols));
+}
+
+
+/**
  * Symbols copy operator
  *
  * @param	sym		A Symbols table to copy.
  * @return	Reference to *this instance of Symbols.
- *
  */
 Symbols& Symbols::operator=(const Symbols& sym)
 {
@@ -114,7 +125,6 @@ Symbols& Symbols::operator=(const Symbols& sym)
  * @param	sym		Symbol array to receive value(s).
  * @return	false on success;
  * @return	true if symbol is invalid.
- *
  */
 bool Symbols::get(const SymbolKeyType& id, SymbolValueType& outval) const
 {
@@ -156,7 +166,6 @@ bool Symbols::get(const SymbolKeyType& id, SymbolValueType& outval) const
  * @param	sym		Symbol array to receive value(s).
  * @return	false on success;
  * @return	true if symbol is invalid.
- *
  */
 bool Symbols::get(const SymbolKeyType& id, SymbolArrayType& outval) const
 {
@@ -174,8 +183,7 @@ bool Symbols::get(const SymbolKeyType& id, SymbolArrayType& outval) const
 			Object::ArrayType array(obj.array());
 			Object::ArrayType::iterator it(array.begin()),
 				end(array.end());
-			for (; it != end; ++it)
-			{
+			for (; it != end; ++it) {
 				Object& aobj = *((*it).get());
 				if (aobj.gettype() == Object::type_scalar)
 					outval.push_back(aobj.scalar());
@@ -201,7 +209,6 @@ bool Symbols::get(const SymbolKeyType& id, SymbolArrayType& outval) const
  * @param	value		String to be copied.
  * @return	false on success;
  * @return	true if invalid id.
- *
  */
 bool Symbols::set(const SymbolKeyType& id, const SymbolValueType& value)
 {
@@ -216,12 +223,11 @@ bool Symbols::set(const SymbolKeyType& id, const SymbolValueType& value)
  * @param	value		Integer to be copied.
  * @return	false on success;
  * @return	true if invalid id.
- *
  */
 bool Symbols::set(const SymbolKeyType& id, int value)
 {
 	char temp[64];
-	sprintf(temp, "%d", value);
+	std::sprintf(temp, "%d", value);
 	return imp->setobject(id, temp, imp->symbols);
 }
 
@@ -232,7 +238,6 @@ bool Symbols::set(const SymbolKeyType& id, int value)
  * @param	id			ID of the array to be set.
  * @param	value		Array values to be copied.
  * @return	nothing
- *
  */
 bool Symbols::set(const SymbolKeyType& id, const SymbolArrayType& value)
 {
@@ -246,7 +251,6 @@ bool Symbols::set(const SymbolKeyType& id, const SymbolArrayType& value)
  * @param	id			ID of the hash to be set.
  * @param	value		Hash to be copied.
  * @return	nothing
- *
  */
 bool Symbols::set(const SymbolKeyType& id, const SymbolHashType& value)
 {
@@ -260,7 +264,6 @@ bool Symbols::set(const SymbolKeyType& id, const SymbolHashType& value)
  * @param	id			ID of symbol to set.
  * @param	value		Reference to Object to assign.
  * @return	nothing
- *
  */
 bool Symbols::set(const SymbolKeyType& id, Object& value)
 {
@@ -275,7 +278,6 @@ bool Symbols::set(const SymbolKeyType& id, Object& value)
  * @param	value		Value of the symbol to be pushed.
  * @return	false on success;
  * @return	true if invalid id.
- *
  */
 bool Symbols::push(const SymbolKeyType& id, const SymbolValueType& value)
 {
@@ -289,7 +291,6 @@ bool Symbols::push(const SymbolKeyType& id, const SymbolValueType& value)
  * @param	id			ID of the array to receive array.
  * @param	value		Array values of the symbol to be pushed.
  * @return	nothing
- *
  */
 bool Symbols::push(const SymbolKeyType& id, const SymbolArrayType& value)
 {
@@ -303,7 +304,6 @@ bool Symbols::push(const SymbolKeyType& id, const SymbolArrayType& value)
  * @param	id			ID of the array to receive hash.
  * @param	value		Array values of the symbol to be pushed.
  * @return	nothing
- *
  */
 bool Symbols::push(const SymbolKeyType& id, const SymbolHashType& value)
 {
@@ -317,7 +317,6 @@ bool Symbols::push(const SymbolKeyType& id, const SymbolHashType& value)
  * @param	id			ID of the array to receive object.
  * @param	value		Object to be pushed onto array.
  * @return	nothing
- *
  */
 bool Symbols::push(const SymbolKeyType& id, Object& value)
 {
@@ -331,7 +330,6 @@ bool Symbols::push(const SymbolKeyType& id, Object& value)
  * @param	id			ID of symbol to retrieve.
  * @return	true if symbol exists;
  * @return	false if symbol does not exist, or id invalid.
- *
  */
 bool Symbols::exists(const SymbolKeyType& id) const
 {
@@ -346,7 +344,6 @@ bool Symbols::exists(const SymbolKeyType& id) const
  * @param	id			ID of symbol to retrieve.
  * @return	true if symbol is empty;
  * @return	false if symbol is not empty.
- *
  */
 bool Symbols::empty(const SymbolKeyType& id) const
 {
@@ -374,7 +371,6 @@ bool Symbols::empty(const SymbolKeyType& id) const
  * @param	id		ID of the symbol.
  * @return	true if symbols is an scalar;
  * @return	false if symbol is not an scalar, or does not exist;
- *
  */
 bool Symbols::isscalar(const SymbolKeyType& id) const
 {
@@ -392,7 +388,6 @@ bool Symbols::isscalar(const SymbolKeyType& id) const
  * @param	id		ID of the symbol.
  * @return	true if symbols is an array;
  * @return	false if symbol is not an array, or does not exist;
- *
  */
 bool Symbols::isarray(const SymbolKeyType& id) const
 {
@@ -410,7 +405,6 @@ bool Symbols::isarray(const SymbolKeyType& id) const
  * @param	id		ID of the symbol.
  * @return	true if symbols is an hash;
  * @return	false if symbol is not an hash, or does not exist;
- *
  */
 bool Symbols::ishash(const SymbolKeyType& id) const
 {
@@ -429,7 +423,6 @@ bool Symbols::ishash(const SymbolKeyType& id) const
  * @return	size of the array;
  * @return	0 if array is empty, symbol is not an array, or symbold
  * does not exist;
- *
  */
 unsigned Symbols::size(const SymbolKeyType& id) const
 {
@@ -450,7 +443,6 @@ unsigned Symbols::size(const SymbolKeyType& id) const
  * @param	id		ID of the symbol to clear.
  * @return	true if symbol unset;
  * @return	false if symbol does not exist, or id invalid.
- *
  */
 bool Symbols::unset(const SymbolKeyType& id)
 {

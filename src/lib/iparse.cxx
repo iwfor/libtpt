@@ -1,7 +1,7 @@
 /*
- * parse.cxx
+ * iparse.cxx
  *
- * Parser
+ * IParser - Interactive Parser
  *
  * $Id$
  *
@@ -42,7 +42,7 @@
 
 #include "conf.h"
 #include "parse_impl.h"
-#include <libtpt/parse.h>
+#include <libtpt/iparse.h>
 #include <algorithm>
 #include <sstream>
 #include <iostream>
@@ -51,86 +51,49 @@ namespace TPT {
 
 
 /**
- * Construct a Parser for the specified file.
- *
- * @param	filename	Path to TPT source file.
- *
- */
-Parser::Parser(const char* filename)
-{
-	imp = new Parser_Impl(filename);
-}
-
-/**
- * Construct a Parser for the specified file and Symbols table.
+ * Construct a IParser for the specified file and Symbols table.
  *
  * @param	filename	Path to TPT source file.
  * @param	st			Reference to Symbols table.
  *
  */
-Parser::Parser(const char* filename, const Symbols& st)
+IParser::IParser(const char* filename, Symbols& st)
 {
-	imp = new Parser_Impl(filename);
-	imp->symbols.copy(st);
+	imp = new Parser_Impl(filename, st);
 }
 
 /**
- * Construct a Parser for the specified fixed length buffer.
- *
- * @param	buffer		Pointer to buffer of TPT source.
- * @param	size		Size of TPT source buffer.
- *
- */
-Parser::Parser(const char* buffer, unsigned long size)
-{
-	imp = new Parser_Impl(buffer, size);
-}
-
-/**
- * Construct a Parser for the specified fixed length buffer and Symbols
+ * Construct a IParser for the specified fixed length buffer and Symbols
  * table.
  *
  * @param	buffer		Pointer to buffer of TPT source.
  * @param	size		Size of TPT source buffer.
  *
  */
-Parser::Parser(const char* buffer, unsigned long size, const Symbols& st)
+IParser::IParser(const char* buffer, unsigned long size, Symbols& st)
 {
-	imp = new Parser_Impl(buffer, size);
-	imp->symbols.copy(st);
+	imp = new Parser_Impl(buffer, size, st);
 }
 
 /**
- * Construct a Parser for a Buffer.
- *
- * @param	buf			Reference to buffer containing source template.
- *
- */
-Parser::Parser(Buffer& buf)
-{
-	imp = new Parser_Impl(buf);
-}
-
-/**
- * Construct a Parser for a Buffer and Symbols table.
+ * Construct a IParser for a Buffer and Symbols table.
  *
  * @param	buf			Reference to Buffer containing source template.
  * @param	st			Reference to Symbols table.
  *
  */
-Parser::Parser(Buffer& buf, const Symbols& st)
+IParser::IParser(Buffer& buf, Symbols& st)
 {
-	imp = new Parser_Impl(buf);
-	imp->symbols.copy(st);
+	imp = new Parser_Impl(buf, st);
 }
 
 /**
- * Destruct this Parser.
+ * Destruct this IParser.
  *
  * @param	none
  *
  */
-Parser::~Parser()
+IParser::~IParser()
 {
 	delete imp;
 }
@@ -144,7 +107,7 @@ Parser::~Parser()
  * @param	none
  *
  */
-std::string Parser::run()
+std::string IParser::run()
 {
 	std::string temp;
 	std::stringstream ss(temp);
@@ -161,7 +124,7 @@ std::string Parser::run()
  * @return	true if there were errors or warnings.
  *
  */
-bool Parser::run(std::ostream& os)
+bool IParser::run(std::ostream& os)
 {
 	imp->errlist.clear();
 	return imp->pass1(&os);
@@ -175,7 +138,7 @@ bool Parser::run(std::ostream& os)
  * @return	true if there were errors or warnings.
  *
  */
-bool Parser::syntax()
+bool IParser::syntax()
 {
 	return imp->pass1(0);
 }
@@ -187,7 +150,7 @@ bool Parser::syntax()
  * @return	0 is good.
  *
  */
-unsigned Parser::geterrorcount() const
+unsigned IParser::geterrorcount() const
 {
 	return imp->errlist.size();
 }
@@ -201,7 +164,7 @@ unsigned Parser::geterrorcount() const
  * @return	true if errors copied.
  *
  */
-bool Parser::geterrorlist(ErrorList& errlist)
+bool IParser::geterrorlist(ErrorList& errlist)
 {
 	if (!imp->errlist.empty())
 	{
@@ -224,7 +187,7 @@ bool Parser::geterrorlist(ErrorList& errlist)
  * @return	nothing
  * 
  */
-void Parser::addincludepath(const char* path)
+void IParser::addincludepath(const char* path)
 {
 	imp->inclist.push_back(path);
 }
@@ -243,7 +206,7 @@ void Parser::addincludepath(const char* path)
  * @return	true if name already is registered to another function.
  *
  */
-bool Parser::addfunction(const char* name,
+bool IParser::addfunction(const char* name,
 		bool (*func)(std::ostream&, Object&))
 {
 	if (imp->isuserfunc(name))

@@ -1,7 +1,5 @@
 /*
- * buffer.h
- *
- * Handle file read buffering.
+ * iparse.h
  *
  * $Id$
  *
@@ -39,69 +37,60 @@
  *
  */
 
-#ifndef include_libtpt_buffer_h
-#define include_libtpt_buffer_h
+#ifndef include_tpt_iparse_h
+#define include_tpt_iparse_h
 
-#include <iosfwd>	// Forward declare std::fstream
+#include <libtpt/tpttypes.h>
+#include <libtpt/buffer.h>
+#include <libtpt/symbols.h>
+#include <iosfwd>
+#include <string>
+#include <vector>
 
 namespace TPT {
 
+// Forward Declarations
+class Parser_Impl;
+class Object;
 
 /**
+ * The IParser class parses a template like the Parser class, except the
+ * IParser class allows the Symbols table to be modified by the template.
  *
- * The TPT::Buffer class provides a generic way to buffer input from
- * a file, file stream, or existing buffer one character at a time.
+ * @author	Isaac W. Foraker
+ * @exception	tptexception
  *
  */
-class Buffer {
+class IParser {
 public:
-	/// Instantiate on filename.
-	explicit Buffer(const char* filename);
-	/// Instantiate on open input fstream.
-	explicit Buffer(std::istream* is);
-	/// Instantiate on existing buffer.
-	explicit Buffer(const char* buffer, unsigned long size);
-	/// Instantiate on subsection of existing buffer
-	explicit Buffer(const Buffer& buf, unsigned long start, unsigned long end);
-	/// Cleanup.
-	~Buffer();
+	IParser(const char* filename, Symbols& st);
+	IParser(const char* buf, unsigned long size, Symbols& st);
+	IParser(Buffer& buf, Symbols& st);
+	~IParser();
 
-	/// Get next character from buffer.
-	char getnextchar();
-	/// Back up in the buffer.
-	bool unget();
-	/// Reset pointers to beginning of buffer.
-	void reset();
-	/// Seek to index in buffer.
-	bool seek(unsigned long index);
-	/// Get current offset into buffer.
-	unsigned long offset() const;
-	/// True when not at end of buffer.
-	operator bool() const;
-	/// Index access
-	const char operator[](unsigned long index);
-	/// Current size
-	unsigned long size() const;
+	/// Parse template into a string.
+	std::string run();
+	/// Parse template directly to stream.
+	bool run(std::ostream& os);
+	/// Just do a syntax check on template.
+	bool syntax();
+	/// Get the error count from a parse.
+	unsigned geterrorcount() const;
+	/// Get the error list from a parse.
+	bool geterrorlist(ErrorList& errlist);
+
+	/// Add an include search path.
+	void addincludepath(const char* path);
+	
+	/// Add a callback function.
+	bool addfunction(const char* name,
+			bool (*func)(std::ostream&, Object&));
 
 private:
-	std::istream* instr;
-	unsigned long buffersize;
-	unsigned long bufferalloc;
-	char* buffer;
-	unsigned bufferindex;
-	bool freestreamwhendone;
-	bool done;
-
-	void openfile(const char* filename);
-	bool readfile();
-	void enlarge();	// increase buffer size
-
-	// Prevent use of this constructor
-	Buffer();
-	
-}; // end class Buffer
+	Parser_Impl* imp;
+	IParser();
+};
 
 } // end namespace TPT
 
-
-#endif // include_libtpt_buffer_h
+#endif // include_tpt_iparse_h
