@@ -68,7 +68,7 @@ bool test1(const char* filename)
 	TPTLib::Buffer buf(filename);
 	std::fstream f(filename, std::ios::in | std::ios::binary);
 	char c, d;
-	bool filehasdata, bufhasdata;
+	bool filehasdata(true), bufhasdata;
 
 	if (!f.is_open())
 	{
@@ -111,7 +111,7 @@ bool test2(const char* filename)
 	TPTLib::Buffer buf(&bf);
 	std::fstream f(filename, std::ios::in | std::ios::binary);
 	char c, d;
-	bool filehasdata, bufhasdata;
+	bool filehasdata(true), bufhasdata;
 
 	if (!f.is_open())
 	{
@@ -167,7 +167,7 @@ bool test3(const char* filename)
 	TPTLib::Buffer buf(buffer, fsize);
 	std::fstream f(filename, std::ios::in | std::ios::binary);
 	char c, d;
-	bool filehasdata, bufhasdata;
+	bool filehasdata(true), bufhasdata;
 
 	if (!f.is_open())
 	{
