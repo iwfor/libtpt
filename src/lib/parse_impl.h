@@ -39,8 +39,8 @@
  *
  */
 
-#ifndef __libtpt_parse_impl_h
-#define __libtpt_parse_impl_h
+#ifndef _libtpt_parse_impl_h
+#define _libtpt_parse_impl_h
 
 #include <libtpt/object.h>
 #include "conf.h"
@@ -72,57 +72,66 @@ public:
 	bool isseeded;
 	loop_control loop_cmd;
 
+	// Format control
+	unsigned tabstop_;		// Size of a tab stop (typically 4 or 8)
+	unsigned textwidth_;	// Width of text for word wrapping
+	bool tab2space_;		// true means convert tab to space
+	unsigned column_;		// current output column
+
 	// kiss_vars are used for pseudo-random number generation
-	unsigned long kiss_x;
-	unsigned long kiss_y;
-	unsigned long kiss_z;
-	unsigned long kiss_w;
-	unsigned long kiss_carry;
-	unsigned long kiss_k;
-	unsigned long kiss_m;
-	unsigned long kiss_seed;
+	unsigned kiss_x;
+	unsigned kiss_y;
+	unsigned kiss_z;
+	unsigned kiss_w;
+	unsigned kiss_carry;
+	unsigned kiss_k;
+	unsigned kiss_m;
+	unsigned kiss_seed;
 
 	Parser_Impl(Buffer& buf) : allocbuf(0), lex(buf), level(0),
 		looplevel(0), symbols(localsymmap), macros(localmacros),
-		funcs(localfuncs), inclist(localinclist), isseeded(false)
+		funcs(localfuncs), inclist(localinclist), isseeded(false),
+		tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
 	{ installfuncs(); }
 
 	Parser_Impl(Buffer& buf, const Symbols& st) : allocbuf(0), lex(buf),
 		level(0), looplevel(0), localsymmap(st), symbols(localsymmap),
 		macros(localmacros), funcs(localfuncs), inclist(localinclist),
-		isseeded(false)
+		isseeded(false), tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
 	{ installfuncs(); }
 
 	Parser_Impl(const char* filename) : allocbuf(new Buffer(filename)),
 		lex(*allocbuf), level(0), looplevel(0), symbols(localsymmap),
 		macros(localmacros), funcs(localfuncs), inclist(localinclist),
-		isseeded(false)
+		isseeded(false), tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
 	{ installfuncs(); }
 
 	Parser_Impl(const char* filename, const Symbols& sm) : 
 		allocbuf(new Buffer(filename)), lex(*allocbuf), level(0),
 		looplevel(0), localsymmap(sm), symbols(localsymmap),
 		macros(localmacros), funcs(localfuncs), inclist(localinclist),
-		isseeded(false)
+		isseeded(false), tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
 	{ installfuncs(); }
 
 	Parser_Impl(const char* buffer, unsigned long size) :
 		allocbuf(new Buffer(buffer, size)), lex(*allocbuf), level(0),
 		looplevel(0), symbols(localsymmap), macros(localmacros),
-		funcs(localfuncs), inclist(localinclist), isseeded(false)
+		funcs(localfuncs), inclist(localinclist), isseeded(false),
+		tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
 	{ installfuncs(); }
 
 	Parser_Impl(const char* buffer, unsigned long size, const Symbols& sm) :
 		allocbuf(new Buffer(buffer, size)), lex(*allocbuf), level(0),
 		looplevel(0), localsymmap(sm), symbols(localsymmap),
 		macros(localmacros), funcs(localfuncs), inclist(localinclist),
-		isseeded(false)
+		isseeded(false), tabstop_(8), textwidth_(0), tab2space_(0), column_(0)
 	{ installfuncs(); }
 
 	Parser_Impl(Buffer& buf, Symbols& sm, MacroList& ml, FunctionList& fns,
 			IncludeList& il) :
-		allocbuf(0), lex(buf), level(0), looplevel(0),
-		symbols(sm), macros(ml), funcs(fns), inclist(il), isseeded(false)
+		allocbuf(0), lex(buf), level(0), looplevel(0), symbols(sm), macros(ml),
+		funcs(fns), inclist(il), isseeded(false), tabstop_(8), textwidth_(0),
+		tab2space_(0), column_(0)
 	{ }
 	
 	~Parser_Impl() { if (allocbuf) delete allocbuf; }
@@ -197,4 +206,4 @@ struct cntguard {
 
 } // end namespace TPT
 
-#endif // __libtpt_parse_impl_h
+#endif // _libtpt_parse_impl_h

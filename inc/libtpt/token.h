@@ -37,8 +37,8 @@
  *
  */
 
-#ifndef __libtpt_token_h
-#define __libtpt_token_h
+#ifndef _libtpt_token_h
+#define _libtpt_token_h
 
 #include <string>
 
@@ -121,4 +121,4 @@ template<typename E=TokenTypes> struct Token {
 
 } // end namespace TPT
 
-#endif // __libtpt_token_h
+#endif // _libtpt_token_h

@@ -39,8 +39,8 @@
  *
  */
 
-#ifndef __extendedtypes_types_h
-#define __extendedtypes_types_h
+#ifndef _extendedtypes_types_h
+#define _extendedtypes_types_h
 
 #include <algorithm>
 #include <vector>
@@ -72,4 +72,4 @@ template<typename T = char> struct ChrSet {
 
 #include "ttypes.inl"
 
-#endif // __extendedtypes_types_h
+#endif // _extendedtypes_types_h

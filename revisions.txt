@@ -1,6 +1,11 @@
 LibTPT Revisions
 ================
 
+Version 1.10.1
+--------------
+- Incorporated fixes for memory leaks from 1.11-beta.
+- Copied in bench.cxx from 1.11-beta.
+
 Version 1.11-beta
 -----------------
 - Added bench.cxx to test directory.  This program will time a benchmark

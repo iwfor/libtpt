@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef __notboost_smartptr_h
-#define __notboost_smartptr_h
+#ifndef _notboost_smartptr_h
+#define _notboost_smartptr_h
 
 #include <memory>
 #include <iostream>
@@ -105,4 +105,4 @@ public:
 
 } // end namespace notboost
 
-#endif // __notboost_smartptr_h
+#endif // _notboost_smartptr_h

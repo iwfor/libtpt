@@ -34,3 +34,5 @@ optimizations - Ongoing
 	Loads the specified library.a or library.dll and autoloads all TPT
 	callbacks in the library.
 
+${string(index)} - Version 2.x
+	Allow direct access to a string index.

@@ -40,8 +40,8 @@
  *
  */
 
-#ifndef __libtpt_conf_h
-#define __libtpt_conf_h
+#ifndef _libtpt_conf_h
+#define _libtpt_conf_h
 
 #ifdef _MSC_VER
 #	include <cstdio>		// for va_list, required by native.h
@@ -59,4 +59,4 @@
 
 #include <libtpt/compat.h>
 
-#endif // __libtpt_conf_h
+#endif // _libtpt_conf_h

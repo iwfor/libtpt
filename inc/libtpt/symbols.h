@@ -37,8 +37,8 @@
  *
  */
 
-#ifndef __libtpt_symbols_h
-#define __libtpt_symbols_h
+#ifndef _libtpt_symbols_h
+#define _libtpt_symbols_h
 
 #include <string>
 #include <map>
@@ -104,4 +104,4 @@ private:
 
 } // end namespace TPT
 
-#endif // __libtpt_symbols_h
+#endif // _libtpt_symbols_h

@@ -39,18 +39,18 @@
  *
  */
 
-#ifndef __libtpt_vars_h
-#define __libtpt_vars_h
+#ifndef _libtpt_vars_h
+#define _libtpt_vars_h
 
 // Ack!  A define!  Defines allow easy concatenation on strings
-#define __LIBTPT_VERSION	"1.10"
+#define _LIBTPT_VERSION	"1.12"
 
 namespace TPT {
 
-	const char* libtpt_version = __LIBTPT_VERSION;
+	const char* libtpt_version = _LIBTPT_VERSION;
 	const char* libtpt_library = "LibTPT";
 	const char* libtpt_fullname =
-		"LibTPT Template Processor Version " __LIBTPT_VERSION;
+		"LibTPT Template Processor Version " _LIBTPT_VERSION;
 	const char* libtpt_author = "Isaac W. Foraker";
 	const char* libtpt_copyright =
 		"Copyright (C) 2002 Isaac W. Foraker, All Rights Reserved";
@@ -86,7 +86,7 @@ namespace TPT {
 		"(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n"
 		"OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.";
 
-	struct __builtin_variables {
+	struct _builtin_variables {
 		const char* id;
 		const char* value;
 	} libtpt_builtins[] = {
@@ -100,7 +100,7 @@ namespace TPT {
 		{ "PML", libtpt_fullname }
 	};
 
-	const unsigned numbuiltins = (sizeof(libtpt_builtins)/sizeof(__builtin_variables));
+	const unsigned numbuiltins = (sizeof(libtpt_builtins)/sizeof(_builtin_variables));
 }
 
-#endif // __libtpt_vars_h
+#endif // _libtpt_vars_h

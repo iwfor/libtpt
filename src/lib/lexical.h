@@ -37,8 +37,8 @@
  *
  */
 
-#ifndef __libtpt_lexical_h
-#define __libtpt_lexical_h
+#ifndef _libtpt_lexical_h
+#define _libtpt_lexical_h
 
 #include "ttypes.h"
 #include <libtpt/token.h>
@@ -119,4 +119,4 @@ private:
 
 } // end namespace TPT
 
-#endif // __libtpt_lexical_h
+#endif // _libtpt_lexical_h

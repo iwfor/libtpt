@@ -37,8 +37,8 @@
  *
  */
 
-#ifndef __libtpt_macro_h
-#define __libtpt_macro_h
+#ifndef _libtpt_macro_h
+#define _libtpt_macro_h
 
 #include <map>
 #include <string>
@@ -60,4 +60,4 @@ typedef std::map< std::string, Macro > MacroList;
 
 } // end namespace TPT
 
-#endif // __libtpt_macro_h
+#endif // _libtpt_macro_h

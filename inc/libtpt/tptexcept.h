@@ -37,8 +37,8 @@
  *
  */
 
-#ifndef __libtpt_tptexcept_impl_h
-#define __libtpt_tptexcept_impl_h
+#ifndef _libtpt_tptexcept_impl_h
+#define _libtpt_tptexcept_impl_h
 
 #include <stdexcept>
 #include <string>
@@ -55,4 +55,4 @@ public:
 
 } // end namespace TPT
 
-#endif // __libtpt_tptexcept_impl_h
+#endif // _libtpt_tptexcept_impl_h
