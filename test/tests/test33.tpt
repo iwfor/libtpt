@@ -1,0 +1,4 @@
+There are @size(myarray) objects in myarray.
+@foreach obj (myarray) {
+${obj}
+}

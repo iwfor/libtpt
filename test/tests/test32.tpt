@@ -1,0 +1,8 @@
+@foreach x ("a", "b", "c", "d", "e") {
+	@<@if (!@compare(${x}, "d"))
+		{@last}
+	@<@foreach y (1, 2, 3, 4) {
+		@<@if (${y} == 2) {@next}
+		@<${x} ${y}
+	@<}
+}

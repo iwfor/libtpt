@@ -1,0 +1,5 @@
+@set(a, "apple", "orange", "plum", "strawberry")\
+@set(h.a, "apple")\
+@set(h.b, "orange", "plum")\
+@set(s, "strawberry")\
+@size(a, h, s, e)

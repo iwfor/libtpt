@@ -1,0 +1,12 @@
+@tpt_ignoreblankline\
+@tpt_ignoreindent\
+
+
+<html>
+	<head><title>My Page</title></head>
+
+<body>
+@tpt_noignoreblankline\
+
+<h1>Title</h1>
+

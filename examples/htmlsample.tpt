@@ -3,7 +3,7 @@
 @header(${mytitle})
 
 @if (${var} eq "tpt") {	@# TPT example
-	TPTLib snippet:<br>
+	LibTPT snippet:<br>
 	<pre>
 		\@if (boolexp)
 		{

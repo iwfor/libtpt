@@ -1,0 +1,11 @@
+@# This should generate a warning
+@macro(a, b) {
+	@<@if (b) {1} @else {0
+}
+
+@if (@a(1)) {
+succeed
+}
+@else {
+failure
+}

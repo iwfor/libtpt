@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac*nospam*@tazthecat.net)
+ * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,12 +38,10 @@
  */
 
 #ifdef _MSC_VER
-// Disable long symbol name warning on MSVC++
-#pragma warning(disable:4786)
+#	pragma warning(disable:4786)
 #endif
-
-#include <tptlib/buffer.h>
-#include <tptlib/parse.h>
+#include <libtpt/tpt.h>
+#include <libtpt/compat.h>
 
 #include <iostream>
 #include <stdexcept>
@@ -72,24 +70,31 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
+#include "shared.inl"
 
 void dumptemplate(const char* filename)
 {
-	TPTLib::Symbols sym;
+	TPT::Symbols sym;
 	sym.set("var", "this is the value of var");
 	sym.set("var1", "Supercalifragilisticexpialidocious");
 	sym.set("var2", "The red fox runs through the plain and jumps over the fence.");
 	sym.set("title", "TEST TITLE");
+	sym.push("myarray", "value1");
+	sym.push("myarray", "value2");
+	sym.push("myarray", "value3");
+	sym.push("myarray", "value4");
 
-	TPTLib::Buffer tptbuf(filename);
-	TPTLib::Parser p(tptbuf, &sym);
+	TPT::Buffer tptbuf(filename);
+	TPT::Parser p(tptbuf, sym);
 
+	p.addfunction("mycallback", &mycallback);
+	p.addfunction("fsum", &fsum);
 	p.run(std::cout);
 
-	TPTLib::ErrorList errlist;
+	TPT::ErrorList errlist;
 	if (p.geterrorlist(errlist))
 	{
-		TPTLib::ErrorList::const_iterator it(errlist.begin()), end(errlist.end());
+		TPT::ErrorList::const_iterator it(errlist.begin()), end(errlist.end());
 		for (; it != end; ++it)
 			std::cerr << (*it) << std::endl;
 

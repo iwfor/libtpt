@@ -1,0 +1,6 @@
+@set(op1.a, "a")\
+@set(op2.a, "b")\
+@set(test, op1, op2)\
+@foreach op (test) {
+	${op.a}
+}

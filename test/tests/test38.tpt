@@ -1,0 +1,9 @@
+@set(val.one, "apple")\
+@set(val.two, "orange")\
+@set(val.three, "pear")\
+@set(val.four, "tangerine")\
+@keys(keys, val)\
+@size(keys)
+@foreach key (keys) {
+${key} = ${val.${key}}
+}

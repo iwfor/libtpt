@@ -1,16 +1,16 @@
-// Example usage of TPTLib::Buffer class.
+// Example usage of TPT::Buffer class.
 
 #include "mylex.h"
 #include "mybuffer.h"
 
-#include "tptlib/buffer.h"
+#include "libtpt/buffer.h"
 
 int main()
 {
 	char buffer[BUFSIZE];
 	int bufsize = fillbuffer(buffer);
 
-	TPTLib::Buffer inbuf(buffer, bufsize);
+	TPT::Buffer inbuf(buffer, bufsize);
 	char c;
 
 	while (inbuf)

@@ -1,0 +1,10 @@
+@set(vars[1], 2)\
+@set(vars[0], 1)\
+@set(vars[2], 15)\
+@set(vars[3][0], 42)\
+@foreach var (vars) {
+@if(@isscalar(var)) {
+${var}
+}
+}
+${vars[3][0]}

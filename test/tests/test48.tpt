@@ -1,0 +1,11 @@
+@push(vars, "a")\
+@push(vars, "b")\
+@push(vars, "c")\
+@push(vars, "d")\
+@foreach var (vars) {
+${var}
+}
+@while (@size(vars)) {
+@pop(var, vars)\
+${var}
+}

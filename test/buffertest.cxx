@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac*nospam*@tazthecat.net)
+ * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,8 @@
  *
  */
 
-#include <tptlib/buffer.h>
+#include <libtpt/buffer.h>
+#include <libtpt/compat.h>
 
 #include <iostream>
 #include <fstream>
@@ -97,7 +98,7 @@ int main(int argc, char* argv[])
 
 bool test1(const char* filename)
 {
-	TPTLib::Buffer buf(filename);
+	TPT::Buffer buf(filename);
 	std::fstream f(filename, std::ios::in | std::ios::binary);
 	char c, d;
 	bool filehasdata(true), bufhasdata;
@@ -112,7 +113,7 @@ bool test1(const char* filename)
 	// past end of file, so this code may look funny
 	for (;;)
 	{
-		if (f.readsome(&c, 1) != 1)
+		if (!f.read(&c, 1))
 		{
 			filehasdata = false;
 			break;
@@ -140,7 +141,7 @@ bool test1(const char* filename)
 bool test2(const char* filename)
 {
 	std::fstream bf(filename, std::ios::in | std::ios::binary);
-	TPTLib::Buffer buf(&bf);
+	TPT::Buffer buf(&bf);
 	std::fstream f(filename, std::ios::in | std::ios::binary);
 	char c, d;
 	bool filehasdata(true), bufhasdata;
@@ -155,7 +156,7 @@ bool test2(const char* filename)
 	// past end of file, so this code may look funny
 	for (;;)
 	{
-		if (f.readsome(&c, 1) != 1)
+		if (!f.read(&c, 1))
 		{
 			filehasdata = false;
 			break;
@@ -186,8 +187,9 @@ bool test3(const char* filename)
 	char* buffer = new char[falloc];
 	size_t size;
 
-	while ((size = bf.readsome(&buffer[fsize], 65536)) < 1)
+	while (bf.read(&buffer[fsize], 65536) || bf.gcount())
 	{
+		size=bf.gcount();
 		fsize+=size;
 		falloc+= 65536;
 		char* t = new char[falloc];
@@ -196,7 +198,7 @@ bool test3(const char* filename)
 		buffer = t;
 	}
 
-	TPTLib::Buffer buf(buffer, fsize);
+	TPT::Buffer buf(buffer, fsize);
 	std::fstream f(filename, std::ios::in | std::ios::binary);
 	char c, d;
 	bool filehasdata(true), bufhasdata;
@@ -211,7 +213,7 @@ bool test3(const char* filename)
 	// past end of file, so this code may look funny
 	for (;;)
 	{
-		if (f.readsome(&c, 1) != 1)
+		if (!f.read(&c, 1))
 		{
 			filehasdata = false;
 			break;

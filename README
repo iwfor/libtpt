@@ -1,6 +1,19 @@
-TPTLib Class Library Template Processor
-Copyright (C) 2002 Isaac W. Foraker (isaac*nospam*@tazthecat.net)
+LibTPT Class Library Template Processor
+Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
 All Rights Reserved
 
 See LICENSE file for licensing information.
+See INSTALL for details on building and installation.
+See http://tazthecat.net/~isaac/libtpt/ for up to date documentation.
 
+LibTPT is a C++ library for a template scripting language.  The
+difference between LibTPT and other scripting languages is that LibTPT
+is designed specifically to rely on C++ for I/O, making it easier to
+port, smaller, and faster.  In the course of normal execution, the C++
+program will populate a symbols table using highspeed machine code, then
+the TPT parser will convert a template to text output, passing the
+text back to the C++ programs high speed I/O system.
+
+TPT is currently used for CGI output and source code generation, but can
+also be used in the creation of MUDs, interactive tutorials, or just
+about any task that requires the generation customized text.

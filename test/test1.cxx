@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac*nospam*@tazthecat.net)
+ * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,17 +37,13 @@
  *
  */
 
-#ifdef _MSC_VER
-// Disable long symbol name warning on MSVC++
-#pragma warning(disable:4786)
-#endif
-
-#include <tptlib/buffer.h>
-#include <tptlib/parse.h>
+#include <libtpt/tpt.h>
+#include <libtpt/compat.h>
 
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
+#include <ostream>
 #include <cstring>
 
 bool test1(unsigned testcount);
@@ -80,16 +76,22 @@ int main(int argc, char* argv[])
 	return result;
 }
 
+#include "shared.inl"
+
 bool test1(unsigned testcount)
 {
-	TPTLib::ErrorList errlist;
+	TPT::ErrorList errlist;
 	bool result = false;
-	TPTLib::Symbols sym;
+	TPT::Symbols sym;
 
 	sym.set("var", "this is the value of var");
 	sym.set("var1", "Supercalifragilisticexpialidocious");
 	sym.set("var2", "The red fox runs through the plain and jumps over the fence.");
 	sym.set("title", "TEST TITLE");
+	sym.push("myarray", "value1");
+	sym.push("myarray", "value2");
+	sym.push("myarray", "value3");
+	sym.push("myarray", "value4");
 
 	char tptfile[256], outfile[256];
 	unsigned i;
@@ -100,31 +102,28 @@ bool test1(unsigned testcount)
 		std::cout << "test" << (i+1) << ".tpt: ";
 
 		// generate test file names by rule
-		sprintf(tptfile, "test%u.tpt", i+1);
-		sprintf(outfile, "test%u.out", i+1);
+		sprintf(tptfile, "tests/test%u.tpt", i+1);
+		sprintf(outfile, "tests/test%u.out", i+1);
 
 		// Process the tpt file and store the result in a string
-		TPTLib::Buffer tptbuf(tptfile);
-		if (!tptbuf)
-		{
-			std::cout << "failed to read file" << std::endl;
-			continue;
-		}
-		TPTLib::Parser p(tptbuf, &sym);
+		TPT::Parser p(tptfile, sym);
 		std::string tptstr;
 		std::stringstream strs(tptstr);
+		p.addfunction("mycallback", &mycallback);
+		p.addfunction("fsum", &fsum);
+		p.addincludepath("tests");
 		p.run(strs);
 
 		if (p.geterrorlist(errlist))
 		{
 			std::cout << "Errors!" << std::endl;
-			TPTLib::ErrorList::const_iterator it(errlist.begin()), end(errlist.end());
+			TPT::ErrorList::const_iterator it(errlist.begin()), end(errlist.end());
 			for (; it != end; ++it)
 				std::cout << (*it) << std::endl;
 		}
 
 		// Load the out file
-		TPTLib::Buffer outbuf(outfile);
+		TPT::Buffer outbuf(outfile);
 		std::string outstr;
 		while (outbuf)
 			outstr+= outbuf.getnextchar();

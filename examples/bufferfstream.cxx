@@ -1,13 +1,13 @@
-// Example usage of TPTLib::Buffer class.
+// Example usage of TPT::Buffer class.
 
 #include "mylex.h"
 
-#include "tptlib/buffer.h"
+#include "libtpt/buffer.h"
 
 int main()
 {
 	fstream mystream("myfile.txt");
-	TPTLib::Buffer inbuf(mystream);
+	TPT::Buffer inbuf(mystream);
 	char c;
 
 	while (inbuf)

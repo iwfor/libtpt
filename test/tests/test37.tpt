@@ -1,0 +1,8 @@
+@set(val.one, "apple")\
+@set(val.two, "orange")\
+@set(val.three, "pear")\
+@set(val.four, "tangerine")\
+${val.one}
+${val.two}
+${val.three}
+${val.four}

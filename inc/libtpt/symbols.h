@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac*nospam*@tazthecat.net)
+ * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,45 +37,71 @@
  *
  */
 
-#ifndef __tptlib_symbols_h
-#define __tptlib_symbols_h
+#ifndef __libtpt_symbols_h
+#define __libtpt_symbols_h
 
 #include <string>
 #include <map>
 #include <vector>
 #include <stack>
 
-namespace TPTLib {
+namespace TPT {
 
+// Forward declarations
+class Symbols_Impl;
+class Parser_Impl;
+class Object;
+
+// The maximum allowed size of an array
 const unsigned maxarraysize = 65536;
 
 typedef std::string SymbolKeyType;
 typedef std::string SymbolValueType;
 typedef std::vector< SymbolValueType > SymbolArrayType;
+typedef std::map< SymbolKeyType, SymbolValueType> SymbolHashType;
 
+/**
+ * The Symbols class holds the symbols table for passing variables to
+ * the parser.
+ *
+ * @author	Isaac W. Foraker
+ * @exception	tptexception
+ *
+ */
 class Symbols {
 public:
-	Symbols();
+	Symbols(bool setdefaults=true);
 	Symbols(const Symbols& s);
 	~Symbols();
 
-	void set(const SymbolKeyType& id, const SymbolValueType& value);
-	void set(const SymbolKeyType& id, const SymbolArrayType& value);
+	bool set(const SymbolKeyType& id, const SymbolValueType& value);
+	bool set(const SymbolKeyType& id, int value);
+	bool set(const SymbolKeyType& id, const SymbolArrayType& value);
+	bool set(const SymbolKeyType& id, const SymbolHashType& value);
+	bool set(const SymbolKeyType& id, Object& value);
+
+	bool push(const SymbolKeyType& id, const SymbolValueType& value);
+	bool push(const SymbolKeyType& id, const SymbolArrayType& value);
+	bool push(const SymbolKeyType& id, const SymbolHashType& value);
+	bool push(const SymbolKeyType& id, Object& value);
+
 	bool exists(const SymbolKeyType& id) const;
 	bool empty(const SymbolKeyType& id) const;
+
+	bool isscalar(const SymbolKeyType& id) const;
 	bool isarray(const SymbolKeyType& id) const;
+	bool ishash(const SymbolKeyType& id) const;
 	unsigned size(const SymbolKeyType& id) const;
 	bool get(const SymbolKeyType& id, SymbolValueType& val) const;
 	bool get(const SymbolKeyType& id, SymbolArrayType& sym) const;
 	bool unset(const SymbolKeyType& id);
-	void dump();
 	Symbols& operator=(const Symbols&);
 private:
-	struct Impl;
-	Impl* imp;
+	Symbols_Impl* imp;
+	friend class Parser_Impl;
 };
 
 
-} // end namespace TPTLib
+} // end namespace TPT
 
-#endif // __tptlib_symbols_h
+#endif // __libtpt_symbols_h

@@ -1,0 +1,7 @@
+@#
+@# This is the @foreach id (...) test
+@#
+@set(list, "apple", "orange", "grape", "pear", "banana", "peach")\
+@foreach myvar (list) {
+${myvar}
+}

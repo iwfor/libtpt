@@ -1,0 +1,247 @@
+LibTPT Revisions
+================
+
+Version 1.10
+------------
+- Fixed Major bugs in lexical analyzer (hopefully last ones) causing big breaks
+  in macros.
+- Added test of just about everything that has been broken in macros.
+- Simplified, optimized, and rewrote large chunks of the lexical analyzer,
+  removing lex_impl.cxx and lex_impl.h, since the lexical analyzer really did
+  not need a private implementation.  This should yield a significant
+  performance improvement as well as slightly reduce the memory footprint.
+
+Version 1.05
+------------
+- Fixed Major bug in lexical analyzer fixing mishandling of braces {}.  This
+  bug would sometimes cause close braces to be completely ignored, completely
+  breaking the flow of logical expressions or loops.
+- Added new function to speed up conditional blocks (if/else and loops).
+- Misc optimizations.
+- Fixed a few out-of-date comments.
+
+Version 1.04
+------------
+- Added @lpad and @rpad string padding functions for tabular display templates.
+- Added @tpt_ignoreindent and @tpt_noignoreindent.  @ignoreindent and
+  @noignoreindent are depricated.
+- Added @tpt_ignoreblankline and @tpt_noignoreblankline.  @ignoreblankline and
+  @noignoreblankline are depricated.
+- Added new test for @lpad and @rpad.
+- Updated tests to remove depricated functions.
+- Updated documentation.
+
+Version 1.03
+-------------
+- Added @push and @pop functions.
+- Added new test for @push and @pop.
+- Updated documentation.
+- More compatibility updates for MSVC++ 6.0 compiler.
+- Added shared compatability header, compat.h.
+
+Version 1.02
+------------
+- Fixed segmentation fault when directly setting array[index].
+- Fixed access to multi-dimensional arrays.
+- Added more stress tests to the test suite.
+- @push and @pop are now reserved (should be working in next release).
+
+Version 1.01a
+-------------
+- Now supports MSVC 6 without STLPort installed.
+- configure.pl now supports --cxx command line option to specify compiler
+  without setting environment variable.
+- configure.pl now supports --bundle command line option for use when running
+  configure.pl as part of a bundled package.
+- Updated version of cxxtools for configuration system.
+
+Version 1.01
+------------
+- Fixed error in configure.pl help.
+- Fixed IO bug in TPT::Buffer.  Changed readsome() to read() for broader
+  support.
+
+Version 1.00
+------------
+- Rearranged directory structure.
+- Added configure script based on cxxtools.
+
+Version 0.95-beta
+-----------------
+- Added project files for Visual Studio.Net.
+- Squelched warning messages caused by unsupported "throw" definition in
+  VC++.Net.
+- Resolved some line counting problems.
+
+Version 0.94-beta
+-----------------
+- The Symbols_impl = operator now returns *this.
+- Fixed bug in @set under @include files that caused included variables to
+  go out of scope.
+- @foreach no longer iterates when passed a single empty/undefined scalar.
+- Added Parser::addincludepath to allow adding of include search paths.
+- Used clo++ to greatly expand command line of tpt command line tool.
+- Made some progress on incorrect line number reporting.
+
+Version 0.93-beta
+-----------------
+- Fixed bug in @keys that caused exception when passed a non-hash as the second
+  parameter.
+- Added more error checking to variable handling to prevent blank variable
+  names from being created.
+- Fixed memory access violations related to reading undefined hash or array
+  symbols.
+- Fixed memory access violation caused by declaring and using a macro with a
+  local variable that matches a global variable that is defined after the a
+  call to said macro.
+- Updated @size to be more consistant.
+
+Version 0.92-beta
+-----------------
+- Fixed erroneous warning messages in @isarray, @ishash, and @isscalar
+  functions.
+- Fixed error reporting when a brace enclosed block is not properly closed.
+
+Version 0.91-beta
+-----------------
+- Addressed several compiler warnings.
+- Added new Parser constructors that do not require pre-instantiation of a
+  Buffer class.
+- Comments following open or close brace ( { or } ) no longer cause carriage
+  return to be included.
+
+Version 0.90-beta
+-----------------
+- Fixed serious bug when using @set() to set multiple members of a hash.
+- Restructured some internal functions to act as user level functions instead
+  of as keywords.  This should not affect existing scripts.
+- Fixed @strcmp() not being recognized.
+- Added @keys() for copying hash keys into an array.
+
+Version 0.80-beta
+-----------------
+- Added parse::addfunction() method, giving support for user callback
+  functions.
+- Fixed possible memory leak in shared_ptr<> if new throws exception.
+- Added dependency information to library make file.
+
+Version 0.72-beta
+-----------------
+- Added "make install" to src/.
+- Added tpt.h which includes all LibTPT headers.
+- Fixed erroneous warning reported by @empty.
+- Added @ignoreblankline, @noignoreblankline, @ignoreindent, and
+  @noignoreindent.
+- Added LibTPT book to distribution.
+
+Version 0.70-beta
+-----------------
+- Fixed problem with Symbols::push C++ API functions only keeping the
+  last object that was pushed.
+- Fixed a bug in shared_ptr<> that made it not exceptions safe.
+- Fixed a bug in shared_ptr<> that let it leak memory after an exception.
+- Added source for TPT command line tool to tools/ directory.
+- Added extra check to make sure macro parameter names are valid.
+
+Version 0.61-beta
+-----------------
+- Project Name Change to LibTPT.
+- Namespace has changed to TPT.
+- Fixed line number bug caused by @foreach and @while blocks.
+
+Version 0.60-beta
+-----------------
+- Fixed @last and @next in @foreach and @while.
+- Fixed @foreach ignoring scalar parameters.
+- Fixed problem of @< appearing when it is the first token on a line.
+- Line numbers should now report correctly in macros.
+- Added @sum and @avg math functions.
+
+Version 0.54-beta
+-----------------
+- Optimized structures used by the Lexical Analyzer to use less memory
+  and switched to using std::binary_search to check character sets.
+- Added tpt2c++.pl to convert a TPT file to a C++ include. (Thanks
+  Peter!)
+- Moved smartptr.h out of public includes.
+
+Version 0.53-devel
+------------------
+- Fixed big bug in Parser::Syntax that would consistantly cause an
+  exception.
+- Restructured Parser class to use a Reference to a Symbols table
+  instead of a Pointer to a Symbols table.  This will require a change
+  to any existing code using a Symbols table.
+- Added new methods to Symbols class to allow setting of a hash symbol,
+  integer symbol, and pushing of values onto an array symbol.
+- Several minor bug fixes.
+- Several speed and memory optimizations.
+- Worked on Doxygen comments for C++ Documentation.
+
+Version 0.52-beta
+-----------------
+- Fixed #! #@ comment bug introduced in version 0.51-beta.
+
+Version 0.51-beta
+-----------------
+- Added support for #! as first line of a template file for shell
+  command line support.
+- Added a quick blurb to INSTALL file.
+
+Version 0.50-beta
+-----------------
+- Now support arrays, hashes, and scalars.
+- Embedded arrays and hashes should work.
+- Added bunches of new functions.
+- Added @< and @> whitespace eliminators.
+
+Version blur
+------------
+- Completely reworked symbols table, touching virtually all code
+- Modified code to support Objects instead of symbols, allowing passing
+  of hashes and arrays to functions.
+
+Version 0.07
+------------
+- Added @while ( expr ) { ... }
+- Added @foreach ( listid ) { ${.} ... }
+- Added @unset(id)
+- Fixed parsing of ignored blocks
+
+Version 0.06
+------------
+- Added support for @# comments
+
+Version 0.05
+------------
+- Added support for array variables ${var[x+1]}
+- Added @eval (expr) [basically a @concat in disguise]
+- Added default ${PML} and ${VERSION} variables
+
+Version 0.04
+------------
+- Added @substr
+- Added @else { ... }
+- Added @elsif ( expr)] { ... }
+
+Version 0.03
+------------
+
+- Complete rewrite of symbols table
+- Added @setif, @lc, @uc, @length, @size
+
+Version 0.02
+------------
+- @if ( expr ) { ... }
+- @macro (macroid, param1, param2, ...)
+- Symbol scope within macros
+
+Version 0.01
+------------
+- ${variable}
+- defined some default variables
+- @include(filename.tph)
+- @set(id, value)
+- \escape character
+- Recursive descent parser for complex expressions
+- @rand(mod) function for 32-bit random numbers

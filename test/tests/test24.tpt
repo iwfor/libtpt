@@ -1,0 +1,7 @@
+@# HASH Test
+@set(op.key, "value")\
+${op.key}
+@set(op.array, "apple", "pear", "banana", "pineapple", "orange", "strawberry")\
+@foreach object (op.array) {
+${object}
+}

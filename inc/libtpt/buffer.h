@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac*nospam*@tazthecat.net)
+ * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,17 +39,17 @@
  *
  */
 
-#ifndef __tptlib_buffer_h
-#define __tptlib_buffer_h
+#ifndef __libtpt_buffer_h
+#define __libtpt_buffer_h
 
 #include <iosfwd>	// Forward declare std::fstream
 
-namespace TPTLib {
+namespace TPT {
 
 
 /**
  *
- * The TPTLib::Buffer class provides a generic way to buffer input from
+ * The TPT::Buffer class provides a generic way to buffer input from
  * a file, file stream, or existing buffer one character at a time.
  *
  */
@@ -91,7 +91,7 @@ private:
 	
 }; // end class Buffer
 
-} // end namespace TPTLib
+} // end namespace TPT
 
 
-#endif // __tptlib_buffer_h
+#endif // __libtpt_buffer_h

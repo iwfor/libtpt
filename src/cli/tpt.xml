@@ -1,0 +1,43 @@
+<cloxx>
+	<!--	This is the command line generation file for use with clo++
+			You must have clo++ installed to generate the command line
+			parsing source code.
+	-->
+	<progname name="tpt">
+		<description>
+			<para>
+				tpt runs the specified file through the TPT template parser
+				and displays the output.
+			</para>
+		</description>
+	</progname>
+	<config>
+		<autohelp/>
+	</config>
+	<options>
+		<option id="check" type="flag">
+			<name>check</name>
+			<name>c</name>
+			<comment>Perform syntax checking only</comment>
+		</option>
+		<option id="warnings" type="flag">
+			<name>warnings</name>
+			<name>w</name>
+			<comment>Enable error reporting</comment>
+		</option>
+		<option id="version" type="flag">
+			<name>version</name>
+			<name>v</name>
+			<comment>Display the version string</comment>
+		</option>
+		<option id="include" type="string" modifier="vector">
+			<name>include</name>
+			<name>I</name>
+			<comment>Specify an alternate include directory</comment>
+		</option>
+		<option id="cgiheader" type="flag">
+			<name>cgiheader</name>
+			<comment>Print a basic CGI header</comment>
+		</option>
+	</options>
+</cloxx>

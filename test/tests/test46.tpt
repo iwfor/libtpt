@@ -1,0 +1,22 @@
+@tpt_ignoreblankline\
+
+@macro(cmt) {
+	@<@if (1) {
+ * indent in a macro
+	@<} @else {
+ * indent in a macro
+	@<} @# comment
+ * indent in a macro
+}
+
+/*
+ * Here's a split up multi-line comment.
+@if (1) {
+	@<@if (1) {
+ * This is indented text.
+	@<}
+	@<@cmt()\
+} @# comment
+ * and the last line.
+ */
+

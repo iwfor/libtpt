@@ -1,0 +1,2 @@
+@# This test uses a user defined function linked with the test program.
+@mycallback("a", "b", 'c')

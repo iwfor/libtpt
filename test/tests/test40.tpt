@@ -1,0 +1,11 @@
+@tpt_ignoreblankline\
+@tpt_ignoreindent\
+
+@macro(myadd, a, b) {
+	@eval(a+b)\
+}
+
+@set(a, "Apple", "Orange", "Pear", "Banana", "Lemon", "Lime")\
+
+@set(index, @myadd(1, 2))\
+${a[index]}

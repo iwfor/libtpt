@@ -1,0 +1,9 @@
+@tpt_ignoreindent\
+@set(a, "apple", "orange", "pear")\
+@if (@isarray(bogus)) {
+	error
+}
+@if (@isarray(a)) {
+	passed
+}
+@else { failed }

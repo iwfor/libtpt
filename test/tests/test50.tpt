@@ -1,0 +1,13 @@
+@# Try to do just about everything that's broken TPT so far.
+@macro(t) {
+@# like comments after braces, and add a join-line to complicate things\
+@if (1 ||
+	2)
+{
+@# comment breaking things
+	Text.
+}\
+}
+
+@t()\
+More text.

@@ -1,0 +1,11 @@
+@set(a, 1, 2, 3)\
+@set(b, 42)\
+@foreach x (a) {
+${x}
+}
+@foreach x (b) {
+${x}
+}
+@foreach x (c) {
+${x}
+}

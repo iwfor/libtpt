@@ -1,6 +1,45 @@
-TPTLib Class Library Template Processor
-Copyright (C) 2002 Isaac W. Foraker (isaac*nospam*@tazthecat.net)
+LibTPT Class Library Template Processor
+Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
 All Rights Reserved
 
 See LICENSE file for licensing information.
 
+See http://tazthecat.net/~isaac/libtpt/ for documentation.
+
+UNIX
+----
+Set the CXX environment variable to the path of your C++ compiler.
+
+E.g.
+
+> set CXX=/usr/local/bin/g++30 ; export CXX
+
+Run configure.pl to for a default configuration (use --help for more options).
+
+For a default build:
+
+> ./configure.pl
+> make
+> ./test.sh
+> make install
+
+WINDOWS
+-------
+LibTPT currently supports Microsoft Visual C++ 6.0, and is known to work with
+Visual C++.Net (7.0).  For best performance, it is highly recommended that you
+install the STLPort (http://www.stlport.org/).
+
+By default, the Microsoft projects for TPT are configured for Multithreaded
+libraries.  You may experience link errors if linking with Singl-threaded
+libraries unless you change this setting.
+
+Load w32/tptlib.dsw
+Build test1
+From command line,
+
+> cd <libtpt directory>
+> cd test/
+> test.bat
+
+There is no automatic install for Windows.  Copy libtpt_static.lib from the
+lib/ directory and inc/libtpt/*.h to the desired location.

@@ -1,0 +1,5 @@
+@set(a, "")\
+@set(b, "not empty")\
+@size(a)
+@size(b)
+@size(c)
