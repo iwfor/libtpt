@@ -10,25 +10,12 @@
 
 #include <tptlib/parse.h>
 #include "lexical.h"
+#include "macro.h"
 
 #include <algorithm>
 #include <sstream>
 
 namespace TPTLib {
-
-// The Symbol struct is intended for use in a Symbol stack in macros
-struct Symbol {
-	std::string name;
-	std::string value;
-};
-
-// The macro struct defines parameters of a macro
-typedef std::vector< std::string > ParamList;
-struct Macro {
-	std::string name;
-	ParamList params;
-	std::string body;
-};
 
 struct Parser::Impl {
 	Lex lex;
@@ -36,23 +23,26 @@ struct Parser::Impl {
 	SymbolTable symbols;
 	ErrorList errlist;
 	Token<> tok;
+	MacroList macros;
 
 	Impl(Buffer& buf, const SymbolTable* st) : lex(buf), level(0)
 	{ if (st) symbols = *st; }
 	void recorderror(const std::string& desc);
 	bool getnextparam(std::string& value);
 	bool getnextnonwhitespace();
+	bool getparamlist(ParamList& pl);
 
 	bool pass1(std::ostream* os);
 	void parse_include(std::ostream* os);
 	void parse_if(std::ostream* os);
 	void parse_macro();
 	void parse_set();
-	void parse_while(std::ostream* os);
-	void parse_foreach(std::ostream* os);
-	void parse_concat(std::ostream* os);
 	void parse_empty(std::ostream* os);
 	void parse_rand(std::ostream* os);
+
+	void addmacro(const std::string& name, const ParamList& params,
+		const std::string& body);
+	void execmacro(const std::string& name, const ParamList& params);
 };
 
 bool Parser::Impl::pass1(std::ostream* os)
@@ -85,6 +75,19 @@ bool Parser::Impl::pass1(std::ostream* os)
 	} while (tok.type != token_eof);
 
 	return errlist.size() ? true : false;
+}
+
+void Parser::Impl::parse_include(std::ostream* os)
+{
+	ParamList pl;
+	if (getparamlist(pl))
+		return;
+
+	if (pl.size() != 1)
+	{
+		recorderror("Include takes exactly 1 parameter");
+		return;
+	}
 }
 
 void Parser::Impl::parse_macro()
