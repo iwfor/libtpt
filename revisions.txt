@@ -1,6 +1,11 @@
 LibTPT Revisions
 ================
 
+Version 1.10.2
+--------------
+- Fixed Win32 projects to use proper libraries.
+- Fixed misuse of long vs. int on 64-bit platforms.
+
 Version 1.10.1
 --------------
 - Incorporated fixes for memory leaks from 1.11-beta.

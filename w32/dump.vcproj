@@ -92,7 +92,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="stlport_vc6_stldebug_static.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib"
 				OutputFile="../test/dump_debug.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
