@@ -5,14 +5,6 @@
  *
  */
 
-/*
- * TODO:
- *	Remove brace references to symmap and use find so symbols will not
- *	be created in the map on lookup. (Should that even compile on const
- *	functions?)
- *
- */
-
 // Disable warnings for long debug symbols
 #ifdef _MSC_VER
 #pragma warning(disable:4786)
@@ -37,6 +29,8 @@ namespace TPTLib {
 Symbols::Symbols() :
 	imp(new Impl)
 {
+	for (unsigned i=0; i<numbuiltins; ++i)
+		imp->symmap[tptlib_builtins[i].id].push_back(tptlib_builtins[i].value);
 }
 
 
@@ -74,18 +68,27 @@ Symbols& Symbols::operator=(const Symbols& sym)
  *
  * @param	id		ID of symbol to retrieve.
  * @param	sym		Symbol array to receive value(s).
- * @return	true if symbol found;
- * @return	false if symbol does not exist.
+ * @return	false on success;
+ * @return	true if symbol is invalid.
  * @author	Isaac W. Foraker
  *
  */
 bool Symbols::get(const SymbolKeyType& id, SymbolValueType& outval) const
 {
-	SymbolArrayType outarray;
-	bool r = get(id, outarray);
-	if (r) outval = outarray[0];
-	else outval.erase();
-	return r;
+	SymbolKeyType realid;
+	unsigned index;
+	outval.erase();
+	// getrealid should return true
+	if (imp->getrealid(id, realid, index))
+		return true;
+
+	SymbolTable::const_iterator it(imp->symmap.find(realid));
+	if (it != imp->symmap.end())
+	{
+		if (index < (*it).second.size())
+			outval = (*it).second[index];
+	}
+	return false;
 }
 
 /**
@@ -95,8 +98,8 @@ bool Symbols::get(const SymbolKeyType& id, SymbolValueType& outval) const
  *
  * @param	id		ID of symbol to retrieve.
  * @param	sym		Symbol array to receive value(s).
- * @return	true if symbol found;
- * @return	false if symbol does not exist.
+ * @return	false on success;
+ * @return	true if symbol is invalid.
  * @author	Isaac W. Foraker
  *
  */
@@ -104,28 +107,17 @@ bool Symbols::get(const SymbolKeyType& id, SymbolArrayType& outval) const
 {
 	SymbolKeyType realid;
 	unsigned index;
-	if (!imp->getrealid(id, realid, index))
+	// getrealid should return true and index must be zero
+	if (imp->getrealid(id, realid, index) || (index > 0))
 	{
 		outval.resize(1);
 		outval[0].erase();
 		return false;
 	}
 
-//std::cout << "getting " << realid << "[" << index << "]" << std::endl;
 	SymbolTable::const_iterator it(imp->symmap.find(realid));
 	if (it == imp->symmap.end())
 	{
-		// Attempt to match id against internally defined keywords
-		if (realid.substr(0, 9) == "template_")
-		{
-			for (unsigned i=0; i<numbuiltins; ++i)
-				if (realid == tptlib_builtins[i].id)
-				{
-					outval.clear();
-					outval.push_back(tptlib_builtins[i].value);
-					return true;
-				}
-		}
 		// otherwise just return a blank
 		outval.clear();
 		outval.push_back("");
@@ -149,7 +141,9 @@ void Symbols::set(const SymbolKeyType& id, const SymbolValueType& value)
 {
 	SymbolKeyType realid;
 	unsigned index;
-	if (!imp->getrealid(id, realid, index))
+	if (imp->getrealid(id, realid, index))
+		return;
+	if (index >= maxarraysize)
 		return;
 	if (imp->symmap[realid].size() < index+1)
 		imp->symmap[realid].resize(index+1);
@@ -199,13 +193,23 @@ bool Symbols::exists(const SymbolKeyType& id) const
  *
  * Check if a symbol is empty.
  *
+ * @param	id			ID of symbol to retrieve.
+ * @return	true if symbol is empty;
+ * @return	false if symbol is not empty.
+ * @author	Isaac W. Foraker
+ *
  */
 bool Symbols::empty(const SymbolKeyType& id) const
 {
 	SymbolKeyType realid;
 	unsigned index;
 	imp->getrealid(id, realid, index);
-	return imp->symmap[realid][index].empty();
+	SymbolTable::iterator it(imp->symmap.find(realid));
+	if (it == imp->symmap.end())
+		return true;
+	if (index >= (*it).second.size())
+		return true;
+	return (*it).second[index].empty();
 }
 
 
@@ -220,7 +224,12 @@ bool Symbols::isarray(const SymbolKeyType& id) const
 	unsigned index;
 	imp->getrealid(id, realid, index);
 
-	return imp->symmap[realid].size() > 1;
+	SymbolTable::iterator it(imp->symmap.find(realid));
+	if (it == imp->symmap.end())
+		return true;
+	if (index >= (*it).second.size())
+		return true;
+	return (*it).second.size() > 1;
 }
 
 
@@ -235,7 +244,12 @@ unsigned Symbols::size(const SymbolKeyType& id) const
 	unsigned index;
 	imp->getrealid(id, realid, index);
 
-	return imp->symmap[realid].size();
+	SymbolTable::iterator it(imp->symmap.find(realid));
+	if (it == imp->symmap.end())
+		return true;
+	if (index >= (*it).second.size())
+		return true;
+	return (*it).second.size();
 }
 
 
@@ -273,7 +287,7 @@ bool Symbols::Impl::getrealid(const SymbolKeyType& id,
 		if (cbracket == SymbolKeyType::npos)
 		{
 			// syntax error (lex should prevent this)
-			return false;
+			return true;
 		}
 		index = atoi(id.substr(obracket, cbracket-obracket).c_str());
 		realkey = id.substr(0, obracket);
@@ -284,7 +298,7 @@ bool Symbols::Impl::getrealid(const SymbolKeyType& id,
 		realkey = id;
 	}
 
-	return true;
+	return false;
 }
 
 /**

@@ -15,6 +15,8 @@
 
 namespace TPTLib {
 
+const unsigned maxarraysize = 65536;
+
 typedef std::string SymbolKeyType;
 typedef std::string SymbolValueType;
 typedef std::vector< SymbolValueType > SymbolArrayType;

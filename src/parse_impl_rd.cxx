@@ -257,7 +257,8 @@ Token<> Parser::Impl::parse_level7(Token<>& left)
 {
 	switch (left.type) {
 	case token_id:
-		symbols.get(left.value, left.value);
+		// create copy of left.value so key is not overwritten
+		symbols.get(std::string(left.value), left.value);
 		left.type = token_string;
 		break;
 	case token_integer:
@@ -278,6 +279,7 @@ Token<> Parser::Impl::parse_level7(Token<>& left)
 			left.type = token_string;
 		}
 		break;
+	case token_eval:	// alias for concat
 	case token_concat:
 		left = parse_concat();
 		break;

@@ -43,7 +43,7 @@
 #define __tptlib_vars_h
 
 // Ack!  A define!  Defines allow easy concatenation on strings
-#define __TPTLIB_VERSION	"0.04"
+#define __TPTLIB_VERSION	"0.05"
 
 namespace TPTLib {
 
@@ -96,6 +96,8 @@ namespace TPTLib {
 		{ "template_author", tptlib_author },
 		{ "template_copyright", tptlib_copyright },
 		{ "template_license", tptlib_license },
+		{ "VERSION", tptlib_version},
+		{ "PML", tptlib_fullname },
 	};
 
 	const unsigned numbuiltins = (sizeof(tptlib_builtins)/sizeof(__builtin_variables));

@@ -16,8 +16,7 @@
 
 /*
  * TODO:
- *	Add support for array subscripts to id names.
- *	Add support for expressions in array subscripts. (Yikes!)
+ *	Add \escape support to strings
  *
  */
 
@@ -55,8 +54,11 @@ struct Lex::Impl {
 	void buildtoken(std::string& value, Buffer& buf,
 		const ChrSet<>& testset);
 	void eatwhitespace(std::string& value, Buffer& buf);
+
 	void getidname(Token<>& t, Buffer& buf);
 	void getclosedidname(Token<>& t, Buffer& buf);
+	void getbracketexpr(Token<>& t, Buffer& buf);
+
 	void getstring(Token<>& t, Buffer& buf);
 	void getsqstring(Token<>& t, Buffer& buf);
 };
@@ -334,6 +336,7 @@ Token<>::en Lex::Impl::checkreserved(const char* str)
 		if (!std::strcmp(str, "else"))		return token_else;
 		if (!std::strcmp(str, "elsif"))		return token_elsif;
 		if (!std::strcmp(str, "empty"))		return token_empty;
+		if (!std::strcmp(str, "eval"))		return token_eval;
 		break;
 	case 'f':
 		if (!std::strcmp(str, "foreach"))	return token_foreach;
@@ -392,39 +395,15 @@ void Lex::Impl::getclosedidname(Token<>& t, Buffer& buf)
 	}
 	t.value+= c;
 
-	// Start keeping track of open braces
-	c = safeget(buf);
-	if (c == set_startvarname)
-		t.value+= c;
-	else if (c == '$')
+	// Use getidname instead of duplicating code
+	getidname(t, buf);
+	if (t.type != token_id)
 	{
-		t.value+= c;
-		getclosedidname(t, buf);
-	}
-	else
-	{
-		if (c) buf.unget();
 		t.type = token_error;
 		return;
 	}
-
-	while ((c != '}') && (c = safeget(buf)))
-	{
-		if (c == '$')
-		{
-			t.value+= c;
-			getclosedidname(t, buf);
-		}
-		else if (c == '}')
-			continue;
-		else if (c != set_varname)
-		{
-			t.type = token_error;
-			buf.unget();
-			break;
-		}
-		t.value+= c;
-	}
+	// Get closing brace
+	c = safeget(buf);
 	if (c == '}')
 	{
 		t.value+= c;
@@ -442,7 +421,8 @@ void Lex::Impl::getidname(Token<>& t, Buffer& buf)
 {
 	char c;
 
-	while ( (c = safeget(buf)) )
+	t.type = token_id;
+	while ( (t.type != token_error) && (c = safeget(buf)) )
 	{
 		if (c == '$')
 		{
@@ -454,14 +434,59 @@ void Lex::Impl::getidname(Token<>& t, Buffer& buf)
 				return;
 			}
 		}
+		else if (c == '[')
+		{
+			t.value+= c;
+			getbracketexpr(t, buf);
+			c = safeget(buf);
+			if (c != ']')
+				t.type = token_error;
+			else
+				t.value+= c;
+			break;
+		}
 		else if (c != set_varname)
 		{
 			buf.unget();
 			break;
 		}
-		t.value+= c;
+		else
+			t.value+= c;
 	}
-	t.type = token_id;
+}
+
+void Lex::Impl::getbracketexpr(Token<>& t, Buffer& buf)
+{
+	// assume last char was '['
+	char c;
+	while ( (t.type != token_error) && (c = safeget(buf)) )
+	{
+		if (c == ']')
+		{
+			buf.unget();
+			return;
+		}
+		if (c == '$')
+		{
+			t.value+= c;
+			getclosedidname(t, buf);
+			if (t.type != token_id)
+			{
+				t.type = token_error;
+				return;
+			}
+		}
+		else if (c == set_startvarname)
+		{
+			buf.unget();
+			getidname(t, buf);
+		}
+		else
+			t.value+= c;
+	}
+	if (!c)
+		t.type = token_error;
+	return;
 }
 
 /*
@@ -486,13 +511,36 @@ void Lex::Impl::getstring(Token<>& t, Buffer& buf)
 			}
 			// else embed a quote (")
 		}
-		t.value+= c;
-		if (c == '\n' || c == '\r')
+		else if (c == '\\')
+		{
+			if ( !(c = safeget(buf)) )
+			{
+				t.type = token_error;
+				break;
+			}
+			switch (c)
+			{
+			case 'n':
+				c = '\n';
+				break;
+			case 'r':
+				c = '\r';
+				break;
+			case 't':
+				c = '\t';
+				break;
+			case 'a':
+				c = '\a';
+				break;
+			}
+		}
+		else if (c == '\n' || c == '\r')
 		{
 			buf.unget();
 			t.type = token_error;
 			break;
 		}
+		t.value+= c;
 	}
 	if (!c)
 		t.type = token_error;
@@ -521,13 +569,36 @@ void Lex::Impl::getsqstring(Token<>& t, Buffer& buf)
 			}
 			// else embed a quote (")
 		}
-		t.value+= c;
-		if (c == '\n' || c == '\r')
+		else if (c == '\\')
+		{
+			if ( !(c = safeget(buf)) )
+			{
+				t.type = token_error;
+				break;
+			}
+			switch (c)
+			{
+			case 'n':
+				c = '\n';
+				break;
+			case 'r':
+				c = '\r';
+				break;
+			case 't':
+				c = '\t';
+				break;
+			case 'a':
+				c = '\a';
+				break;
+			}
+		}
+		else if (c == '\n' || c == '\r')
 		{
 			buf.unget();
 			t.type = token_error;
 			break;
 		}
+		t.value+= c;
 	}
 	if (!c)
 		t.type = token_error;

@@ -50,6 +50,7 @@ enum TokenTypes {
 	token_empty,		// @empty
 	token_rand,			// @rand
 	token_concat,		// @concat
+	token_eval,			// @eval (expression)
 	token_length,		// @length (of string)
 	token_substr,		// @substr
 	token_uc,			// @uc (uppercase)

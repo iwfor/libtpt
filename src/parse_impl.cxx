@@ -138,7 +138,7 @@ void Parser::Impl::parse_dotoken(std::ostream* os, Token<> tok)
 	case token_id:
 		{
 			std::string val;
-			if (symbols.get(tok.value, val))
+			if (!symbols.get(tok.value, val))
 				*os << val;
 		}
 		break;
@@ -171,6 +171,7 @@ void Parser::Impl::parse_dotoken(std::ostream* os, Token<> tok)
 		*os << tok.value;
 		break;
 	// Concatenate some variables, but is this needed raw?
+	case token_eval:	// alias for concat
 	case token_concat:
 		tok = parse_concat();
 		*os << tok.value;
