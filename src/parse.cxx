@@ -39,21 +39,20 @@ struct Parser::Impl {
 
 	Impl(Buffer& buf, const SymbolTable* st) : lex(buf), level(0)
 	{ if (st) symbols = *st; }
-	std::string get_symbol(const std::string& id);
 	void recorderror(const std::string& desc);
 	bool getnextparam(std::string& value);
 	bool getnextnonwhitespace();
 
 	bool pass1(std::ostream* os);
-	void pass_include(std::ostream* os);
-	void pass_if(std::ostream* os);
-	void pass_macro();
-	void pass_set();
-	void pass_while(std::ostream* os);
-	void pass_foreach(std::ostream* os);
-	void pass_concat(std::ostream* os);
-	void pass_empty(std::ostream* os);
-	void pass_rand(std::ostream* os);
+	void parse_include(std::ostream* os);
+	void parse_if(std::ostream* os);
+	void parse_macro();
+	void parse_set();
+	void parse_while(std::ostream* os);
+	void parse_foreach(std::ostream* os);
+	void parse_concat(std::ostream* os);
+	void parse_empty(std::ostream* os);
+	void parse_rand(std::ostream* os);
 };
 
 bool Parser::Impl::pass1(std::ostream* os)
@@ -70,7 +69,7 @@ bool Parser::Impl::pass1(std::ostream* os)
 			*os << tok.value;
 			break;
 		case token_id:
-			*os << get_symbol(tok.value);
+			*os << get_symbol(tok.value, symbols);
 		case token_closebrace:
 			if (level)	// if in a block, this is the end of it
 				return false;
@@ -78,7 +77,7 @@ bool Parser::Impl::pass1(std::ostream* os)
 				*os << tok.value;
 			break;
 		case token_if:
-			pass_if(os);
+			parse_if(os);
 		default:
 			recorderror("Syntax error");
 			break;
@@ -88,31 +87,7 @@ bool Parser::Impl::pass1(std::ostream* os)
 	return errlist.size() ? true : false;
 }
 
-std::string Parser::Impl::get_symbol(const std::string& id)
-{
-	// If this is an enclosed id, strip ${};
-	if (id[0] == '$')
-		return get_symbol(id.substr(2, id.size()-3));
-	// For now, don't handle embedded IDs.
-	return symbols[id];
-	// TEST
-	// TEST
-	// TEST
-	// TEST
-	// When an id contains an embedded ${id}, recurse and build new id
-	// name.
-	if (id.find('$'))	// need to recursively parse this id
-	{
-		Buffer buf(id.c_str(), id.size());
-		Parser p(buf);
-		std::string newid(p.run());
-		return get_symbol(newid);
-	}
-	else
-		return symbols[id];
-}
-
-void Parser::Impl::pass_macro()
+void Parser::Impl::parse_macro()
 {
 	if (level > 0)
 	{

@@ -9,32 +9,17 @@
 #define __tptlib_parse_h
 
 #include <tptlib/buffer.h>
+#include <tptlib/symbols.h>
 #include <iosfwd>
 #include <string>
 #include <vector>
-#include <map>
 
 namespace TPTLib {
 
-/**
- *
- * Symbol lookup table
- *
- */
-typedef std::map< std::string, std::string > SymbolTable;
-
-/**
- *
- * Error list
- *
- */
+/// Error list
 typedef std::vector< std::string > ErrorList;
 
-/**
- *
- * The Parser class is responsible
- *
- */
+/// The Parser class
 class Parser {
 public:
 	Parser(Buffer& buf, const SymbolTable* st = 0);	///< ctor
