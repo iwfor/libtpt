@@ -1,0 +1,6 @@
+This test generates a macro.
+@macro (test) {
+This is the macro content.
+}
+@test()\
+And that was the macro.

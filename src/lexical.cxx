@@ -39,12 +39,15 @@ const ChrSet<> set_whitespace(" \t\r\n");
 struct Lex::Impl {
 	Buffer& buf;
 	unsigned lineno;
-	Impl(Buffer& b) : buf(b), lineno(1) {}
+
+	Impl(Buffer& b) : buf(b), lineno(1) { }
+
 	char safeget(Buffer& buf)
-		{ if (!buf) return 0; return buf.getnextchar(); }
+	{ if (!buf) return 0; return buf.getnextchar(); }
 	Token<>::en checkreserved(const char* str);
 	void buildtoken(std::string& value, Buffer& buf,
 		const ChrSet<>& testset);
+	void eatwhitespace(std::string& value, Buffer& buf);
 	void getidname(Token<>& t, Buffer& buf);
 	void getclosedidname(Token<>& t, Buffer& buf);
 	void getstring(Token<>& t, Buffer& buf);
@@ -69,20 +72,30 @@ Token<> Lex::getloosetoken()
 {
 	Token<> t;
 	char c;
-	Buffer& buf = imp->buf;	// I'm lazy, and don't like typing imp->buf
+	Buffer& buf = imp->buf;	// Lazy typist reference
 
 	if (!(c = imp->safeget(buf)))
 	{
 		t.type = token_eof;	
 		return t;
 	}
-
 	t.value = c;
 
 	switch (c) {
 	case ' ':
-	case 255:
-	case '\t': t.type = token_whitespace; return t;
+	case '\t':
+		while (c = imp->safeget(buf))
+		{
+			if ((c == ' ') || (c == '\t'))
+				t.value+= c;
+			else
+			{
+				buf.unget();
+				break;
+			}
+		}
+		t.type = token_whitespace;
+		return t;
 	// For simplicity, have the strict token reader process these
 	// symbols to avoid duplicate code.
 	case '\n':
@@ -120,7 +133,7 @@ Token<> Lex::getstricttoken()
 	Token<> t;
 	t.type = token_whitespace;
 	char c;
-	Buffer& buf = imp->buf;	// I'm lazy, and don't like typing imp->buf
+	Buffer& buf = imp->buf;	// Lazy typist reference
 
 	// strict tokens skip white-spaces
 	while (t.type == token_whitespace)
@@ -136,20 +149,13 @@ Token<> Lex::getstricttoken()
 		switch (c) {
 		case '{':
 			t.type = token_openbrace;
-			c = imp->safeget(buf);
 			// Ignore all whitespace after open brace
-			while (c && ((c == ' ') || (c == '\t')))
-				c = imp->safeget(buf);
-			if (c && !((c == ' ') || (c == '\t')))
-				buf.unget();
+			imp->eatwhitespace(t.value, buf);
 			return t;
 		case '}':
 			t.type = token_closebrace;
 			// Ignore all whitespace after close brace
-			while (c && ((c == ' ') || (c == '\t')))
-				c = imp->safeget(buf);
-			if (c && !((c == ' ') || (c == '\t')))
-				buf.unget();
+			imp->eatwhitespace(t.value, buf);
 			return t;
 		case '(': t.type = token_openparen; return t;
 		case ')': t.type = token_closeparen; return t;
@@ -219,9 +225,9 @@ Token<> Lex::getstricttoken()
 			return t;
 		case '@':	// keyword or user macro
 			c = imp->safeget(buf);
+			t.value+= c;
 			if (c == set_startvarname)
 			{
-				t.value+= c;
 				imp->buildtoken(t.value, buf, set_varname);
 				t.type = imp->checkreserved(&t.value[1]);
 			}
@@ -230,9 +236,9 @@ Token<> Lex::getstricttoken()
 				// Read everything until the end of line
 				while ( (c = imp->safeget(buf)) )
 				{
-					t.value+= c;
 					if (c == '\n' || c == '\r')
 						buf.unget();
+					t.value+= c;
 				}
 			}
 			else
@@ -243,7 +249,6 @@ Token<> Lex::getstricttoken()
 			}
 			return t;
 		case '$':	// variable name
-	//		std::cout << "\nPARSING SYMBOL ID" << std::endl;
 			imp->getclosedidname(t, buf);
 			return t;
 		case '!':
@@ -362,7 +367,6 @@ void Lex::Impl::getclosedidname(Token<>& t, Buffer& buf)
 	c = safeget(buf);
 	if (c != '{')
 	{
-//		std::cout << "\nNOT A SYMBOL AFTER ALL" << std::endl;
 		if (c) buf.unget();
 		t.type = token_text;
 		return;
@@ -409,7 +413,6 @@ void Lex::Impl::getclosedidname(Token<>& t, Buffer& buf)
 	}
 	else
 		t.type = token_error;
-//	std::cout << "\nCREATED ID: " << t.value << std::endl;
 }
 
 /*
@@ -474,7 +477,6 @@ void Lex::Impl::getstring(Token<>& t, Buffer& buf)
 	}
 	if (!c)
 		t.type = token_error;
-//	std::cout << "<string = '" << t.value << "'/>" << std::endl;
 }
 
 
@@ -497,24 +499,93 @@ void Lex::Impl::buildtoken(std::string& value, Buffer& buf,
 	}
 }
 
+void Lex::Impl::eatwhitespace(std::string& value, Buffer& buf)
+{
+	char c;
+	while (c = safeget(buf))
+	{
+		if ((c == ' ') || (c == '\t'))
+			value+= c;
+		else
+			break;
+	}
+	// eat a newline
+	if (c == '\r')
+	{
+		++lineno;
+		value+= c;
+		c = safeget(buf);
+		if (!c)
+			return;
+		if (c == '\n')
+			value+= c;
+		else
+			buf.unget();
+	}
+	else if (c == '\n')
+	{
+		++lineno;
+		value+= c;
+	}
+	else
+		buf.unget();
+}
 
 /*
+ *
  * Create a Buffer of the next brace enclosed {} block of template.
  *
- * The Buffer returned by extractblock() is created with new, so should
+ * The Buffer returned by getblock() is created with new, so should
  * be deleted when no longer in use.
  *
  */
-Buffer* Lex::extractblock()
+std::string Lex::getblock()
 {
-	Buffer &buf = imp->buf;
-	unsigned long bufstart = imp->buf.offset(), buffend;
-	char c = buf.getnextchar();
+	Buffer &buf = imp->buf;	// lazy typist reference
+	char c = imp->safeget(buf);
+	unsigned depth = 0;
+	std::string block;
 
+	// Ignore all whitespace before the opening brace;
 	while (c == set_whitespace)
+		c = imp->safeget(buf);
+
+	// If the current character is not an open brace, then something is
+	// wrong, so abort this function.
+	if (c != '{')
+		return "";
+
+	block = c;
+
+	unsigned long bufstart = buf.offset();
+	// Iterate through the buffer until the close brace for this block is found
+	while (c)
 	{
-		c = buf.getnextchar();
+		c = imp->safeget(buf);
+		block+= c;
+		if (c == '\\')	// escaped sequence
+		{
+			c = imp->safeget(buf);
+			if (!c)
+				return "";
+			// Now just ignore this character, whatever it is.
+		}
+		else if (c == '{')
+			++depth;
+		else if (c == '}')
+		{
+			imp->eatwhitespace(block, buf);	
+			if (depth > 0)
+				--depth;
+			else
+				break;
+		}
 	}
+
+	if (c != '}')
+		return "";
+
+	return block;
 }
 
 

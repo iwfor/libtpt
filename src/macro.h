@@ -8,7 +8,7 @@
 #ifndef __tptlib_macro_h
 #define __tptlib_macro_h
 
-#include <set>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -18,15 +18,11 @@ namespace TPTLib {
 typedef std::vector< std::string > ParamList;
 
 struct Macro {
-	std::string name;
 	ParamList params;
 	std::string body;
-
-	friend bool operator<(const Macro& a, const Macro& b) { return a.name < b.name; }
-	friend bool operator==(const Macro& a, const Macro& b) { return a.name == b.name; }
 };
 
-typedef std::set< Macro > MacroList;
+typedef std::map< std::string, Macro > MacroList;
 
 } // end namespace TPTLib
 

@@ -70,14 +70,24 @@ struct Buffer::Impl {
 		freestreamwhendone(false),
 		done(false)
 		{ }
-	Impl(const char* buf, unsigned bufsize) :
-		buffersize(0),
+	Impl(const char* buf, unsigned long bufsize) :
+		instr(0),
+		buffersize(bufsize),
 		bufferalloc(bufsize),
 		buffer(new char[bufsize]),
 		bufferindex(0),
 		freestreamwhendone(false),
 		done(!bufsize)	// if zero buffer, then done
 		{ memcpy(buffer, buf, bufsize); }
+	Impl(const Impl& subimp, unsigned long start, unsigned long end) :
+		instr(0),
+		buffersize(end-start),
+		bufferalloc(end-start),
+		buffer(new char[end-start]),
+		bufferindex(0),
+		freestreamwhendone(false),
+		done(!(end-start))
+		{ memcpy(buffer, &subimp.buffer[start], end-start); }
 	~Impl();
 
 	
@@ -90,7 +100,7 @@ struct Buffer::Impl {
 
 /**
  *
- * Construct a read buffer for the specified file.
+ * Construct a read Buffer for the specified file.
  *
  * @param	filename		name of file to buffer
  * @return	nothing
@@ -109,7 +119,7 @@ Buffer::Buffer(const char* filename)
 
 /**
  *
- * Construct a read buffer for an open fstream.  The input stream will
+ * Construct a read Buffer for an open fstream.  The input stream will
  * not be closed when Buffer is destructed.
  *
  * @param	filein			input fstream
@@ -128,15 +138,29 @@ Buffer::Buffer(std::istream* is)
 
 /**
  *
- * Construct a read buffer for an existing buffer.
+ * Construct a read Buffer for an existing buffer.
  *
  * @return	nothing
  * @author	Isaac W. Foraker
  *
  */
-Buffer::Buffer(const char* buffer, int size)
+Buffer::Buffer(const char* buffer, unsigned long size)
 {
 	imp = new Impl(buffer, size);
+}
+
+
+/**
+ *
+ * Construct a read Buffer on a subspace of an existing Buffer.
+ *
+ * @return	nothing
+ * @author	Isaac W. Foraker
+ *
+ */
+Buffer::Buffer(const Buffer& buf, unsigned long start, unsigned long end)
+{
+	imp = new Impl(*buf.imp, start, end);
 }
 
 
@@ -171,7 +195,9 @@ char Buffer::getnextchar()
 	// If our buffer is empty, try reading from the stream
 	// if there is one.
 	if (imp->bufferindex >= imp->buffersize)
+	{
 		imp->readfile();
+	}
 
 	return c;
 }
@@ -369,6 +395,7 @@ bool Buffer::Impl::readfile()
 	}
 	else
 		done = true;
+
 	return done;
 }
 

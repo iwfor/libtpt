@@ -25,7 +25,7 @@ public:
 	unsigned getlineno();
 
 	///! Extract an unparsed brace enclosed {} block
-	Buffer* extractblock();
+	std::string getblock();
 
 private:
 	struct Impl;

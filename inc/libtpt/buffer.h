@@ -60,7 +60,9 @@ public:
 	/// Instantiate on open input fstream.
 	explicit Buffer(std::istream* is);
 	/// Instantiate on existing buffer.
-	explicit Buffer(const char* buffer, int size);
+	explicit Buffer(const char* buffer, unsigned long size);
+	/// Instantiate on subsection of existing buffer
+	explicit Buffer(const Buffer& buf, unsigned long start, unsigned long end);
 	/// Cleanup.
 	~Buffer();
 

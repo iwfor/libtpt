@@ -17,6 +17,10 @@ namespace TPTLib {
 
 const char* toktypestr(const Token<>& tok);
 
+Parser::Impl::~Impl()
+{
+}
+
 bool Parser::Impl::pass1(std::ostream* os)
 {
 	parse_block(os, true);
@@ -27,6 +31,7 @@ bool Parser::Impl::pass1(std::ostream* os)
 
 void Parser::Impl::parse_block(std::ostream* os, bool istop)
 {
+	int x = rand() % 100;
 	if (!istop)
 	{
 		tok = lex.getstricttoken();
@@ -37,6 +42,7 @@ void Parser::Impl::parse_block(std::ostream* os, bool istop)
 	do {
 		// Read a loosely defined token for outer pass
 		tok = lex.getloosetoken();
+//std::cout << x << " <" << toktypestr(tok) << "> '" << tok.value << "'" << std::endl;
 		switch (tok.type)
 		{
 		// Close brace (}) is end of block unless istop
@@ -75,6 +81,9 @@ void Parser::Impl::parse_block(std::ostream* os, bool istop)
 		case token_set:
 			parse_set();
 			break;
+		case token_macro:
+			parse_macro();
+			break;
 		// Display a random number.
 		case token_rand:
 			tok = parse_rand();
@@ -90,6 +99,9 @@ void Parser::Impl::parse_block(std::ostream* os, bool istop)
 			tok = parse_concat();
 			*os << tok.value;
 			break;
+		case token_usermacro:
+			user_macro(tok.value, os);
+			break;
 		// Syntax errors should be hard to create at this point.
 		default:
 			recorderror("Syntax error", &tok);
@@ -100,7 +112,7 @@ void Parser::Impl::parse_block(std::ostream* os, bool istop)
 
 
 /*
- * Skip all whitespaces and get the next strict token.
+ * Get the next strict token.
  * @return	false on success;
  * @return	true on end of file
  *
@@ -144,37 +156,34 @@ bool Parser::Impl::getparamlist(ParamList& pl)
 	tok = lex.getstricttoken();
 	if (tok.type != token_openparen)
 	{
-		recorderror("Expected opening parenthesis");
+		recorderror("Syntax error, expected opening parenthesis");
 		return true;
 	}
 
-	// tok holds the current token and nexttok holds the token returned
-	// by the parser.
+	// tok holds the current token and nexttok holds the next token
+	// returned by the rd parser.
 	Token<> nexttok;
 	tok = lex.getstricttoken();
-	while (tok.type != token_eof)
+	while ((tok.type != token_eof) && (tok.type != token_closeparen))
 	{
-		while (tok.type == token_comma)
-		{
-			// this is an empty parameter
-			pl.push_back("");
-		}
-		if (tok.type == token_closeparen)
-			break;
 		nexttok = parse_level0(tok);
+		if (tok.type != token_string)
+		{
+			recorderror("Syntax error, expected expression parameter", &tok);
+			return true;
+		}
 		pl.push_back(tok.value);
 
-		// The next token should be a comma or a close paren
 		tok = nexttok;
-		if (tok.type == token_comma)
-		{
-			tok = lex.getstricttoken();
-			nexttok = parse_level0(tok);
-		}
-		else if (tok.type == token_closeparen)
+		// The next token should be a comma or a close paren
+		if (tok.type == token_closeparen)
 			break;
-		else
-			recorderror("Syntax error in parameter", &tok);
+		else if (tok.type != token_comma)
+		{
+			recorderror("Syntax error, expected comma or close parenthesis", &tok);
+			return true;
+		}
+		tok = lex.getstricttoken();
 	}
 
 	return false;

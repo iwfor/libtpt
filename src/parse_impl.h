@@ -32,9 +32,10 @@ struct Parser::Impl {
 	unsigned level;	// if/loop level
 	SymbolMap localsymmap;
 	SymbolMap& symbols;	// reference to whatever symbol map is in use
+	MacroList localmacros;
+	MacroList& macros;	// reference to whatever macro list is in use
 	ErrorList errlist;
 	Token<> tok;
-	MacroList macros;
 	bool isseeded;
 
 	// kiss_vars are used for pseudo-random number generation
@@ -48,9 +49,12 @@ struct Parser::Impl {
 	unsigned long kiss_seed;
 
 	Impl(Buffer& buf, const SymbolTable* st) : lex(buf), level(0),
-		symbols(localsymmap), isseeded(false) { if (st) localsymmap = *st; }
-	Impl(Buffer& buf, SymbolMap& sm) : lex(buf), level(0),
-		symbols(sm), isseeded(false) { }
+		symbols(localsymmap), macros(localmacros), isseeded(false)
+	{ if (st) localsymmap = *st; }
+	Impl(Buffer& buf, SymbolMap& sm, MacroList& ml) : lex(buf), level(0),
+		symbols(sm), macros(ml), isseeded(false) { }
+	~Impl();
+
 	void recorderror(const std::string& desc, const Token<>* neartoken=0);
 	bool getnextparam(std::string& value);
 	bool getnextstrict(Token<>& target);
@@ -86,10 +90,7 @@ struct Parser::Impl {
 	void parse_set();
 
 	void parse_macro();
-
-	void addmacro(const std::string& name, const ParamList& params,
-		const std::string& body);
-	void execmacro(const std::string& name, const ParamList& params);
+	void user_macro(const std::string& name, std::ostream* os);
 };
 
 
