@@ -31,11 +31,13 @@ void Parser::Impl::parse_include(std::ostream* os)
 	// to process include
 	Buffer buf(pl[0].c_str());
 	Impl incl(buf, symbols, macros);
-	incl.pass1(os);
-	// copy incl's error list, if any
-	ErrorList::iterator it(incl.errlist.begin()), end(incl.errlist.end());
-	for (; it != end; ++it)
-		errlist.push_back(*it);
+	if (incl.pass1(os))
+	{
+		// copy incl's error list, if any
+		ErrorList::iterator it(incl.errlist.begin()), end(incl.errlist.end());
+		for (; it != end; ++it)
+			errlist.push_back(*it);
+	}
 }
 
 

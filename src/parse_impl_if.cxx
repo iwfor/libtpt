@@ -32,20 +32,22 @@ void Parser::Impl::parse_if(std::ostream* os)
 	}
 
 	int64_t lwork;
+	Token<> tok;
 	lwork = str2num(pl[0]);
 	if (lwork)	// and non-zero value is true
 	{
 		parse_block(os);
-//		tok = lex.getloosetoken();
-//		if (tok.type == token_else)
-//		{
-//			std::string ignore;
-//			std::stringstream ignorestr(ignore);
-//		}
-//		else
-//		{
-//			// unget token
-//		}
+		tok = lex.getloosetoken();
+		if (tok.type == token_else)
+		{
+			std::string ignore;
+			std::stringstream ignorestr(ignore);
+		}
+		else
+		{
+			// unget token
+			lex.unget(tok);
+		}
 	}
 	else
 	{

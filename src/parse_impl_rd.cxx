@@ -271,7 +271,7 @@ Token<> Parser::Impl::parse_level7(Token<>& left)
 		// TEST
 		{
 			std::stringstream tempstr;
-			user_macro(tok.value, &tempstr);
+			user_macro(left.value, &tempstr);
 			left.value = tempstr.str();
 			left.type = token_string;
 		}

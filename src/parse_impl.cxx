@@ -23,99 +23,167 @@ Parser::Impl::~Impl()
 
 bool Parser::Impl::pass1(std::ostream* os)
 {
-	parse_block(os, true);
+	parse_main(os);
 
 	return errlist.size() ? true : false;
 }
 
 
-void Parser::Impl::parse_block(std::ostream* os, bool istop, bool isloop)
+void Parser::Impl::parse_main(std::ostream* os)
 {
+	Token<> tok;
+	do {
+		// Read a loosely defined token for outer pass
+		tok = lex.getloosetoken();
+		switch (tok.type) {
+		case token_eof:
+			break;
+		default:
+			parse_dotoken(os, tok);
+			break;
+		}
+	} while (tok.type != token_eof);
+}
+
+
+void Parser::Impl::parse_block(std::ostream* os)
+{
+	Token<> tok;
 //	int x = rand() % 100;
-	if (!istop)
-	{
-		tok = lex.getstricttoken();
-		if (tok.type != token_openbrace)
-			recorderror("Expected open brace '{'", &tok);
-	}
+	tok = lex.getstricttoken();
+	if (tok.type != token_openbrace)
+		recorderror("Expected open brace '{'", &tok);
 
 	do {
 		// Read a loosely defined token for outer pass
 		tok = lex.getloosetoken();
 //std::cout << x << " <" << toktypestr(tok) << "> '" << tok.value << "'" << std::endl;
-		switch (tok.type)
-		{
-		// Close brace (}) is end of block unless istop
+		switch (tok.type) {
+		// Close brace (}) is end of block
 		case token_closebrace:
-			if (istop)
-				*os << tok.value;
-			else
-				tok.type = token_eof;	// force break out of block
 			break;
-		// Quit on end of file.
 		case token_eof:
-			if (!istop)
-				recorderror("Unexpected end of file");
+			recorderror("Unexpected end of file");
 			break;
-		// Ignore join lines (i.e. backslash (\) last on line)
-		case token_joinline:
-			break;
-		// Just output whitespace and text.
-		case token_whitespace:
-		case token_text:
-			*os << tok.value;
-			break;
-		// Expand symbols.
-		case token_id:
-			*os << symbols.get(tok.value);
-			break;
-		// Process an if statement.
-		case token_if:
-			parse_if(os);
-			break;
-		// Include another file.
-		case token_include:
-			parse_include(os);
-			break;
-		// Set a variable.
-		case token_set:
-			parse_set();
-			break;
-		case token_macro:
-			parse_macro();
-			break;
-		// Display a random number.
-		case token_rand:
-			tok = parse_rand();
-			*os << tok.value;
-			break;
-		// Check if a variable is empty, but why would this be raw.
-		case token_empty:
-			tok = parse_empty();
-			*os << tok.value;
-			break;
-		// Concatenate some variables, but is this needed raw?
-		case token_concat:
-			tok = parse_concat();
-			*os << tok.value;
-			break;
-		case token_length:
-			tok = parse_length();
-			*os << tok.value;
-			break;
-		case token_count:
-			tok = parse_count();
-			*os << tok.value;
-			break;
-		case token_usermacro:
-			user_macro(tok.value, os);
-			break;
-		// Syntax errors should be hard to create at this point.
 		default:
-			recorderror("Syntax error", &tok);
+			parse_dotoken(os, tok);
 			break;
 		}
-	} while (tok.type != token_eof);
+	} while ( (tok.type != token_eof) &&
+		(tok.type != token_closebrace) );
+}
+
+
+/*
+ * Add special handling to a loop block to support @next and @last
+ * calls.
+ *
+ * @return	true on end of block or @next;
+ * @return	false on @last
+ *
+ */
+bool Parser::Impl::parse_loopblock(std::ostream* os)
+{
+	Token<> tok;
+	tok = lex.getstricttoken();
+	if (tok.type != token_openbrace)
+		recorderror("Expected open brace '{'", &tok);
+
+	do {
+		// Read a loosely defined token for outer pass
+		tok = lex.getloosetoken();
+		switch (tok.type) {
+		case token_next:
+			return true;
+		case token_last:
+			return false;
+		// Close brace (}) is end of block
+		case token_closebrace:
+			break;
+		case token_eof:
+			recorderror("Unexpected end of file");
+			break;
+		default:
+			parse_dotoken(os, tok);
+			break;
+		}
+	} while ( (tok.type != token_eof) &&
+		(tok.type != token_closebrace) );
+	return true;
+}
+
+
+/*
+ * Handle any tokens not handled by the calling function
+ *
+ */
+void Parser::Impl::parse_dotoken(std::ostream* os, Token<> tok)
+{
+	switch (tok.type)
+	{
+	// Quit on end of file.
+	case token_eof:
+		recorderror("Unexpected end of file");
+		break;
+	// Ignore join lines (i.e. backslash (\) last on line)
+	case token_joinline:
+		break;
+	// Just output whitespace and text.
+	case token_closebrace:
+	case token_whitespace:
+	case token_text:
+		*os << tok.value;
+		break;
+	// Expand symbols.
+	case token_id:
+		*os << symbols.get(tok.value);
+		break;
+	// Process an if statement.
+	case token_if:
+		parse_if(os);
+		break;
+	// Include another file.
+	case token_include:
+		parse_include(os);
+		break;
+	// Set a variable.
+	case token_set:
+		parse_set();
+		break;
+	case token_macro:
+		parse_macro();
+		break;
+	// Display a random number.
+	case token_rand:
+		tok = parse_rand();
+		*os << tok.value;
+		break;
+	// Check if a variable is empty, but why would this be raw.
+	case token_empty:
+		tok = parse_empty();
+		*os << tok.value;
+		break;
+	// Concatenate some variables, but is this needed raw?
+	case token_concat:
+		tok = parse_concat();
+		*os << tok.value;
+		break;
+	case token_length:
+		tok = parse_length();
+		*os << tok.value;
+		break;
+	case token_count:
+		tok = parse_count();
+		*os << tok.value;
+		break;
+	case token_usermacro:
+		user_macro(tok.value, os);
+		break;
+	// Syntax errors should be hard to create at this point.
+	default:
+		recorderror("Syntax error", &tok);
+		break;
+	}
 }
 
 
@@ -160,6 +228,7 @@ void Parser::Impl::recorderror(const std::string& desc, const Token<>* neartoken
  */
 bool Parser::Impl::getparamlist(ParamList& pl)
 {
+	Token<> tok;
 	// Expect opening parenthesis
 	tok = lex.getstricttoken();
 	if (tok.type != token_openparen)

@@ -18,6 +18,7 @@ namespace TPTLib {
 
 void Parser::Impl::parse_set()
 {
+	Token<> tok;
 	// Set has to be manually parsed since the first parameter is the
 	// identifier to be set.
 	tok = lex.getstricttoken();

@@ -18,6 +18,7 @@ namespace TPTLib {
 
 void Parser::Impl::parse_macro()
 {
+	Token<> tok;
 	if (level > 0)
 	{
 		recorderror("Macro may not be defined in sub-block");

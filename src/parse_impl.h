@@ -35,7 +35,6 @@ struct Parser::Impl {
 	MacroList localmacros;
 	MacroList& macros;	// reference to whatever macro list is in use
 	ErrorList errlist;
-	Token<> tok;
 	bool isseeded;
 
 	// kiss_vars are used for pseudo-random number generation
@@ -86,7 +85,11 @@ struct Parser::Impl {
 	Token<> parse_length();
 	Token<> parse_count();
 
-	void parse_block(std::ostream* os, bool istop=false, bool isloop=false);
+	void parse_main(std::ostream* os);
+	void parse_block(std::ostream* os);
+	bool parse_loopblock(std::ostream* os);
+	void parse_dotoken(std::ostream* os, Token<> tok);
+
 	void parse_include(std::ostream* os);
 	void parse_if(std::ostream* os);
 	void parse_set();
