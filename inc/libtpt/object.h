@@ -37,8 +37,8 @@
  *
  */
 
-#ifndef __libtpt_object_impl_h
-#define __libtpt_object_impl_h
+#ifndef _libtpt_object_impl_h
+#define _libtpt_object_impl_h
 
 #ifdef _MSC_VER
 #	pragma warning(disable:4290)
@@ -134,4 +134,4 @@ private:
 
 } // end namespace TPT
 
-#endif // __libtpt_object_impl_h
+#endif // _libtpt_object_impl_h

@@ -39,8 +39,8 @@
  *
  */
 
-#ifndef __libtpt_buffer_h
-#define __libtpt_buffer_h
+#ifndef _libtpt_buffer_h
+#define _libtpt_buffer_h
 
 #include <iosfwd>	// Forward declare std::fstream
 
@@ -104,4 +104,4 @@ private:
 } // end namespace TPT
 
 
-#endif // __libtpt_buffer_h
+#endif // _libtpt_buffer_h

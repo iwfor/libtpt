@@ -37,8 +37,8 @@
  *
  */
 
-#ifndef __tpt_parse_h
-#define __tpt_parse_h
+#ifndef _tpt_parse_h
+#define _tpt_parse_h
 
 #include <libtpt/buffer.h>
 #include <libtpt/symbols.h>
@@ -101,4 +101,4 @@ private:
 
 } // end namespace TPT
 
-#endif // __tpt_parse_h
+#endif // _tpt_parse_h

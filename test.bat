@@ -1,3 +1,3 @@
-@chdir test
+@cd test
 @call test.bat
-@chdir ..
+@cd ..
