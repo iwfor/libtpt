@@ -31,7 +31,7 @@ bool Parser::Impl::pass1(std::ostream* os)
 
 void Parser::Impl::parse_block(std::ostream* os, bool istop)
 {
-	int x = rand() % 100;
+//	int x = rand() % 100;
 	if (!istop)
 	{
 		tok = lex.getstricttoken();

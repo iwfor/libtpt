@@ -84,7 +84,7 @@ Token<> Lex::getloosetoken()
 	switch (c) {
 	case ' ':
 	case '\t':
-		while (c = imp->safeget(buf))
+		while ( (c = imp->safeget(buf)) )
 		{
 			if ((c == ' ') || (c == '\t'))
 				t.value+= c;
@@ -502,7 +502,7 @@ void Lex::Impl::buildtoken(std::string& value, Buffer& buf,
 void Lex::Impl::eatwhitespace(std::string& value, Buffer& buf)
 {
 	char c;
-	while (c = safeget(buf))
+	while ( (c = safeget(buf)) )
 	{
 		if ((c == ' ') || (c == '\t'))
 			value+= c;
@@ -557,7 +557,6 @@ std::string Lex::getblock()
 
 	block = c;
 
-	unsigned long bufstart = buf.offset();
 	// Iterate through the buffer until the close brace for this block is found
 	while (c)
 	{
