@@ -59,6 +59,11 @@ bool Parser::Impl::pass1(std::ostream* os)
 		case token_set:
 			parse_set(os);
 			break;
+		// Display a random number
+		case token_rand:
+			tok = parse_rand();
+			*os << tok.value;
+			break;
 		// Syntax errors should be hard to create at this point.
 		default:
 			recorderror("Syntax error", &tok);
@@ -187,7 +192,7 @@ void Parser::Impl::recorderror(const std::string& desc, const Token<>* neartoken
 	{
 		errstr+= " near <";
 		errstr+= toktypestr(*neartoken);
-		errstr+= ">'";
+		errstr+= "> '";
 		errstr+= neartoken->value;
 		errstr+= "'";
 	}
@@ -224,6 +229,8 @@ bool Parser::Impl::getparamlist(ParamList& pl)
 			// this is an empty parameter
 			pl.push_back("");
 		}
+		if (tok.type == token_closeparen)
+			break;
 		nexttok = parse_level0(tok);
 		pl.push_back(tok.value);
 

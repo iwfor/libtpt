@@ -126,6 +126,10 @@ SOURCE=..\src\parse.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\parse_funcs.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\parse_impl.cxx
 # End Source File
 # Begin Source File

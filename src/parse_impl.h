@@ -25,16 +25,26 @@ struct Parser::Impl {
 	Lex lex;
 	unsigned level;	// if/loop level
 	SymbolMap localsymmap;
-	SymbolMap& symbols;	// alias reference to whatever symbol map is in
-						// use
+	SymbolMap& symbols;	// reference to whatever symbol map is in use
 	ErrorList errlist;
 	Token<> tok;
 	MacroList macros;
+	bool isseeded;
+
+	// kiss_vars are used for pseudo-random number generation
+	unsigned long kiss_x;
+	unsigned long kiss_y;
+	unsigned long kiss_z;
+	unsigned long kiss_w;
+	unsigned long kiss_carry;
+	unsigned long kiss_k;
+	unsigned long kiss_m;
+	unsigned long kiss_seed;
 
 	Impl(Buffer& buf, const SymbolTable* st) : lex(buf), level(0),
-		symbols(localsymmap) { if (st) localsymmap = *st; }
+		symbols(localsymmap), isseeded(false) { if (st) localsymmap = *st; }
 	Impl(Buffer& buf, SymbolMap& sm) : lex(buf), level(0),
-		symbols(sm) { }
+		symbols(sm), isseeded(false) { }
 	void recorderror(const std::string& desc, const Token<>* neartoken=0);
 	bool getnextparam(std::string& value);
 	bool getnextstrict(Token<>& target);
@@ -51,7 +61,10 @@ struct Parser::Impl {
 	Token<> parse_level6(Token<>& left);
 	Token<> parse_level7(Token<>& left);
 
+	void srandom32();
+	unsigned int random32();
 	Token<> parse_rand();
+
 	Token<> parse_empty();
 
 	void parse_include(std::ostream* os);

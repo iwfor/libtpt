@@ -285,10 +285,10 @@ Token<> Parser::Impl::parse_level7(Token<>& left)
 		}
 		break;
 	case token_empty:
-		// TODO
+		left = parse_empty();
 		break;
 	case token_rand:
-		// TODO
+		left = parse_rand();
 		break;
 	case token_usermacro:
 		// TODO
@@ -300,6 +300,8 @@ Token<> Parser::Impl::parse_level7(Token<>& left)
 		// string is okay
 		break;
 	default:
+		// don't know how to process this token
+		recorderror("Syntax error", &left);
 		break;
 	}
 	// Return next available token

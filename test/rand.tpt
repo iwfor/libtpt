@@ -1,0 +1,4 @@
+@rand()
+@rand(1000)
+@set(x, @rand(6)+1)\
+And the dice rolls... ${x}.
