@@ -42,22 +42,22 @@ struct Parser::Impl {
 
 	bool pass1(std::ostream* os);
 
-	Token<> Parser::Impl::parse_level0(Token<>& left);
-	Token<> Parser::Impl::parse_level1(Token<>& left);
-	Token<> Parser::Impl::parse_level2(Token<>& left);
-	Token<> Parser::Impl::parse_level3(Token<>& left);
-	Token<> Parser::Impl::parse_level4(Token<>& left);
-	Token<> Parser::Impl::parse_level5(Token<>& left);
-	Token<> Parser::Impl::parse_level6(Token<>& left);
-	Token<> Parser::Impl::parse_level7(Token<>& left);
+	Token<> parse_level0(Token<>& left);
+	Token<> parse_level1(Token<>& left);
+	Token<> parse_level2(Token<>& left);
+	Token<> parse_level3(Token<>& left);
+	Token<> parse_level4(Token<>& left);
+	Token<> parse_level5(Token<>& left);
+	Token<> parse_level6(Token<>& left);
+	Token<> parse_level7(Token<>& left);
+	Token<> parse_rand(Token<>& left);
+	Token<> parse_empty(Token<>& left);
 
 	void parse_include(std::ostream* os);
 	void parse_if(std::ostream* os);
 	void parse_set(std::ostream* os);
 
 	void parse_macro();
-	void parse_empty(std::ostream* os);
-	void parse_rand(std::ostream* os);
 
 	void addmacro(const std::string& name, const ParamList& params,
 		const std::string& body);
