@@ -104,6 +104,10 @@ SOURCE=..\src\eval.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\lex_impl.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\lexical.cxx
 
 !IF  "$(CFG)" == "tptlib_static - Win32 Release"
@@ -171,6 +175,10 @@ SOURCE=..\src\symbols_stack.cxx
 # Begin Source File
 
 SOURCE=..\inc\tptlib\buffer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\lex_impl.h
 # End Source File
 # Begin Source File
 

@@ -59,13 +59,21 @@ enum TokenTypes {
 };
 
 template<typename E=TokenTypes> struct Token {
-	E type;
 	typedef E en;
+	E type;
 	std::string value;
+	unsigned column;
+
 	Token<E>() {}
-	Token<E>(const Token<E>& t) : type(t.type),value(t.value) {}
+	Token<E>(const Token<E>& t) : type(t.type),value(t.value),
+		column(t.column) {}
 	Token<E>& operator=(const Token<E>& t)
-	{type=t.type;value=t.value; return *this;}
+	{
+		type=t.type;
+		value=t.value;
+		column=t.column;
+		return *this;
+	}
 };
 
 } // end namespace TPTLib

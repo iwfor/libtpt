@@ -30,6 +30,11 @@ void Parser::Impl::parse_include(std::ostream* os)
 	// Create another Impl which inherits symbols table
 	// to process include
 	Buffer buf(pl[0].c_str());
+	if (!buf)
+	{
+		recorderror("File Error: Could not read " + pl[0]);
+		return;
+	}
 	Impl incl(buf, symbols, macros);
 	if (incl.pass1(os))
 	{
