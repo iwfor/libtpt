@@ -83,6 +83,7 @@ Token<> Lex::getloosetoken()
 	case '$':	// variable name
 		buf.unget();
 		return getstricttoken();
+	case '}': t.type = token_closebrace; return t;
 	default: t.type = token_text; break;
 	}
 	// Next, process tokens that are comprised of sets

@@ -12,8 +12,23 @@
 #include <iosfwd>
 #include <string>
 #include <vector>
+#include <map>
 
 namespace TPTLib {
+
+/**
+ *
+ * Symbol lookup table
+ *
+ */
+typedef std::map< std::string, std::string > SymbolTable;
+
+/**
+ *
+ * Error list
+ *
+ */
+typedef std::vector< std::string > ErrorList;
 
 /**
  *
@@ -22,13 +37,13 @@ namespace TPTLib {
  */
 class Parser {
 public:
-	Parser(Buffer& buf);					///< ctor
-	~Parser();								///< dtor
+	Parser(Buffer& buf, const SymbolTable* st = 0);	///< ctor
+	~Parser();										///< dtor
 
 	std::string run();
 	bool run(std::ostream& os);
 	bool syntax();
-	bool geterrorlist(std::vector< std::string >& errlist);
+	bool geterrorlist(ErrorList& errlist);
 
 private:
 	struct Impl;
