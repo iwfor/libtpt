@@ -1,0 +1,4 @@
+@# Funky ids
+@set(ab, "value")\
+@set(b, 'b')\
+${a${b}}

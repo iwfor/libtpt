@@ -311,8 +311,6 @@ bool Symbols::unset(const SymbolKeyType& id)
  * Determine the real final ID of a given ID, reducing
  * ${} and [].
  *
- * TODO: Parse expression in []
- *
  */
 bool Symbols::Impl::getrealid(const SymbolKeyType& id,
 							  SymbolKeyType& realkey, unsigned& index,
@@ -320,7 +318,6 @@ bool Symbols::Impl::getrealid(const SymbolKeyType& id,
 {
 	if (id[0] == '$')
 		return getrealid(id.substr(2, id.size()-3), realkey, index, parent);
-/*
 	else if (id.find('$') != SymbolKeyType::npos)
 	{
 		// When id contains embedded ${id}, recurse to build new id.
@@ -332,7 +329,6 @@ bool Symbols::Impl::getrealid(const SymbolKeyType& id,
 		SymbolKeyType newid(p.run());
 		return getrealid(newid, realkey, index, parent);
 	}
-*/
 
 	// Check for array ref
 	size_t obracket(id.find('['));
