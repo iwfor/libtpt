@@ -34,8 +34,6 @@ int main(int argc, char* argv[])
 
 	try {
 		r = test1(std::atoi(argv[1]));
-//		if (r) std::cout << "failed" << std::endl;
-//		else std::cout << "passed" << std::endl;
 		result|= r;
 	} catch(const std::exception& e) {
 		result = true;
@@ -80,9 +78,8 @@ bool test1(unsigned testcount)
 		std::string tptstr;
 		std::stringstream strs(tptstr);
 		p.run(strs);
-		p.geterrorlist(errlist);
 
-		if (errlist.size())
+		if (p.geterrorlist(errlist))
 		{
 			std::cout << "Errors!" << std::endl;
 			std::cout << errlist[0] << std::endl;

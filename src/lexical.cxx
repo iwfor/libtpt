@@ -168,7 +168,6 @@ Token<> Lex::getstricttoken()
 			t.type = token_whitespace;
 			++imp->lineno;
 			break;
-//			return t;
 		case '\r':
 			t.type = token_whitespace;
 			c = imp->safeget(buf);
@@ -176,7 +175,6 @@ Token<> Lex::getstricttoken()
 			else if (c) buf.unget();
 			++imp->lineno;
 			break;
-//			return t;
 		case '"':	// quoted strings
 			imp->getstring(t, buf);
 			return t;
@@ -184,9 +182,13 @@ Token<> Lex::getstricttoken()
 			c = imp->safeget(buf);
 			t.value+= c;
 			if (c == '\n')
+			{
+				++imp->lineno;
 				t.type = token_joinline;
+			}
 			else if (c == '\r')
 			{
+				++imp->lineno;
 				// handle cases where newlines are represented by \r\n
 				t.type = token_joinline;
 				c = imp->safeget(buf);
@@ -227,10 +229,22 @@ Token<> Lex::getstricttoken()
 	//		std::cout << "\nPARSING SYMBOL ID" << std::endl;
 			imp->getclosedidname(t, buf);
 			return t;
+		case '!':
+			c = imp->safeget(buf);
+			if (c == '=')
+			{
+				t.type = token_relop;
+				t.value+= c;
+			}
+			else
+			{
+				t.type = token_operator;
+				if (c) buf.unget();
+			}
+			return t;
 		case '>':
 		case '<':
 		case '=':
-		case '!':
 			t.type = token_relop;
 			c = imp->safeget(buf);
 			if (c == '=')

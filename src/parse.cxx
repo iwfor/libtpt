@@ -54,8 +54,7 @@ bool Parser::geterrorlist(std::vector< std::string >& errlist)
 {
 	if (imp->errlist.size())
 	{
-		errlist.clear();
-		std::copy(imp->errlist.begin(), imp->errlist.end(), errlist.begin());
+		errlist = imp->errlist;
 		return true;
 	}
 	else

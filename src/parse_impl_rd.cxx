@@ -132,7 +132,6 @@ Token<> Parser::Impl::parse_level1(Token<>& left)
 Token<> Parser::Impl::parse_level2(Token<>& left)
 {
 	Token<> op = parse_level3(left), nextop;
-
 	while (op.type == token_relop)
 	{
 		Token<> right = lex.getstricttoken();
@@ -155,7 +154,6 @@ Token<> Parser::Impl::parse_level2(Token<>& left)
 		// read the next operator/terminator
 		op = nextop;
 	}
-
 	return op;
 }
 
@@ -216,7 +214,6 @@ Token<> Parser::Impl::parse_level4(Token<>& left)
 		// read the next operator/terminator
 		op = nextop;
 	}
-
 	return op;
 }
 
@@ -240,8 +237,6 @@ Token<> Parser::Impl::parse_level5(Token<>& left)
 	}
 	else
 		right = parse_level6(left);
-//		right = lex.getstricttoken();
-
 	return right;
 }
 
@@ -260,7 +255,6 @@ Token<> Parser::Impl::parse_level6(Token<>& left)
 			// get token after close paren
 			right = lex.getstricttoken();
 	}
-
 	return right;
 }
 
@@ -308,7 +302,7 @@ Token<> Parser::Impl::parse_level7(Token<>& left)
 	default:
 		break;
 	}
-
+	// Return next available token
 	return lex.getstricttoken();
 }
 

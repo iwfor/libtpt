@@ -1,0 +1,15 @@
+@set(result, !0)\
+!0=${result}
+@set(result, !1)\
+!1=${result}
+@set(result, 10 == 10)\
+10==10=${result}
+@set(result, 10 != 10)\
+10!=10=${result}
+@set(result, 10 < 100)\
+10<100=${result}
+@set(result, 10 > 100)\
+10>100=${result}
+@set(result, 10 <= 100)\
+10<=100=${result}
+

@@ -137,7 +137,7 @@ void Parser::Impl::parse_set(std::ostream* os)
 	symbols.set(id, tok.value);
 	tok = nexttok;
 	if (tok.type != token_closeparen)
-		recorderror("Syntax error, exepected close parenthesis", &tok);
+		recorderror("Syntax error, expected close parenthesis", &tok);
 }
 
 void Parser::Impl::parse_macro()
