@@ -1,0 +1,4 @@
+This is a raw text file.
+
+There should be no TPT parsing of @functions or ${variables}.
+

@@ -1,0 +1,4 @@
+@repeat("x", 10)
+@repeat("x", 0)
+@repeat("x", -1)
+@repeat("NULL, ", 5)
