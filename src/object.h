@@ -67,16 +67,25 @@ struct object_t {
 		ObjectHashType* hash;
 	} u;
 
+	// Basic ctor
 	object_t() : type(obj_not_alloc) {}
-	object_t(const std::string& str);
-	object_t(const ObjectArrayType& array);
-	object_t(const ObjectHashType& hash);
+
+	// Copy ctors
+	explicit object_t(const std::string& str);
+	explicit object_t(const ObjectArrayType& array);
+	explicit object_t(const ObjectHashType& hash);
+
+	// dtor
 	~object_t() { unalloc(); }
 
+	// Various assignments
 	object_t& operator=(const std::string& str);
 	object_t& operator=(const ObjectArrayType& array);
 	object_t& operator=(const ObjectHashType& hash);
 	object_t& operator=(const object_t& obj);
+
+	// Boolean operator: true=object defined; false=object undefined
+	operator bool() { return type != obj_not_alloc; }
 
 	void unalloc() {
 		switch(type) {
