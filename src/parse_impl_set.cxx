@@ -113,7 +113,7 @@ void Parser::Impl::parse_setif()
 	}
 	// Parse the expression
 	Token<> nexttok = parse_level0(tok);
-	if (symbols.get(id).empty())
+	if (!symbols.empty(id))
 		symbols.set(id, tok.value);
 	tok = nexttok;
 	if (tok.type != token_closeparen)

@@ -17,7 +17,7 @@
 namespace TPTLib {
 
 
-Parser::Parser(Buffer& buf, const SymbolTable* st)
+Parser::Parser(Buffer& buf, const Symbols* st)
 {
 	imp = new Impl(buf, st);
 }

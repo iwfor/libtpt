@@ -22,7 +22,7 @@ typedef std::vector< std::string > ErrorList;
 /// The Parser class
 class Parser {
 public:
-	Parser(Buffer& buf, const SymbolTable* st = 0);	///< ctor
+	Parser(Buffer& buf, const Symbols* st = 0);	///< ctor
 	~Parser();										///< dtor
 
 	std::string run();

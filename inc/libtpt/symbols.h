@@ -10,37 +10,33 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include <stack>
 
 namespace TPTLib {
 
-/// Symbol lookup table
-typedef std::map< std::string, std::string > SymbolTable;
+typedef std::string SymbolKeyType;
+typedef std::string SymbolValueType;
+typedef std::vector< SymbolValueType > SymbolArrayType;
 
-struct Symbol_t {
-	std::string	id;
-	std::string	value;
-};
-
-typedef std::stack< Symbol_t > SymbolStack_t;
-
-class SymbolMap {
+class Symbols {
 public:
-	std::string get(const std::string& id);
-	void set(const std::string& id, const std::string& value);
-	bool exists(const std::string& id);
-	const SymbolTable& operator=(const SymbolTable& symtab);
+	Symbols();
+	Symbols(const Symbols& s);
+	~Symbols();
+
+	void set(const SymbolKeyType& id, const SymbolValueType& value);
+	void set(const SymbolKeyType& id, const SymbolArrayType& value);
+	bool exists(const SymbolKeyType& id) const;
+	bool empty(const SymbolKeyType& id) const;
+	bool isarray(const SymbolKeyType& id) const;
+	bool get(const SymbolKeyType& id, SymbolValueType& val) const;
+	bool get(const SymbolKeyType& id, SymbolArrayType& sym) const;
 	void dump();
+	Symbols& operator=(const Symbols&);
 private:
-	SymbolTable symmap;
-};
-
-class SymbolStack {
-public:
-	void push(const std::string& id, const std::string& value);
-	void popall(SymbolMap& symmap);
-private:
-	SymbolStack_t symstack;
+	struct Impl;
+	Impl* imp;
 };
 
 

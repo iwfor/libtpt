@@ -318,7 +318,6 @@ Token<>::en Lex::Impl::checkreserved(const char* str)
 	{
 	case 'c':
 		if (!std::strcmp(str, "concat"))	return token_concat;
-		if (!std::strcmp(str, "count"))		return token_count;
 		break;
 	case 'e':
 		if (!std::strcmp(str, "else"))		return token_else;

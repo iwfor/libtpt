@@ -43,9 +43,14 @@ int main(int argc, char* argv[])
 
 void dumptemplate(const char* filename)
 {
-	TPTLib::ErrorList errlist;
+	TPTLib::Symbols sym;
+	sym.set("var", "this is the value of var");
+	sym.set("var1", "Supercalifragilisticexpialidocious");
+	sym.set("var2", "The red fox runs through the plain and jumps over the fence.");
+	sym.set("title", "TEST TITLE");
+
 	TPTLib::Buffer tptbuf(filename);
-	TPTLib::Parser p(tptbuf);
+	TPTLib::Parser p(tptbuf, &sym);
 
 	std::string tptstr;
 	std::stringstream strs(tptstr);
@@ -54,6 +59,7 @@ void dumptemplate(const char* filename)
 	std::cout << strs.str();
 	std::cout.flush();
 
+	TPTLib::ErrorList errlist;
 	if (p.geterrorlist(errlist))
 	{
 		TPTLib::ErrorList::const_iterator it(errlist.begin()), end(errlist.end());

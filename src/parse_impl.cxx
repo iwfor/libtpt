@@ -17,10 +17,6 @@ namespace TPTLib {
 
 const char* toktypestr(const Token<>& tok);
 
-Parser::Impl::~Impl()
-{
-}
-
 bool Parser::Impl::pass1(std::ostream* os)
 {
 	parse_main(os);
@@ -140,7 +136,11 @@ void Parser::Impl::parse_dotoken(std::ostream* os, Token<> tok)
 		break;
 	// Expand symbols.
 	case token_id:
-		*os << symbols.get(tok.value);
+		{
+			std::string val;
+			if (symbols.get(tok.value, val))
+				*os << val;
+		}
 		break;
 	// Process an if statement.
 	case token_if:
@@ -174,10 +174,6 @@ void Parser::Impl::parse_dotoken(std::ostream* os, Token<> tok)
 		break;
 	case token_length:
 		tok = parse_length();
-		*os << tok.value;
-		break;
-	case token_count:
-		tok = parse_count();
 		*os << tok.value;
 		break;
 	case token_usermacro:

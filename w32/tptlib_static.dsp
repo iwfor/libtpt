@@ -156,6 +156,10 @@ SOURCE=..\src\parse_impl_set.cxx
 
 SOURCE=..\src\symbols.cxx
 # End Source File
+# Begin Source File
+
+SOURCE=..\src\symbols_stack.cxx
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -183,6 +187,14 @@ SOURCE=..\src\parse_impl.h
 # Begin Source File
 
 SOURCE=..\inc\tptlib\symbols.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\symbols_impl.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\symbols_stack.h
 # End Source File
 # Begin Source File
 

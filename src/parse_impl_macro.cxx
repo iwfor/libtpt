@@ -8,6 +8,7 @@
  */
 
 #include "parse_impl.h"
+#include "symbols_stack.h"
 
 #include <algorithm>
 #include <sstream>
@@ -111,8 +112,8 @@ void Parser::Impl::user_macro(const std::string& name, std::ostream* os)
 		if (symbols.exists((*pit)))
 		{
 			tempsym.id = (*pit);
-			tempsym.value = symbols.get((*pit));
-			symstack.push(tempsym);
+			if (symbols.get((*pit), tempsym.value))
+				symstack.push(tempsym);
 		}
 		if (i >= pl.size())
 			symbols.set((*pit), "");
@@ -129,7 +130,7 @@ void Parser::Impl::user_macro(const std::string& name, std::ostream* os)
 	while (!symstack.empty())
 	{
 		Symbol_t& ref = symstack.top();
-		symbols.set(ref.id, ref.value);
+		symbols.set(ref.id, ref.value[0]);
 		symstack.pop();
 	}
 }

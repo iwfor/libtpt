@@ -255,7 +255,7 @@ Token<> Parser::Impl::parse_level7(Token<>& left)
 {
 	switch (left.type) {
 	case token_id:
-		left.value = symbols.get(left.value);
+		symbols.get(left.value, left.value);
 		left.type = token_string;
 		break;
 	case token_integer:
@@ -282,9 +282,11 @@ Token<> Parser::Impl::parse_level7(Token<>& left)
 	case token_length:
 		left = parse_length();
 		break;
-	case token_count:
-		left = parse_count();
+	case token_uc:
+		left = parse_uc();
 		break;
+	case token_lc:
+		left = parse_lc();
 	case token_string:
 		// string is okay
 		break;

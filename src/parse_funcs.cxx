@@ -180,52 +180,6 @@ Token<> Parser::Impl::parse_length()
 	return result;
 }
 
-/*
- * Return number of words in a string, separated
- * by spaces.
- *
- */
-Token<> Parser::Impl::parse_count()
-{
-	ParamList pl;
-	Token<> result;
-	result.type = token_string;
-	if (getparamlist(pl))
-		return result;
-
-	int64_t lwork=0;
-
-	if (!pl.empty())
-	{
-		if (pl.size() != 1)
-			recorderror("Warning: @length takes one parameter");
-		bool inword(false);
-		std::string::const_iterator it(pl[0].begin()),
-			end(pl[0].end());
-		for (; it != end; ++it)
-		{
-			if (inword)
-			{
-				if ((*it) == ' ' && (*it) == '\t' &&
-					(*it) == '\r' && (*it) == '\n')
-					inword = false;
-			}
-			else
-			{
-				if ((*it) != ' ' && (*it) != '\t' &&
-					(*it) != '\r' && (*it) != '\n')
-				{
-					inword = true;
-					++lwork;
-				}
-			}
-		} // for
-	}
-
-	num2str(lwork, result.value);
-	return result;
-}
-
 
 /*
  * Return a substring of a token.

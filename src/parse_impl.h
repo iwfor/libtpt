@@ -30,8 +30,8 @@ namespace TPTLib {
 struct Parser::Impl {
 	Lex lex;
 	unsigned level;	// if/loop level
-	SymbolMap localsymmap;
-	SymbolMap& symbols;	// reference to whatever symbol map is in use
+	Symbols localsymmap;
+	Symbols& symbols;	// reference to whatever symbol map is in use
 	MacroList localmacros;
 	MacroList& macros;	// reference to whatever macro list is in use
 	ErrorList errlist;
@@ -47,12 +47,14 @@ struct Parser::Impl {
 	unsigned long kiss_m;
 	unsigned long kiss_seed;
 
-	Impl(Buffer& buf, const SymbolTable* st) : lex(buf), level(0),
+	Impl(Buffer& buf, const Symbols* st) : lex(buf), level(0),
 		symbols(localsymmap), macros(localmacros), isseeded(false)
 	{ if (st) localsymmap = *st; }
-	Impl(Buffer& buf, SymbolMap& sm, MacroList& ml) : lex(buf), level(0),
+
+	Impl(Buffer& buf, Symbols& sm, MacroList& ml) : lex(buf), level(0),
 		symbols(sm), macros(ml), isseeded(false) { }
-	~Impl();
+
+	~Impl() { };
 
 	void recorderror(const std::string& desc, const Token<>* neartoken=0);
 	bool getnextparam(std::string& value);
@@ -78,15 +80,15 @@ struct Parser::Impl {
 
 	void srandom32();
 	unsigned int random32();
-	Token<> parse_rand();
+	Token<> parse_rand();	// generate pseudorandom number
 
-	Token<> parse_empty();
-	Token<> parse_concat();
-	Token<> parse_length();
-	Token<> parse_count();
-	Token<> parse_substr();
-	Token<> parse_uc();
-	Token<> parse_lc();
+	Token<> parse_empty();	// check emptiness of symbol
+	Token<> parse_concat();	// concatenate strings
+	Token<> parse_length();	// get length of a string
+	Token<> parse_substr();	// get a sub string
+	Token<> parse_uc();		// uppercase a string
+	Token<> parse_lc();		// lowercase a string
+	Token<> parse_size();	// get size of array
 
 	void parse_main(std::ostream* os);
 	void parse_block(std::ostream* os);

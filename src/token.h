@@ -51,7 +51,6 @@ enum TokenTypes {
 	token_rand,			// @rand
 	token_concat,		// @concat
 	token_length,		// @length
-	token_count,		// @count
 	token_substr,		// @substr
 	token_uc,			// @uc (uppercase)
 	token_lc,			// @lc (lowercase)

@@ -52,20 +52,21 @@ int main(int argc, char* argv[])
 
 bool test1(unsigned testcount)
 {
-	TPTLib::SymbolTable sym;
 	TPTLib::ErrorList errlist;
 	bool result = false;
+	TPTLib::Symbols sym;
 
-	sym["var"] = "this is the value of var";
-	sym["var1"] = "Supercalifragilisticexpialidocious";
-	sym["var2"] = "The red fox runs through the plain and jumps over the fence.";
-	sym["title"] = "TEST TITLE";
+	sym.set("var", "this is the value of var");
+	sym.set("var1", "Supercalifragilisticexpialidocious");
+	sym.set("var2", "The red fox runs through the plain and jumps over the fence.");
+	sym.set("title", "TEST TITLE");
 
 	char tptfile[256], outfile[256];
 	unsigned i;
 
 	for (i = 0; i < testcount; ++i)
 	{
+//		sym.dump();
 		std::cout << "test" << (i+1) << ".tpt: ";
 
 		// generate test file names by rule
@@ -102,9 +103,9 @@ bool test1(unsigned testcount)
 		{
 			result|= true;
 			std::cout << "failed" << std::endl;
+std::cout << "\ntptstr = (" << strs.str().size() << ")\n<quote>" << strs.str() << "</quote>" <<std::endl;
+std::cout << "\noutstr = (" << outstr.size() << ")\n<quote>" << outstr << "</quote>" <<std::endl;
 		}
-//		std::cout << "\ntptstr = (" << strs.str().size() << ")\n<quote>" << strs.str() << "</quote>" <<std::endl;
-//		std::cout << "\noutstr = (" << outstr.size() << ")\n<quote>" << outstr << "</quote>" <<std::endl;
 	}
 
 	return result;
