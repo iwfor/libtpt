@@ -115,17 +115,16 @@ void Parser::Impl::parse_set(std::ostream* os)
 
 	tok = lex.getstricttoken();
 	// If this is a close parenthesis, then just clear the symbol
-	if (tok.type != token_closeparen)
+	if (tok.type == token_closeparen)
 	{
 		symbols.set(id, "");
 		return;
 	}
-	else if (tok.type != token_comma)
+	if (tok.type != token_comma)
 	{
 		recorderror("Syntax error, expected comma (,)", &tok);
 		return;
 	}
-	Token<> nexttok;
 	tok = lex.getstricttoken();
 	// If this is a close parenthesis, then just clear the symbol
 	if (tok.type == token_closeparen)
@@ -134,13 +133,11 @@ void Parser::Impl::parse_set(std::ostream* os)
 		return;
 	}
 	// Parse the expression
-	nexttok = parse_level0(tok);
+	Token<> nexttok = parse_level0(tok);
 	symbols.set(id, tok.value);
 	tok = nexttok;
 	if (tok.type != token_closeparen)
-	{
 		recorderror("Syntax error, exepected close parenthesis", &tok);
-	}
 }
 
 void Parser::Impl::parse_macro()

@@ -1,0 +1,3 @@
+@set(myvar,"My dog spot")\
+myvar=${myvar}
+
