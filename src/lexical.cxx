@@ -33,7 +33,7 @@ const ChrSet<> set_num("0-9");
 const ChrSet<> set_alpha("a-zA-Z");
 const ChrSet<> set_alphanum("a-zA-Z0-9");
 const ChrSet<> set_varname("a-zA-Z0-9_");
-const ChrSet<> set_startvarname("a-zA-Z_");
+const ChrSet<> set_startvarname("a-zA-Z_.");
 const ChrSet<> set_whitespace(" \t\r\n");
 
 struct Lex::Impl {
@@ -317,38 +317,45 @@ Token<>::en Lex::Impl::checkreserved(const char* str)
 	switch (*str)
 	{
 	case 'c':
-			 if (!std::strcmp(str, "concat"))	return token_concat;
-			 if (!std::strcmp(str, "count"))	return token_count;
+		if (!std::strcmp(str, "concat"))	return token_concat;
+		if (!std::strcmp(str, "count"))		return token_count;
 		break;
 	case 'e':
-			 if (!std::strcmp(str, "else"))		return token_else;
-		else if (!std::strcmp(str, "empty"))	return token_empty;
+		if (!std::strcmp(str, "else"))		return token_else;
+		if (!std::strcmp(str, "elsif"))		return token_elsif;
+		if (!std::strcmp(str, "empty"))		return token_empty;
 		break;
 	case 'f':
-			 if (!std::strcmp(str, "foreach"))	return token_foreach;
+		if (!std::strcmp(str, "foreach"))	return token_foreach;
 		break;
 	case 'i':
-			 if (!std::strcmp(str, "if"))		return token_if;
-		else if (!std::strcmp(str,  "include"))	return token_include;
+		if (!std::strcmp(str, "if"))		return token_if;
+		if (!std::strcmp(str,  "include"))	return token_include;
 		break;
 	case 'l':
-			 if (!std::strcmp(str, "last"))		return token_last;
-			 if (!std::strcmp(str, "length"))	return token_length;
+		if (!std::strcmp(str, "last"))		return token_last;
+		if (!std::strcmp(str, "lc"))		return token_lc;
+		if (!std::strcmp(str, "length"))	return token_length;
 		break;
 	case 'm':
-			 if (!std::strcmp(str, "macro"))	return token_macro;
+		if (!std::strcmp(str, "macro"))		return token_macro;
 		break;
 	case 'n':
-			 if (!std::strcmp(str, "next"))		return token_next;
+		if (!std::strcmp(str, "next"))		return token_next;
 		break;
 	case 'r':
-			 if (!std::strcmp(str, "rand"))		return token_rand;
+		if (!std::strcmp(str, "rand"))		return token_rand;
 		break;
 	case 's':
-			 if (!std::strcmp(str, "set"))		return token_set;
+		if (!std::strcmp(str, "set"))		return token_set;
+		if (!std::strcmp(str, "setif"))		return token_setif;
+		if (!std::strcmp(str, "substr"))	return token_substr;
+		break;
+	case 'u':
+		if (!std::strcmp(str, "uc"))		return token_uc;
 		break;
 	case 'w':
-			 if (!std::strcmp(str, "while"))	return token_while;
+		if (!std::strcmp(str, "while"))		return token_while;
 		break;
 	default:
 		break;

@@ -84,6 +84,9 @@ struct Parser::Impl {
 	Token<> parse_concat();
 	Token<> parse_length();
 	Token<> parse_count();
+	Token<> parse_substr();
+	Token<> parse_uc();
+	Token<> parse_lc();
 
 	void parse_main(std::ostream* os);
 	void parse_block(std::ostream* os);
@@ -93,6 +96,7 @@ struct Parser::Impl {
 	void parse_include(std::ostream* os);
 	void parse_if(std::ostream* os);
 	void parse_set();
+	void parse_setif();
 
 	void parse_macro();
 	void user_macro(const std::string& name, std::ostream* os);

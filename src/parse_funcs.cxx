@@ -20,6 +20,7 @@
 
 #include <cstdlib>
 #include <ctime>
+#include <cctype>
 
 namespace TPTLib {
 
@@ -88,12 +89,12 @@ Token<> Parser::Impl::parse_rand()
 	if (pl.empty())
 	{
 		// use default parameter
-		lwork = 0x8000000;
+		lwork = 0x80000000;
 	}
 	else
 	{
 		if (pl.size() > 1)
-			recorderror("@rand takes zero or one arguments");
+			recorderror("Warning: @rand takes zero or one arguments");
 		lwork = str2num(pl[0]);
 	}
 	lwork = random32() % lwork;
@@ -127,13 +128,18 @@ Token<> Parser::Impl::parse_empty()
 	else
 	{
 		if (pl.size() >= 1)
-			recorderror("@empty takes one argument");
+			recorderror("Warning: @empty takes one argument");
 		result.value = (pl[0] == "") ? "1" : "0";
 	}
 	return result;
 }
 
 
+/*
+ * Concatenate a series of string tokens together.  Integer tokens will
+ * be treated as strings.
+ *
+ */
 Token<> Parser::Impl::parse_concat()
 {
 	ParamList pl;
@@ -167,7 +173,7 @@ Token<> Parser::Impl::parse_length()
 	int64_t lwork=0;
 
 	if (pl.size() != 1)
-		recorderror("@length takes one parameter");
+		recorderror("Warning: @length takes one parameter");
 	else
 		lwork = pl[0].size();
 	num2str(lwork, result.value);
@@ -192,7 +198,7 @@ Token<> Parser::Impl::parse_count()
 	if (!pl.empty())
 	{
 		if (pl.size() != 1)
-			recorderror("@length takes one parameter");
+			recorderror("Warning: @length takes one parameter");
 		bool inword(false);
 		std::string::const_iterator it(pl[0].begin()),
 			end(pl[0].end());
@@ -219,5 +225,93 @@ Token<> Parser::Impl::parse_count()
 	num2str(lwork, result.value);
 	return result;
 }
+
+
+/*
+ * Return a substring of a token.
+ *
+ * Param1 is string
+ * Param2 is start
+ * Param3 is end (optional)
+ *
+ */
+Token<> Parser::Impl::parse_substr()
+{
+	ParamList pl;
+	Token<> result;
+	result.type = token_string;
+	if (getparamlist(pl))
+		return result;
+
+	unsigned int start=0, end=std::string::npos;
+	if (!pl.empty())
+	{
+		if (pl.size() == 1)
+		{
+			recorderror("Warning: @substr takes 2 or 3 parameters");
+		}
+		else
+		{
+			start = std::atoi(pl[1].c_str());
+			if (pl.size() >= 3)
+				end = std::atoi(pl[2].c_str());
+			if (pl.size() > 3)
+				recorderror("Warning: @substr takes 2 or 3 parameters");
+		}
+		result.value = pl[0].substr(start,end);
+	}
+
+	return result;
+}
+
+/*
+ * Convert a string to uppercase
+ *
+ */
+Token<> Parser::Impl::parse_uc()
+{
+	ParamList pl;
+	Token<> result;
+	result.type = token_string;
+	if (getparamlist(pl))
+		return result;
+
+	if (!pl.empty())
+	{
+		result.value = pl[0];
+		std::string::iterator it(result.value.begin()),
+			end(result.value.end());
+		for (; it != end; ++it)
+			(*it) = toupper((*it));
+	}
+
+	return result;
+}
+
+
+/*
+ * Convert a string to lowercase
+ *
+ */
+Token<> Parser::Impl::parse_lc()
+{
+	ParamList pl;
+	Token<> result;
+	result.type = token_string;
+	if (getparamlist(pl))
+		return result;
+
+	if (!pl.empty())
+	{
+		result.value = pl[0];
+		std::string::iterator it(result.value.begin()),
+			end(result.value.end());
+		for (; it != end; ++it)
+			(*it) = tolower((*it));
+	}
+
+	return result;
+}
+
 
 } // end namespace TPTLib
