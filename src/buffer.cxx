@@ -256,9 +256,10 @@ bool Buffer::seek(unsigned long index)
 {
 	while (!imp->done && (index >= imp->buffersize))
 		imp->readfile();
-	if (imp->done)
+	if (index >= imp->buffersize)
 		return true;
 	imp->bufferindex = index;
+	imp->done = false;
 
 	return false;
 }

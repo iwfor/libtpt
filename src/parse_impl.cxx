@@ -181,6 +181,14 @@ void Parser::Impl::parse_dotoken(std::ostream* os, Token<> tok)
 	case token_if:
 		parse_if(os);
 		break;
+	// loop through an array.
+//	case token_foreach:
+//		parse_foreach(os);
+//		break;
+	// loop while expression is true.
+	case token_while:
+		parse_while(os);
+		break;
 	// Include another file.
 	case token_include:
 		parse_include(os);

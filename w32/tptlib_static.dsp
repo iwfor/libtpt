@@ -162,6 +162,10 @@ SOURCE=..\src\parse_impl_set.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\parse_impl_while.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\symbols.cxx
 # End Source File
 # Begin Source File

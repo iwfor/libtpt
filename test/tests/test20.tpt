@@ -1,0 +1,6 @@
+@# Test while loop
+@set(x, 16)\
+@while (x > 0) {
+${x}
+@set(x, x-1)\
+}

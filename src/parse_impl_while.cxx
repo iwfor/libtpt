@@ -1,7 +1,7 @@
 /*
- * parse_impl_if.cxx
+ * parse_impl_while.cxx
  *
- * Parse If Implementation
+ * Parse While Implementation
  *
  * $Id$
  *
@@ -47,73 +47,23 @@
 
 namespace TPTLib {
 
-
-/*
- *
- */
-bool Parser::Impl::parse_ifexpr(std::ostream* os)
+void Parser::Impl::parse_while(std::ostream* os)
 {
-	ParamList pl;
-
-	if (getparamlist(pl))
-		return false;
-
-	if (pl.empty())
-	{
-		recorderror("Syntax error, expected expression");
-		return false;
-	}
-	else if (pl.size() > 1)
-		recorderror("Warning: extra parameters ignored");
-
-	int64_t lwork;
-	Token<> tok;
-	lwork = str2num(pl[0]);	// lwork = result of if expression
-
-	if (lwork)	// if true, then TPT if was true
-		parse_block(os);
-	else
-	{
-		std::string ignore;
-		std::stringstream ignorestr(ignore);
-		parse_block(&ignorestr);
-	}
-
-	return !!lwork;
-}
-
-void Parser::Impl::parse_if(std::ostream* os)
-{
-	Token<> tok;
+	// Create a "bookmark" of the start of the while expression.  This
+	// will allow parser to backup to expression and basically do an
+	// ifexpr to see if the
+	size_t whilestart = lex.index();
 
 	std::string ignore;
 	std::stringstream ignorestr(ignore);
 
-	bool done;
-	done = parse_ifexpr(os);
-	tok = lex.getloosetoken();
-
-	while (tok.type == token_elsif)
-	{
-		if (done)
-			parse_ifexpr(&ignorestr);
-		else
-			done = parse_ifexpr(os);
-		tok = lex.getloosetoken();
-	}
-
-	if (tok.type == token_else)
-	{
-		if (done)
-			parse_block(&ignorestr);
-		else
-			parse_block(os);
-	}
-	else
-	{
-		// unget token
-		lex.unget(tok);
-	}
+	// Keep calling ifexpr until the expression is false
+	while (parse_ifexpr(os))
+		if (lex.seek(whilestart))
+		{
+			recorderror("Parser internal error in @while");
+			break;
+		}
 }
 
 } // end namespace TPTLib

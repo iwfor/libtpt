@@ -56,6 +56,8 @@ public:
 	Token<> getspecialtoken();
 	void unget(const Token<>& tok);
 	unsigned getlineno() const;
+	unsigned long index() const;
+	bool seek(unsigned long index);
 
 	///! Extract an unparsed brace enclosed {} block
 	std::string getblock();

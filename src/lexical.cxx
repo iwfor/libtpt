@@ -372,5 +372,20 @@ std::string Lex::getblock()
 	return block;
 }
 
+unsigned long Lex::index() const
+{
+	return imp->buf.offset();
+}
+
+/*
+ * @return true on failure;
+ * @return false on success;
+ *
+ */
+bool Lex::seek(unsigned long index)
+{
+	return imp->buf.seek(index);
+}
+
 
 } // end namespace TPTLib
