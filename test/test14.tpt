@@ -1,5 +1,28 @@
-@macro(header, title)
+@set(vara, "Old Var A")\
+@set(varb, "Old Var B")\
+@set(varc, "Old Var C")\
+Main Body
+vara=${vara}
+varb=${varb}
+varc=${varc}
+@macro(mymac1, vara, varb, varc)
 {
-<title>${title}</title>
+@mymac2(vara, varb, varc)\
+mymac1()
+vara=${vara}
+varb=${varb}
+varc=${varc}
 }
-@header("My Title")
+@macro(mymac2, vara, varb, varc)
+{
+mymac2()
+varc=${varc}
+varb=${varb}
+vara=${vara}
+}
+@mymac1("New Var A", "New Var B", "New Var C")\
+Main Body
+vara=${vara}
+varb=${varb}
+varc=${varc}
+

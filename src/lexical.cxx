@@ -568,6 +568,7 @@ std::string Lex::getblock()
 			if (!c)
 				return "";
 			// Now just ignore this character, whatever it is.
+			block+= c;
 		}
 		else if (c == '{')
 			++depth;

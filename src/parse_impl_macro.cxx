@@ -60,7 +60,6 @@ void Parser::Impl::parse_macro()
 			recorderror("Syntax error, expected comma or close parenthesis", &tok);
 			return;
 		}
-		tok = lex.getstricttoken();
 	}
 	if (tok.type == token_eof)
 	{
@@ -120,10 +119,18 @@ void Parser::Impl::user_macro(const std::string& name, std::ostream* os)
 			symbols.set((*pit), pl[i++]);
 	}
 
+	// Call the macro
 	Buffer newbuf(mac.body.c_str(), mac.body.size()+1);
 	Impl imp(newbuf, symbols, macros);
 	imp.parse_block(os);
 
+	// Pop saved symbols off the stack
+	while (!symstack.empty())
+	{
+		Symbol_t& ref = symstack.top();
+		symbols.set(ref.id, ref.value);
+		symstack.pop();
+	}
 }
 
 
