@@ -32,35 +32,55 @@ void num2str(int64_t value, std::string& str);
 
 // TODO:
 // this token format is not compatible with getparamlist.  Fix it.
-Token<> Parser::Impl::parse_rand(Token<>& left)
+Token<> Parser::Impl::parse_rand()
 {
 	ParamList pl;
+	Token<> result;
+	result.type = token_integer;
 	if (getparamlist(pl))
-		return left;
+		return result;
 	int64_t lwork;
 
 	if (pl.empty())
 	{
 		// use default parameter
-		lwork = 0x7fff;
+		lwork = 0x8000;
 	}
 	else
 	{
 		if (pl.size() == 1)
 			recorderror("@rand takes zero or one arguments");
 		lwork = str2num(pl[0]);
+		lwork = lwork > 0x8000 ? 0x8000 : lwork;
 	}
 	lwork = std::rand() % lwork;
-	num2str(lwork, left.value);
+	num2str(lwork, result.value);
 
-	return lex.getstricttoken();
+	return result;
 }
 
 
-Token<> Parser::Impl::parse_empty(Token<>& left)
+Token<> Parser::Impl::parse_empty()
 {
+	ParamList pl;
+	Token<> result;
+	result.type = token_integer;
+	if (getparamlist(pl))
+		return result;
+
+	if (pl.empty())
+	{
+		// use default parameter
+		result.value = "1";
+	}
+	else
+	{
+		if (pl.size() == 1)
+			recorderror("@empty takes one argument");
+		result.value = (pl[0] == "") ? "1" : "0";
+	}
 	// TODO
-	return left;
+	return result;
 }
 
 

@@ -50,8 +50,9 @@ struct Parser::Impl {
 	Token<> parse_level5(Token<>& left);
 	Token<> parse_level6(Token<>& left);
 	Token<> parse_level7(Token<>& left);
-	Token<> parse_rand(Token<>& left);
-	Token<> parse_empty(Token<>& left);
+
+	Token<> parse_rand();
+	Token<> parse_empty();
 
 	void parse_include(std::ostream* os);
 	void parse_if(std::ostream* os);
