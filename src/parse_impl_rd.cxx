@@ -293,6 +293,9 @@ Token<> Parser::Impl::parse_level7(Token<>& left)
 	case token_size:
 		left = parse_size();
 		break;
+	case token_substr:
+		left = parse_substr();
+		break;
 	case token_string:
 		// string is okay
 		break;

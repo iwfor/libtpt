@@ -30,6 +30,10 @@ void Parser::Impl::parse_if(std::ostream* os)
 		recorderror("Syntax error, @if requires an expression");
 		return;
 	}
+	else if (pl.size() > 1)
+	{
+		recorderror("Warning: extra parameters in @if ignored");
+	}
 
 	int64_t lwork;
 	Token<> tok;

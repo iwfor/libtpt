@@ -191,6 +191,10 @@ void Parser::Impl::parse_dotoken(std::ostream* os, Token<> tok)
 		tok = parse_size();
 		*os << tok.value;
 		break;
+	case token_substr:
+		tok = parse_substr();
+		*os << tok.value;
+		break;
 	case token_usermacro:
 		user_macro(tok.value, os);
 		break;
