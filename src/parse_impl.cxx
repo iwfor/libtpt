@@ -132,6 +132,7 @@ void Parser::Impl::parse_dotoken(std::ostream* os, Token<> tok)
 	case token_closebrace:
 	case token_whitespace:
 	case token_text:
+	case token_escape:
 		*os << tok.value;
 		break;
 	// Expand symbols.
@@ -416,6 +417,14 @@ const char* toktypestr(const Token<>& tok)
 		return "rand";
 	case token_concat:
 		return "concat";
+	case token_size:
+		return "size";
+	case token_length:
+		return "length";
+	case token_lc:
+		return "lc";
+	case token_uc:
+		return "uc";
 	default:
 		return "undefined";
 	}

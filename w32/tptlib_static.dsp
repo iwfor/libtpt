@@ -100,6 +100,10 @@ SOURCE=..\src\buffer.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\eval.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\lexical.cxx
 
 !IF  "$(CFG)" == "tptlib_static - Win32 Release"

@@ -29,7 +29,8 @@ Parser::~Parser()
 
 std::string Parser::run()
 {
-	std::stringstream ss;
+	std::string temp;
+	std::stringstream ss(temp);
 	run(ss);
 	return ss.str();
 }

@@ -234,7 +234,10 @@ Token<> Lex::getstricttoken()
 					if (c) buf.unget();
 			}
 			else
+			{
 				t.type = token_escape;
+				t.value = c;
+			}
 			return t;
 		case '@':	// keyword or user macro
 			c = imp->safeget(buf);
@@ -362,6 +365,7 @@ Token<>::en Lex::Impl::checkreserved(const char* str)
 	case 's':
 		if (!std::strcmp(str, "set"))		return token_set;
 		if (!std::strcmp(str, "setif"))		return token_setif;
+		if (!std::strcmp(str, "size"))		return token_size;
 		if (!std::strcmp(str, "substr"))	return token_substr;
 		break;
 	case 'u':
@@ -502,15 +506,7 @@ void Lex::Impl::getstring(Token<>& t, Buffer& buf)
 	while ( (c = safeget(buf)) )
 	{
 		if (c == '"')
-		{
-			c = safeget(buf);
-			if (c != '"')	// hardcoded quote in string
-			{
-				if (c) buf.unget();
-				return;
-			}
-			// else embed a quote (")
-		}
+			return;
 		else if (c == '\\')
 		{
 			if ( !(c = safeget(buf)) )
@@ -560,15 +556,7 @@ void Lex::Impl::getsqstring(Token<>& t, Buffer& buf)
 	while ( (c = safeget(buf)) )
 	{
 		if (c == '\'')
-		{
-			c = safeget(buf);
-			if (c != '\'')	// hardcoded quote in string
-			{
-				if (c) buf.unget();
-				return;
-			}
-			// else embed a quote (")
-		}
+			return;
 		else if (c == '\\')
 		{
 			if ( !(c = safeget(buf)) )

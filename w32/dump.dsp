@@ -93,6 +93,10 @@ SOURCE=..\test\dump.cxx
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\src\eval.h
+# End Source File
 # End Group
 # End Target
 # End Project

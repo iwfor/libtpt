@@ -15,9 +15,11 @@
 
 #include "symbols_impl.h"
 #include "vars.h"		// Default variables
+#include "eval.h"
 
 #include <iostream>
 #include <cstdio>
+#include <cstring>
 
 namespace TPTLib {
 
@@ -79,7 +81,7 @@ bool Symbols::get(const SymbolKeyType& id, SymbolValueType& outval) const
 	unsigned index;
 	outval.erase();
 	// getrealid should return true
-	if (imp->getrealid(id, realid, index))
+	if (imp->getrealid(id, realid, index, *this))
 		return true;
 
 	SymbolTable::const_iterator it(imp->symmap.find(realid));
@@ -108,7 +110,7 @@ bool Symbols::get(const SymbolKeyType& id, SymbolArrayType& outval) const
 	SymbolKeyType realid;
 	unsigned index;
 	// getrealid should return true and index must be zero
-	if (imp->getrealid(id, realid, index) || (index > 0))
+	if (imp->getrealid(id, realid, index, *this) || (index > 0))
 	{
 		outval.resize(1);
 		outval[0].erase();
@@ -141,7 +143,7 @@ void Symbols::set(const SymbolKeyType& id, const SymbolValueType& value)
 {
 	SymbolKeyType realid;
 	unsigned index;
-	if (imp->getrealid(id, realid, index))
+	if (imp->getrealid(id, realid, index, *this))
 		return;
 	if (index >= maxarraysize)
 		return;
@@ -165,7 +167,7 @@ void Symbols::set(const SymbolKeyType& id, const SymbolArrayType& value)
 {
 	SymbolKeyType realid;
 	unsigned index;
-	imp->getrealid(id, realid, index);
+	imp->getrealid(id, realid, index, *this);
 	imp->symmap[realid] = value;
 }
 
@@ -184,7 +186,7 @@ bool Symbols::exists(const SymbolKeyType& id) const
 {
 	SymbolKeyType realid;
 	unsigned index;
-	imp->getrealid(id, realid, index);
+	imp->getrealid(id, realid, index, *this);
 	return imp->symmap.find(realid) != imp->symmap.end();
 }
 
@@ -203,7 +205,7 @@ bool Symbols::empty(const SymbolKeyType& id) const
 {
 	SymbolKeyType realid;
 	unsigned index;
-	imp->getrealid(id, realid, index);
+	imp->getrealid(id, realid, index, *this);
 	SymbolTable::iterator it(imp->symmap.find(realid));
 	if (it == imp->symmap.end())
 		return true;
@@ -222,7 +224,7 @@ bool Symbols::isarray(const SymbolKeyType& id) const
 {
 	SymbolKeyType realid;
 	unsigned index;
-	imp->getrealid(id, realid, index);
+	imp->getrealid(id, realid, index, *this);
 
 	SymbolTable::iterator it(imp->symmap.find(realid));
 	if (it == imp->symmap.end())
@@ -242,7 +244,7 @@ unsigned Symbols::size(const SymbolKeyType& id) const
 {
 	SymbolKeyType realid;
 	unsigned index;
-	imp->getrealid(id, realid, index);
+	imp->getrealid(id, realid, index, *this);
 
 	SymbolTable::iterator it(imp->symmap.find(realid));
 	if (it == imp->symmap.end())
@@ -261,10 +263,11 @@ unsigned Symbols::size(const SymbolKeyType& id) const
  *
  */
 bool Symbols::Impl::getrealid(const SymbolKeyType& id,
-							  SymbolKeyType& realkey, unsigned& index)
+							  SymbolKeyType& realkey, unsigned& index,
+							  const Symbols& parent)
 {
 	if (id[0] == '$')
-		return getrealid(id.substr(2, id.size()-3), realkey, index);
+		return getrealid(id.substr(2, id.size()-3), realkey, index, parent);
 /*
 	else if (id.find('$') != SymbolKeyType::npos)
 	{
@@ -272,9 +275,10 @@ bool Symbols::Impl::getrealid(const SymbolKeyType& id,
 		// Note: This is really inefficient, and is only here for
 		// compatibility.
 		Buffer buf(id.c_str(), id.size());
-		Parser p(buf, this);
+		Symbols copy(parent);
+		Parser p(buf, &copy);
 		SymbolKeyType newid(p.run());
-		return getrealid(newid, realkey, index);
+		return getrealid(newid, realkey, index, parent);
 	}
 */
 
@@ -282,14 +286,32 @@ bool Symbols::Impl::getrealid(const SymbolKeyType& id,
 	size_t obracket(id.find('['));
 	if (obracket != SymbolKeyType::npos)
 	{
-		// There is an array index here
-		size_t cbracket(id.find(']'));
-		if (cbracket == SymbolKeyType::npos)
+		// There is an array index here, so count brackets until close
+		unsigned level = 1;
+		size_t cbracket=obracket+1;
+		while (id[cbracket] && level)
 		{
-			// syntax error (lex should prevent this)
-			return true;
+			if (id[cbracket] == '[')
+				++level;
+			else if (id[cbracket] == ']')
+				--level;
+			++cbracket;
 		}
-		index = atoi(id.substr(obracket, cbracket-obracket).c_str());
+
+		std::string temp(id.substr(obracket+1, cbracket-obracket-2));
+		if (isnumber(temp.c_str()))
+		{
+			// if temp is just a number, just get the number
+			index = std::atoi(temp.c_str());
+		}
+		else
+		{
+			// otherwise instantiate a parser to handle expression
+			std::string expr("@eval(");
+			expr+= temp;
+			expr+= ")";
+			index = atoi(eval(expr, &parent).c_str());
+		}
 		realkey = id.substr(0, obracket);
 	}
 	else
@@ -300,6 +322,19 @@ bool Symbols::Impl::getrealid(const SymbolKeyType& id,
 
 	return false;
 }
+
+
+bool Symbols::Impl::isnumber(const char* str)
+{
+	while (*str)
+	{
+		if ((*str < '0') || (*str > '9'))
+			return false;
+		++str;
+	}
+	return true;
+}
+
 
 /**
  *

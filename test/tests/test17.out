@@ -1,0 +1,10 @@
+4
+0: orange
+2: pear
+1: apple
+3: banana
+1000: 
+@concat(i+1, "hi") gives 2hi
+@eval(i) gives 1
+i=1: apple
+banana

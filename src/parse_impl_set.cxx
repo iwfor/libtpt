@@ -31,6 +31,7 @@ void Parser::Impl::parse_set()
 		if (pl.size() > 1)
 		{
 			// this is an array
+			symbols.set(id, pl);
 		}
 		else
 			symbols.set(id, pl[0]);
