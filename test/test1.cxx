@@ -34,8 +34,8 @@ int main(int argc, char* argv[])
 
 	try {
 		r = test1(std::atoi(argv[1]));
-		if (r) std::cout << "failed" << std::endl;
-		else std::cout << "passed" << std::endl;
+//		if (r) std::cout << "failed" << std::endl;
+//		else std::cout << "passed" << std::endl;
 		result|= r;
 	} catch(const std::exception& e) {
 		result = true;
@@ -67,7 +67,7 @@ bool test1(unsigned testcount)
 
 	for (i = 0; i < testcount; ++i)
 	{
-		std::cout << "test" << (i+1) << ": ";
+		std::cout << "test" << (i+1) << ".tpt: ";
 
 		// generate test file names by rule
 		sprintf(tptfile, "test%u.tpt", i+1);
@@ -87,7 +87,7 @@ bool test1(unsigned testcount)
 			outstr+= outbuf.getnextchar();
 
 		// Compare tptstr to outstr
-		if (tptstr == outstr)
+		if (strs.str() == outstr)
 		{
 			std::cout << "passed" << std::endl;
 		}
@@ -96,7 +96,8 @@ bool test1(unsigned testcount)
 			result|= true;
 			std::cout << "failed" << std::endl;
 		}
-		std::cout << std::endl << tptstr << std::endl;
+		std::cout << "\ntptstr = (" << strs.str().size() << ")\n<quote>" << strs.str() << "</quote>" <<std::endl;
+		std::cout << "\noutstr = (" << outstr.size() << ")\n<quote>" << outstr << "</quote>" <<std::endl;
 	}
 
 	return result;
