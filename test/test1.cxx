@@ -70,7 +70,7 @@ bool test1(unsigned testcount)
 		std::cout << "test" << (i+1) << ".tf: ";
 
 		// generate test file names by rule
-		sprintf(tptfile, "test%u.f", i+1);
+		sprintf(tptfile, "test%u.tf", i+1);
 		sprintf(outfile, "test%u.out", i+1);
 
 		// Process the tpt file and store the result in a string
