@@ -1,95 +1,281 @@
 /*
  * buffer.cxx
  *
- * Handle file read buffering
+ * Handle file read buffering.
  *
  * $Id$
  *
  */
 
-#include <iostream>
-#include <fstream>
-#include <cstdio>
-#include <cstdlib>
+#include "tptlib/buffer.h"
 
+#include <fstream>
+
+namespace {
+	const unsigned DEFAULT_BUFFER_SIZE = 8192;
+}
 
 namespace TPTLib {
 
-class Buffer {
-public:
-	Buffer();
-	Buffer(char* filename);
-	Buffer(std::fstream* filein);
-	Buffer(char* buffer, int size);
-	~Buffer();
+struct Buffer::impl {
+	std::fstream* mFstream;
+	bool mFreefstreamwhendone;
 
-	char getnextchar();
+	const char* mConstbuffer;
+	char* mBuffer;
+	unsigned mBuffersize;	// size of allocated buffer
+	unsigned mBuffercount;	// number of characters in buffer
+	unsigned mBufferindex;
 
-private:
-	struct pimpl;
-	pimpl* m_pimpl;
+	bool mDone;
 	
-}; // end class Buffer
-
-
-struct Buffer::pimpl {
-	bool m_fileopen;
-	bool m_bufferalloc;
-	bool m_closefilewhendone;
+	impl(unsigned bufsize) :
+		mDone(false),
+		mBuffer(new char[bufsize]),
+		mBuffersize(bufsize),
+		mBuffercount(0),
+		mConstbuffer(mBuffer),
+		mBufferindex(0),
+		mFreefstreamwhendone(false)
+		{ }
+	impl(const char* buffer, unsigned bufsize) :
+		mDone(!bufsize),	// if zero buffer, then done
+		mBuffer(0),
+		mBuffersize(bufsize),
+		mBuffercount(bufsize),
+		mConstbuffer(buffer),
+		mBufferindex(0),
+		mFreefstreamwhendone(false)
+		{ }
+	~impl();
 	
-	fstream* m_filein;
-
-	char* m_buffer;
-	int m_bufsize;
-	int m_bufindex;
-	
-	bool openfile(char* filename);
+	void openfile(const char* filename);
 	bool readfile();
 
-	pimpl() : m_fileopen(false), m_bufferalloc(false), m_closefilewhendone(false) {}
-	~pimpl();
-	
-}; // end struct Buffer::pimpl
+}; // end struct Buffer::impl
 
-Buffer::Buffer()
+
+/**
+ *
+ * Construct a read buffer for the specified file.
+ *
+ * @param	filename		name of file to buffer
+ * @return	nothing
+ * @author	Isaac W. Foraker
+ *
+ */
+Buffer::Buffer(const char* filename)
 {
-	m_pimpl = new pimpl;
+	mImpl = new impl(DEFAULT_BUFFER_SIZE);
 
+	mImpl->openfile(filename);
+	mImpl->mFreefstreamwhendone = true;
+	mImpl->readfile();
 }
 
-Buffer::Buffer(char* filename)
-{
-	m_pimpl = new pimpl;
 
-	m_pimpl->openfile(filename);
-}
-
+/**
+ *
+ * Construct a read buffer for an open fstream.
+ *
+ * @param	filein			input fstream
+ * @return	nothing
+ * @author	Isaac W. Foraker
+ *
+ */
 Buffer::Buffer(std::fstream* filein)
 {
-	m_pimpl = new pimpl;
+	mImpl = new impl(DEFAULT_BUFFER_SIZE);
 
-	m_pimpl->m_fileopen = true;
-	m_pimpl->m_filein = filein;
+	mImpl->mFstream = filein;
+	mImpl->readfile();
 }
 
+
+/**
+ *
+ * Construct a read buffer for an existing buffer.
+ *
+ * @return	nothing
+ * @author	Isaac W. Foraker
+ *
+ */
+Buffer::Buffer(const char* buffer, int size)
+{
+	mImpl = new impl(buffer, size);
+}
+
+
+/**
+ *
+ * Free buffer and fstream if necessary
+ *
+ */
 Buffer::~Buffer()
 {
-	delete m_pimpl;
+	delete mImpl;
 }
 
-Buffer::pimpl::~pimpl()
+
+/**
+ *
+ * Get the next available character from the buffer.  Use
+ * Buffer::eof() to determine if more data is available.
+ *
+ * @param	none
+ * @return	next available character;
+ * @return	undefined if no more characters available
+ * @author	Isaac W. Foraker
+ *
+ */
+char Buffer::getnextchar()
 {
-	if (m_closefilewhendone)
+	register char c = mImpl->mConstbuffer[mImpl->mBufferindex];
+	++mImpl->mBufferindex;
+
+	// If our buffer is empty, try reading from the stream
+	// if there is one.
+	if (mImpl->mBufferindex >= mImpl->mBuffercount)
+		mImpl->readfile();
+
+	return c;
+}
+
+
+/**
+ *
+ * Check if any more data in buffer.
+ *
+ * @param	none
+ * @return	true if past end of buffer;
+ * @return	false if more data available
+ * @author	Isaac W. Foraker
+ *
+ */
+bool Buffer::eof() const
+{
+	return mImpl->mDone;
+}
+
+
+/**
+ *
+ * Reset the buffer index to the beginning of the input buffer.
+ * Buffer::eof() will return true if index could not be reset.
+ *
+ * @param	none
+ * @return	nothing
+ * @author	Isaac W. Foraker
+ *
+ */
+void Buffer::reset()
+{
+	mImpl->mBufferindex = 0;
+	if (mImpl->mFstream)
 	{
-		delete m_filein;
+		mImpl->mFstream->seekg(0);
+		mImpl->readfile();
 	}
+	else
+		mImpl->mDone = !mImpl->mBuffersize;
 }
 
-bool Buffer::pimpl::openfile(char* filename)
+
+/**
+ *
+ * Perform a boolean check for availability of data in the
+ * buffer.  Usage can look like:
+ *
+ * TPTLib::Buffer readbuf("input.txt");\n
+ * if (readbuf) {\n
+ *		.\n
+ *		.\n
+ *		.\n
+ * }
+ *
+ * @param	none
+ * @return	false if no data is available;
+ * @return	true if data is available
+ * @author	Isaac W. Foraker
+ *
+ */
+Buffer::operator bool()
 {
-	m_filein = new fstream(filename);
-	return false;
+	return !mImpl->mDone;
 }
+
+
+Buffer::impl::~impl()
+{
+	if (mFreefstreamwhendone)
+		delete mFstream;
+	if (mBuffer)
+		delete mBuffer;
+}
+
+
+/*
+ * Open a file stream for the specified file.
+ *
+ * @param	filename
+ * @return	false on success
+ * @return	true on failure
+ * @author	Isaac W. Foraker
+ *
+ */
+void Buffer::impl::openfile(const char* filename)
+{
+	mFstream = new std::fstream(filename, std::ios::in);
+}
+
+
+/*
+ * Read the next block of bytes from the file.  Set
+ * the mDone flag if there's no more data to read.
+ *
+ * @param	none
+ * @return	false on success;
+ * @return	true if no more data
+ *
+ */
+bool Buffer::impl::readfile()
+{
+	if (mFstream && mFstream->is_open() && !mFstream->eof())
+	{
+		mBuffercount = mFstream->readsome(mBuffer, mBuffersize);
+		mBufferindex = 0;
+		if (mBuffercount < 1)
+			mDone = true;
+	}
+	else
+		mDone = true;
+	return mDone;
+}
+
+
+/**
+ *
+ * \example	bufferfile.cxx
+ *
+ * This is an example of how to use TPTLib::Buffer with a file.
+ *
+ */
+
+/**
+ *
+ * \example	bufferfstream.cxx
+ *
+ * This is an example of how to use TPTLib::Buffer with a readable fstream.
+ *
+ */
+
+/**
+ *
+ * \example	bufferbuffer.cxx
+ *
+ * This is an example of how to use TPTLib::Buffer with a buffer.
+ *
+ */
 
 
 } // end namespace TPTLib
