@@ -48,21 +48,20 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <stdexcept>
 
 namespace TPTLib {
 
-/*
- * enumeration of types of objects the object_t structure may hold.
- */
-enum obj_types {
-	obj_not_alloc = 0,
-	obj_scalar,
-	obj_array,
-	obj_hash
-};
-
 class object_t {
 public:
+	// types of objects the object_t may hold
+	enum obj_types {
+		obj_not_alloc = 0,
+		obj_scalar,
+		obj_array,
+		obj_hash
+	};
+
 	// Some typedefs
 	typedef std::vector< object_t > ObjectArrayType;
 	typedef std::map< std::string, object_t > ObjectHashType;
@@ -76,7 +75,10 @@ public:
 	explicit object_t(const ObjectHashType& hash);
 
 	// dtor
-	~object_t() { unalloc(); }
+	~object_t() { deallocate(); }
+
+	// Deallocate this object
+	void deallocate();
 
 	// Various assignments
 	object_t& operator=(const std::string& str);
@@ -87,8 +89,7 @@ public:
 	// Boolean operator: true=object defined; false=object undefined
 	operator bool() { return type != obj_not_alloc; }
 
-	void unalloc();
-
+	obj_types gettype() const { return type; }
 	const std::string& getscalar() throw(std::exception);
 	const ObjectArrayType& getarray() throw(std::exception);
 	const ObjectHashType& gethash() throw(std::exception);

@@ -70,7 +70,7 @@ object_t::object_t(const ObjectHashType& hash)
 
 object_t& object_t::operator=(const std::string& str)
 {
-	unalloc();
+	deallocate();
 	u.str = new std::string(str);
 	type = obj_scalar;
 	return *this;
@@ -78,7 +78,7 @@ object_t& object_t::operator=(const std::string& str)
 
 object_t& object_t::operator=(const ObjectArrayType& array)
 {
-	unalloc();
+	deallocate();
 	u.array = new ObjectArrayType(array);
 	type = obj_array;
 	return *this;
@@ -86,7 +86,7 @@ object_t& object_t::operator=(const ObjectArrayType& array)
 
 object_t& object_t::operator=(const ObjectHashType& hash)
 {
-	unalloc();
+	deallocate();
 	u.hash = new ObjectHashType(hash);
 	type = obj_hash;
 	return *this;
@@ -94,7 +94,7 @@ object_t& object_t::operator=(const ObjectHashType& hash)
 
 object_t& object_t::operator=(const object_t& obj)
 {
-	unalloc();
+	deallocate();
 
 	switch(obj.type) {
 	case obj_scalar:
@@ -114,7 +114,7 @@ object_t& object_t::operator=(const object_t& obj)
 	return *this;
 }
 
-void object_t::unalloc() {
+void object_t::deallocate() {
 	switch(type) {
 	case obj_scalar:
 		delete u.str;
@@ -127,6 +127,28 @@ void object_t::unalloc() {
 		break;
 	}
 	type = obj_not_alloc;
+}
+
+
+const std::string& object_t::getscalar()
+{
+	if (type != obj_scalar)
+		throw std::exception("Object is not a scalar");
+	return *u.str;
+}
+
+const object_t::ObjectArrayType& object_t::getarray()
+{
+	if (type != obj_array)
+		throw std::exception("Object is not a array");
+	return *u.array;
+}
+
+const object_t::ObjectHashType& object_t::gethash()
+{
+	if (type != obj_hash)
+		throw std::exception("Object is not a hash");
+	return *u.hash;
 }
 
 
