@@ -8,40 +8,20 @@
  */
 
 
+#include <tptlib/parse.h>
 #include "lexical.h"
-#include <tptlib/buffer.h>
 
-#include <iosfwd>
+#include <algorithm>
+#include <strstream>
 
 namespace TPTLib {
 
-/**
- *
- * The Parser class is responsible
- *
- */
-class Parser {
-public:
-	Parser(Buffer& buf);					///< ctor
-	Parser(Buffer& buf, std::ostream& os);	///< ctor
-	~Parser();								///< dtor
-
-	std::string run();
-
-private:
-	struct Impl;
-	Impl* imp;
-
-	Parser();
-};
-
 struct Parser::Impl {
-	std::ostream* os;
-	bool usingstream;
 	Lex lex;
 
-	Impl(Buffer& buf) : lex(buf), usingstream(false) {}
-	Impl(Buffer& buf, std::ostream* s) : lex(buf), os(s), usingstream(true) {}
+	Impl(Buffer& buf) : lex(buf) {}
+	std::vector< std::string > errlist;
+	bool pass1(std::ostream* os);
 };
 
 Parser::Parser(Buffer& buf)
@@ -49,14 +29,39 @@ Parser::Parser(Buffer& buf)
 	imp = new Impl(buf);
 }
 
-Parser::Parser(Buffer& buf, std::ostream& os)
-{
-	imp = new Impl(buf, &os);
-}
-
 Parser::~Parser()
 {
 	delete imp;
+}
+
+std::string Parser::run()
+{
+	std::strstream ss;
+	run(ss);
+	return ss.str();
+}
+
+bool Parser::run(std::ostream& os)
+{
+	imp->errlist.clear();
+	return imp->pass1(&os);
+}
+
+bool Parser::syntax()
+{
+	return imp->pass1(0);
+}
+
+bool Parser::geterrorlist(std::vector< std::string >& errlist)
+{
+	if (imp->errlist.size())
+	{
+		errlist.clear();
+		std::copy(imp->errlist.begin(), imp->errlist.end(), errlist.begin());
+		return true;
+	}
+	else
+		return false;
 }
 
 
