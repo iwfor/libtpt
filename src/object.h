@@ -1,5 +1,5 @@
 /*
- * symbols_impl.h
+ * object.h
  *
  * $Id$
  *
@@ -37,50 +37,64 @@
  *
  */
 
-#ifndef __tptlib_symbols_impl_h
-#define __tptlib_symbols_impl_h
+#ifndef __tptlib_object_impl_h
+#define __tptlib_object_impl_h
 
-#include <tptlib/symbols.h>
+#include <string>
+#include <map>
+#include <vector>
 
 namespace TPTLib {
 
-typedef SymbolArrayType SymbolValue;
+/*
+ * enumeration of types of objects the object_t structure may hold.
+ */
+enum object_types {
+	obj_not_alloc = 0,
+	obj_string,
+	obj_array,
+	obj_hash
+};
 
-struct Symbol_t {
-	std::string	id;
-	SymbolValue value;
+struct object_t {
+	typedef std::vector< object_t > ObjectArrayType;
+	typedef std::map< std::string, object_t > ObjectHashType;
 
-	Symbol_t() {}
-	Symbol_t(const Symbol_t& x) : id(x.id), value(x.value) {}
-	Symbol_t& operator=(const Symbol_t& x)
-	{
-		id = x.id;
-		value = x.value;
+	object_types type;
+	union {
+		std::string* str;
+		ObjectArrayType* array;
+		ObjectHashType* hash;
+	} u;
+
+	object_t() : type(obj_not_alloc) {}
+	object_t(const std::string& str);
+	object_t(const ObjectArrayType& array);
+	object_t(const ObjectHashType& hash);
+	~object_t() { unalloc(); }
+
+	object_t& operator=(const std::string& str);
+	object_t& operator=(const ObjectArrayType& array);
+	object_t& operator=(const ObjectHashType& hash);
+	object_t& operator=(const object_t& obj);
+
+	void unalloc() {
+		switch(type) {
+		case obj_string:
+			delete u.str;
+			break;
+		case obj_array:
+			delete u.array;
+			break;
+		case obj_hash:
+			delete u.hash;
+			break;
+		}
+		type = obj_not_alloc;
 	}
 };
-
-typedef std::map< SymbolKeyType, SymbolValue > SymbolTable;
-
-
-/*
- * The private implementation of Symbols.
- *
- */
-struct Symbols::Impl {
-public:
-	SymbolTable symmap;
-
-	Impl() {};
-	Impl(const SymbolTable& sm) : symmap(sm) {}
-	~Impl() {};
-
-	bool getrealid(const SymbolKeyType& id, SymbolKeyType& realkey,
-		unsigned& index, const Symbols& parent);
-	bool istextnumber(const char* str);
-};
-
 
 
 } // end namespace TPTLib
 
-#endif // __tptlib_symbols_impl_h
+#endif __tptlib_object_impl_h

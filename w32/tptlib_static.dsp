@@ -121,6 +121,10 @@ SOURCE=..\src\lexical.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\object.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\parse.cxx
 
 !IF  "$(CFG)" == "tptlib_static - Win32 Release"
@@ -195,6 +199,10 @@ SOURCE=..\src\lexical.h
 # Begin Source File
 
 SOURCE=..\src\macro.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\object.h
 # End Source File
 # Begin Source File
 

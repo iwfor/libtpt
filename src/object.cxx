@@ -1,5 +1,5 @@
 /*
- * symbols_impl.h
+ * object.cxx
  *
  * $Id$
  *
@@ -37,50 +37,82 @@
  *
  */
 
-#ifndef __tptlib_symbols_impl_h
-#define __tptlib_symbols_impl_h
-
-#include <tptlib/symbols.h>
+#include "object.h"
 
 namespace TPTLib {
 
-typedef SymbolArrayType SymbolValue;
-
-struct Symbol_t {
-	std::string	id;
-	SymbolValue value;
-
-	Symbol_t() {}
-	Symbol_t(const Symbol_t& x) : id(x.id), value(x.value) {}
-	Symbol_t& operator=(const Symbol_t& x)
-	{
-		id = x.id;
-		value = x.value;
-	}
-};
-
-typedef std::map< SymbolKeyType, SymbolValue > SymbolTable;
-
-
 /*
- * The private implementation of Symbols.
+ * Note: Only set "type" AFTER calling "new" to allocate memory since
+ * new might throw an exception.
  *
  */
-struct Symbols::Impl {
-public:
-	SymbolTable symmap;
 
-	Impl() {};
-	Impl(const SymbolTable& sm) : symmap(sm) {}
-	~Impl() {};
+object_t::object_t(const std::string& str)
+	: type(obj_not_alloc)
+{
+	u.str = new std::string(str);
+	type = obj_string;
+}
 
-	bool getrealid(const SymbolKeyType& id, SymbolKeyType& realkey,
-		unsigned& index, const Symbols& parent);
-	bool istextnumber(const char* str);
-};
+object_t::object_t(const ObjectArrayType& array)
+	: type(obj_not_alloc)
+{
+	u.array = new ObjectArrayType(array);
+	type = obj_array;
+}
 
+object_t::object_t(const ObjectHashType& hash)
+	: type(obj_not_alloc)
+{
+	u.hash = new ObjectHashType(hash);
+	type = obj_hash;
+}
+
+object_t& object_t::operator=(const std::string& str)
+{
+	unalloc();
+	u.str = new std::string(str);
+	type = obj_string;
+	return *this;
+}
+
+object_t& object_t::operator=(const ObjectArrayType& array)
+{
+	unalloc();
+	u.array = new ObjectArrayType(array);
+	type = obj_array;
+	return *this;
+}
+
+object_t& object_t::operator=(const ObjectHashType& hash)
+{
+	unalloc();
+	u.hash = new ObjectHashType(hash);
+	type = obj_hash;
+	return *this;
+}
+
+object_t& object_t::operator=(const object_t& obj)
+{
+	unalloc();
+
+	switch(obj.type) {
+	case obj_string:
+		u.str = new std::string(*obj.u.str);
+		type = obj_string;
+		break;
+	case obj_array:
+		u.array = new ObjectArrayType(*obj.u.array);
+		type = obj_array;
+		break;
+	case obj_hash:
+		u.hash = new ObjectHashType(*obj.u.hash);
+		type = obj_hash;
+		break;
+	}
+
+	return *this;
+}
 
 
 } // end namespace TPTLib
-
-#endif // __tptlib_symbols_impl_h
