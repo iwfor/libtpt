@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002 Isaac W. Foraker (isaac*nospam*@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ namespace TPTLib {
 	const char* tptlib_copyright =
 		"Copyright (C) 2002 Isaac W. Foraker, All Rights Reserved";
 	const char* tptlib_license =
-		"Copyright (C) 2002 Isaac W. Foraker (isaac@tazthecat.net)\n"
+		"Copyright (C) 2002 Isaac W. Foraker (isaac*nospam*@tazthecat.net)\n"
 		"All Rights Reserved\n"
 		"\n"
 		"Redistribution and use in source and binary forms, with or without\n"

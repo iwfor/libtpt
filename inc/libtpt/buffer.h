@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2001 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002 Isaac W. Foraker (isaac*nospam*@tazthecat.net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without

@@ -1,4 +1,5 @@
 OBJECTS=	buffer.o \
+			lex_impl.o \
 			lexical.o \
 			parse.o \
 			parse_funcs.o \
