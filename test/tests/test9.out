@@ -1,0 +1,9 @@
+@set(x, 10)\
+@set(y, 2)\
+@set(z, 9)\
+@set(result, (x+y)*z)\
+x=10
+y=2
+z=9
+(x+y)*z=108
+
