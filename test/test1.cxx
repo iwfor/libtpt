@@ -80,11 +80,12 @@ bool test1(unsigned testcount)
 		std::string tptstr;
 		std::stringstream strs(tptstr);
 		p.run(strs);
-		p.errlist(errlist);
+		p.geterrorlist(errlist);
 
 		if (errlist.size())
 		{
 			std::cout << "Errors!" << std::endl;
+			std::cout << errlist[0] << std::endl;
 		}
 
 		// Load the out file
@@ -103,8 +104,8 @@ bool test1(unsigned testcount)
 			result|= true;
 			std::cout << "failed" << std::endl;
 		}
-		std::cout << "\ntptstr = (" << strs.str().size() << ")\n<quote>" << strs.str() << "</quote>" <<std::endl;
-		std::cout << "\noutstr = (" << outstr.size() << ")\n<quote>" << outstr << "</quote>" <<std::endl;
+//		std::cout << "\ntptstr = (" << strs.str().size() << ")\n<quote>" << strs.str() << "</quote>" <<std::endl;
+//		std::cout << "\noutstr = (" << outstr.size() << ")\n<quote>" << outstr << "</quote>" <<std::endl;
 	}
 
 	return result;

@@ -241,11 +241,12 @@ Token<> Parser::Impl::parse_level6(Token<>& left)
 
 	if (left.type == token_openparen)
 	{
-		left = lex.getstricttoken();
+		left = right;
 		right = parse_level0(left);
 		if (right.type != token_closeparen)
 			recorderror("Syntax error, expected )");
 		else
+			// get token after close paren
 			right = lex.getstricttoken();
 	}
 
