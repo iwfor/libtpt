@@ -6,10 +6,10 @@ default: all
 all: buffertest test1
 
 buffertest: buffertest.cxx
-	${CXX} ${CXXFLAGS} -o $@ buffertest.cxx
+	${CXX} -o $@ buffertest.cxx ${CXXFLAGS}
 
 test1: test1.cxx
-	${CXX} ${CXXFLAGS} -o $@ test1.cxx
+	${CXX} -o $@ test1.cxx ${CXXFLAGS}
 
 clean:
 	rm -f core test1 buffertest
