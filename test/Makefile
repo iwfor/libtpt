@@ -15,4 +15,4 @@ dump: dump.cxx
 	${CXX} -o $@ dump.cxx ${CXXFLAGS}
 
 clean:
-	rm -f core test1 buffertest
+	rm -f core dump test1 buffertest
