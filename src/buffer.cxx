@@ -296,6 +296,23 @@ Buffer::operator bool()
 }
 
 
+/**
+ *
+ * Get the size of the current buffer.  If this is a file or
+ * stream buffer, the size may be smaller than the current file
+ * or stream if the buffer has not been fully filled.
+ *
+ * @param	none
+ * @return	current size of buffer
+ * @author	Isaac W. Foraker
+ *
+ */
+unsigned long Buffer::size()
+{
+	return imp->buffersize;
+}
+
+
 Buffer::Impl::~Impl()
 {
 	delete buffer;

@@ -78,6 +78,8 @@ public:
 	operator bool();
 	/// Index access
 	const char operator[](unsigned long index);
+	/// Current size
+	unsigned long size();
 
 private:
 	struct Impl;
