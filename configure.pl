@@ -54,6 +54,17 @@ use vars qw{$opt_help $opt_bundle $opt_developer $opt_prefix $opt_bindir
 # Possible names for the compiler
 my @cxx_guess = qw(g++ c++ CC cl bcc32);
 
+# Possible names for the library archiver
+# For Solaris, look in
+# /usr/ccs/bin/ar
+# /usr/xpg4/bin/ar
+# $^O == solaris
+
+# Possible names for the linker
+# For Solaris, look in
+# /usr/ucb/ld
+# /usr/ccs/bin/ld
+
 # The current directory
 my $cwd = cwd();
 

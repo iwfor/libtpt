@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 		parser.parse(argc, argv);
 
 		dumptemplate(parser);
-	} catch(const clo::exception& e) {
+	} catch(const clo::option_error& e) {
 		std::cout << e.what() << std::endl;
 	} catch(const std::exception& e) {
 		std::cout << "Exception " << e.what() << std::endl;

@@ -8,8 +8,8 @@ See http://tazthecat.net/~isaac/libtpt/ for documentation.
 
 UNIX
 ----
-If you have multiple C++ compilers in your path, it is a good idea to specify which
-C++ compiler should be used for building LibTPT.
+If you have multiple C++ compilers, it is a good idea to specify which C++
+compiler should be used for building LibTPT.
 
 The configure.pl script reads the CXX environment variable or you can use the
 "--cxx" option to specify where the C++ compiler is.

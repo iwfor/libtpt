@@ -27,7 +27,7 @@
 		</option>
 		<option id="version" type="flag">
 			<name>version</name>
-			<name>v</name>
+			<name>V</name>
 			<comment>Display the version string</comment>
 		</option>
 		<option id="include" type="string" modifier="vector">
