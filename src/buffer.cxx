@@ -263,6 +263,7 @@ const char Buffer::operator[](unsigned long index)
 	return imp->buffer[index];
 }
 
+
 /**
  *
  * Perform a boolean check for availability of data in the buffer.
@@ -285,7 +286,6 @@ Buffer::operator bool()
 {
 	return imp->done;
 }
-
 
 
 Buffer::impl::~impl()

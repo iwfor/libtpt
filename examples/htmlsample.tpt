@@ -1,0 +1,25 @@
+@# This is a sample template
+@include(common.thf)
+@header(${mytitle})
+
+@if (${var} eq "tpt") {	@# TPT example
+	TPTLib snippet:<br>
+	<pre>
+		\@if (boolexp)
+		{
+			# print some stuff
+		}
+	</pre>
+} @else @if (uc(${var}) eq "C") {	@# C example
+	Code snippet:<br>
+	<pre>
+		// This is how we embed the C
+		if (boolexp) {
+			// do some stuff
+		}
+	</pre>
+} @else {	@# Just some text
+	This is var: ${var}
+}
+
+@footer()
