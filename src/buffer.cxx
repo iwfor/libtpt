@@ -12,7 +12,8 @@
 #include <fstream>
 
 namespace {
-	const unsigned DEFAULT_BUFFER_SIZE = 8192;
+	const unsigned BUFFER_SIZE = 1024;
+	const unsigned UNGET_BUFFER_SIZE = 3;
 }
 
 namespace TPTLib {
@@ -27,6 +28,9 @@ struct Buffer::impl {
 	unsigned mBuffercount;	// number of characters in buffer
 	unsigned mBufferindex;
 
+	char mUngetbuffer[UNGET_BUFFER_SIZE];
+	unsigned mUngetindex;
+
 	bool mDone;
 	
 	impl(unsigned bufsize) :
@@ -36,7 +40,8 @@ struct Buffer::impl {
 		mBuffercount(0),
 		mConstbuffer(mBuffer),
 		mBufferindex(0),
-		mFreefstreamwhendone(false)
+		mFreefstreamwhendone(false),
+		mUngetindex(0)
 		{ }
 	impl(const char* buffer, unsigned bufsize) :
 		mDone(!bufsize),	// if zero buffer, then done
@@ -45,7 +50,8 @@ struct Buffer::impl {
 		mBuffercount(bufsize),
 		mConstbuffer(buffer),
 		mBufferindex(0),
-		mFreefstreamwhendone(false)
+		mFreefstreamwhendone(false),
+		mUngetindex(0)
 		{ }
 	~impl();
 	
@@ -66,17 +72,18 @@ struct Buffer::impl {
  */
 Buffer::Buffer(const char* filename)
 {
-	mImpl = new impl(DEFAULT_BUFFER_SIZE);
+	imp = new impl(BUFFER_SIZE);
 
-	mImpl->openfile(filename);
-	mImpl->mFreefstreamwhendone = true;
-	mImpl->readfile();
+	imp->openfile(filename);
+	imp->mFreefstreamwhendone = true;
+	imp->readfile();
 }
 
 
 /**
  *
- * Construct a read buffer for an open fstream.
+ * Construct a read buffer for an open fstream.  The input
+ * fstream will not be closed when Buffer is destructed.
  *
  * @param	filein			input fstream
  * @return	nothing
@@ -85,10 +92,10 @@ Buffer::Buffer(const char* filename)
  */
 Buffer::Buffer(std::fstream* filein)
 {
-	mImpl = new impl(DEFAULT_BUFFER_SIZE);
+	imp = new impl(BUFFER_SIZE);
 
-	mImpl->mFstream = filein;
-	mImpl->readfile();
+	imp->mFstream = filein;
+	imp->readfile();
 }
 
 
@@ -102,7 +109,7 @@ Buffer::Buffer(std::fstream* filein)
  */
 Buffer::Buffer(const char* buffer, int size)
 {
-	mImpl = new impl(buffer, size);
+	imp = new impl(buffer, size);
 }
 
 
@@ -113,14 +120,14 @@ Buffer::Buffer(const char* buffer, int size)
  */
 Buffer::~Buffer()
 {
-	delete mImpl;
+	delete imp;
 }
 
 
 /**
  *
  * Get the next available character from the buffer.  Use
- * Buffer::eof() to determine if more data is available.
+ * operator bool() to determine if more data is available.
  *
  * @param	none
  * @return	next available character;
@@ -130,13 +137,16 @@ Buffer::~Buffer()
  */
 char Buffer::getnextchar()
 {
-	register char c = mImpl->mConstbuffer[mImpl->mBufferindex];
-	++mImpl->mBufferindex;
+	if (imp->mUngetindex)
+		return imp->mUngetbuffer[--imp->mUngetindex];
+
+	register char c = imp->mConstbuffer[imp->mBufferindex];
+	++imp->mBufferindex;
 
 	// If our buffer is empty, try reading from the stream
 	// if there is one.
-	if (mImpl->mBufferindex >= mImpl->mBuffercount)
-		mImpl->readfile();
+	if (imp->mBufferindex >= imp->mBuffercount)
+		imp->readfile();
 
 	return c;
 }
@@ -144,24 +154,30 @@ char Buffer::getnextchar()
 
 /**
  *
- * Check if any more data in buffer.
+ * Put a single character back into the buffer.  A maximum
+ * of three characters may be put back on the buffer at a time.
  *
- * @param	none
- * @return	true if past end of buffer;
- * @return	false if more data available
+ * @param	c			character to put back.
+ * @return	false on success;
+ * @return	true if putback buffer full
  * @author	Isaac W. Foraker
  *
  */
-bool Buffer::eof() const
+bool Buffer::putback(char c)
 {
-	return mImpl->mDone;
+	if (imp->mUngetindex >= UNGET_BUFFER_SIZE)
+		return true;
+
+	imp->mUngetbuffer[imp->mUngetindex];
+	++imp->mUngetindex;
+	return false;
 }
 
 
 /**
  *
  * Reset the buffer index to the beginning of the input buffer.
- * Buffer::eof() will return true if index could not be reset.
+ * operator bool() will return false if index could not be reset.
  *
  * @param	none
  * @return	nothing
@@ -170,14 +186,15 @@ bool Buffer::eof() const
  */
 void Buffer::reset()
 {
-	mImpl->mBufferindex = 0;
-	if (mImpl->mFstream)
+	imp->mBufferindex = 0;
+	imp->mUngetindex = 0;
+	if (imp->mFstream)
 	{
-		mImpl->mFstream->seekg(0);
-		mImpl->readfile();
+		imp->mFstream->seekg(0);
+		imp->readfile();
 	}
 	else
-		mImpl->mDone = !mImpl->mBuffersize;
+		imp->mDone = !imp->mBuffersize;
 }
 
 
@@ -201,8 +218,9 @@ void Buffer::reset()
  */
 Buffer::operator bool()
 {
-	return !mImpl->mDone;
+	return !imp->mDone || imp->mUngetindex;
 }
+
 
 
 Buffer::impl::~impl()
@@ -255,16 +273,6 @@ bool Buffer::impl::readfile()
 
 /**
  *
- * \class Buffer
- *
- * The TPTLib::Buffer class provides a generic way to buffer
- * input from a file, file stream, or existing buffer one
- * character at a time.
- *
- */
-
-/**
- *
  * \example	bufferfile.cxx
  *
  * This is an example of how to use TPTLib::Buffer with a file.
@@ -275,7 +283,7 @@ bool Buffer::impl::readfile()
  *
  * \example	bufferfstream.cxx
  *
- * This is an example of how to use TPTLib::Buffer with a readable fstream.
+ * This is an example of how to use TPTLib::Buffer with an input fstream.
  *
  */
 
