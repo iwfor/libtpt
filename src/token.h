@@ -33,6 +33,8 @@ enum TokenTypes {
 	token_operator,		// + - */ % || && ^^
 	token_relop,		// < <= == != > >=
 	token_include,		// @include
+	token_set,			// @set
+	token_macro,		// @macro
 	token_foreach,		// @foreach
 	token_while,		// @while
 	token_next,			// @next
@@ -40,8 +42,6 @@ enum TokenTypes {
 	token_if,			// @if
 	token_else,			// @else
 	token_empty,		// @empty
-	token_macro,		// @macro
-	token_set,			// @set
 	token_rand,			// @rand
 	token_concat,		// @concat
 };

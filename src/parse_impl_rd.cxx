@@ -1,7 +1,7 @@
 /*
  * parse_impl_rd.cxx
  *
- * The recursive decent part of the parser.  Since all variables
+ * The recursive descent part of the parser.  Since all variables
  * are treated as strings, numeric operations are expensive.
  *
  * $Id$
@@ -67,7 +67,14 @@ void num2str(int64_t value, std::string& str)
 	}
 }
 
-// Level 0: () {}
+/*
+ * The recursive descent parser will attempt to parse an expression
+ * until it reaches a token it does not recognize.  The final token
+ * will usually be a comma ',', or close parenthesis ')'.
+ *
+ */
+
+// Level 0: Get things rolling
 Token<> Parser::Impl::parse_level0(Token<>& left)
 {
 	if (left.type == token_eof)
@@ -238,12 +245,49 @@ Token<> Parser::Impl::parse_level6(Token<>& left)
 	return right;
 }
 
-// Level 7: integer string id
+// Level 7: literals $id @macro
 Token<> Parser::Impl::parse_level7(Token<>& left)
 {
-	if (left.type == token_id)
+	switch (left.type) {
+	case token_id:
 		left.value = symbols.get(left.value);
-	left.type = token_string;	// id and integer are now string
+		left.type = token_string;
+		break;
+	case token_integer:
+		left.type = token_string;
+		break;
+	case token_include:
+	case token_macro:
+	case token_set:
+	case token_if:
+	case token_else:
+	case token_foreach:
+	case token_while:
+	case token_next:
+	case token_last:
+		{
+			std::string err(left.value);
+			err+= " not allowed in expression";
+			recorderror(err);
+		}
+		break;
+	case token_empty:
+		// TODO
+		break;
+	case token_rand:
+		// TODO
+		break;
+	case token_usermacro:
+		// TODO
+		break;
+	case token_concat:
+		// TODO
+		break;
+	case token_string:
+		// string is okay
+	default:
+		break;
+	}
 
 	return lex.getstricttoken();
 }
