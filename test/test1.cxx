@@ -55,6 +55,7 @@ int main(int argc, char* argv[])
 bool test1(unsigned testcount)
 {
 	TPTLib::SymbolTable sym;
+	TPTLib::ErrorList errlist;
 	bool result = false;
 
 	sym["var"] = "this is the value of var";
@@ -80,6 +81,11 @@ bool test1(unsigned testcount)
 		std::stringstream strs(tptstr);
 		p.run(strs);
 
+		if (errlist.size())
+		{
+			std::cout << "Errors!" << std::endl;
+		}
+
 		// Load the out file
 		TPTLib::Buffer outbuf(outfile);
 		std::string outstr;
@@ -96,8 +102,8 @@ bool test1(unsigned testcount)
 			result|= true;
 			std::cout << "failed" << std::endl;
 		}
-//		std::cout << "\ntptstr = (" << strs.str().size() << ")\n<quote>" << strs.str() << "</quote>" <<std::endl;
-//		std::cout << "\noutstr = (" << outstr.size() << ")\n<quote>" << outstr << "</quote>" <<std::endl;
+		std::cout << "\ntptstr = (" << strs.str().size() << ")\n<quote>" << strs.str() << "</quote>" <<std::endl;
+		std::cout << "\noutstr = (" << outstr.size() << ")\n<quote>" << outstr << "</quote>" <<std::endl;
 	}
 
 	return result;

@@ -120,15 +120,15 @@ Token<> Lex::getstricttoken()
 	char c;
 	Buffer& buf = imp->buf;	// I'm lazy, and don't like typing imp->buf
 
-	if (!(c = imp->safeget(buf)))
-	{
-		t.type = token_eof;	
-		return t;
-	}
-
 	// strict tokens skip white-spaces
 	while (t.type == token_whitespace)
 	{
+		if (!(c = imp->safeget(buf)))
+		{
+			t.type = token_eof;	
+			return t;
+		}
+
 		t.value = c;
 
 		switch (c) {
@@ -160,7 +160,9 @@ Token<> Lex::getstricttoken()
 		// Handle whitespace
 		case ' ':
 		case 255:
-		case '\t': t.type = token_whitespace; return t;
+		case '\t':
+			t.type = token_whitespace;
+			break;
 		// Handle new lines
 		case '\n':
 			t.type = token_whitespace;
@@ -441,7 +443,7 @@ void Lex::Impl::getstring(Token<>& t, Buffer& buf)
 	}
 	if (!c)
 		t.type = token_error;
-	std::cout << "<string = '" << t.value << "'/>" << std::endl;
+//	std::cout << "<string = '" << t.value << "'/>" << std::endl;
 }
 
 void Lex::Impl::buildtoken(std::string& value, Buffer& buf,

@@ -77,6 +77,7 @@ void num2str(int64_t value, std::string& str)
 // Level 0: Get things rolling
 Token<> Parser::Impl::parse_level0(Token<>& left)
 {
+std::cout << "<level0>" << left.value;
 	if (left.type == token_eof)
 	{
 		recorderror("Unexpected end of file");
@@ -85,13 +86,15 @@ Token<> Parser::Impl::parse_level0(Token<>& left)
 
 	Token<> right = parse_level1(left);
 
+std::cout << "/<level0>" << std::endl;
 	return right;
 }
 
 // Level 1: && || ^^
 Token<> Parser::Impl::parse_level1(Token<>& left)
 {
-	Token<> op = parse_level4(left);
+std::cout << "<level1>" << left.value;
+	Token<> op = parse_level2(left);
 
 	while ((op.type == token_operator) &&
 		((op.value == "&&") ||
@@ -113,13 +116,15 @@ Token<> Parser::Impl::parse_level1(Token<>& left)
 		op = lex.getstricttoken();
 	}
 
+std::cout << "/<level1>";
 	return op;
 }
 
 // Level 2: == != < > <= >=
 Token<> Parser::Impl::parse_level2(Token<>& left)
 {
-	Token<> op = parse_level4(left);
+std::cout << "<level2>" << left.value;
+	Token<> op = parse_level3(left);
 
 	while (op.type == token_relop)
 	{
@@ -144,12 +149,14 @@ Token<> Parser::Impl::parse_level2(Token<>& left)
 		op = lex.getstricttoken();
 	}
 
+std::cout << "</level2>";
 	return op;
 }
 
 // Level 3: + -
 Token<> Parser::Impl::parse_level3(Token<>& left)
 {
+std::cout << "<level3>" << left.value;
 	Token<> op = parse_level4(left);
 
 	while ((op.type == token_operator) &&
@@ -163,19 +170,25 @@ Token<> Parser::Impl::parse_level3(Token<>& left)
 		{
 		case '+':
 			lwork+= rwork;
+std::cout << "+";
+			break;
 		case '-':
+std::cout << "-";
 			lwork-= rwork;
+			break;
 		}
 		num2str(lwork, left.value);
 		// read the next operator/terminator
 		op = lex.getstricttoken();
 	}
+std::cout << "</level3>";
 	return op;
 }
 
 // Level 4: * / %
 Token<> Parser::Impl::parse_level4(Token<>& left)
 {
+std::cout << "<level4>" << left.value;
 	Token<> op = parse_level5(left);
 
 	while ((op.type == token_operator) &&
@@ -190,22 +203,27 @@ Token<> Parser::Impl::parse_level4(Token<>& left)
 		{
 		case '*':
 			lwork*= rwork;
+			break;
 		case '/':
 			lwork/= rwork;
+			break;
 		case '%':
 			lwork%= rwork;
+			break;
 		}
 		num2str(lwork, left.value);
 		// read the next operator/terminator
 		op = lex.getstricttoken();
 	}
 
+std::cout << "</level4>";
 	return op;
 }
 
 // Level 5: + - ! (unary operators)
 Token<> Parser::Impl::parse_level5(Token<>& left)
 {
+std::cout << "<level5>" << left.value;
 	Token<> right;
 	if ((left.type == token_operator) &&
 		((left.value[0] == '+') || (left.value[0] == '-') ||
@@ -222,15 +240,19 @@ Token<> Parser::Impl::parse_level5(Token<>& left)
 		num2str(work, left.value);
 	}
 	else
-		right = lex.getstricttoken();
+		right = parse_level6(left);
+//		right = lex.getstricttoken();
 
+std::cout << "</level5>";
 	return right;
 }
 
 // Level 6: ( )
 Token<> Parser::Impl::parse_level6(Token<>& left)
 {
+std::cout << "<level6>" << left.value;
 	Token<> right = parse_level7(left);
+	std::cout << "right = " << right.value;
 
 	if (left.type == token_openparen)
 	{
@@ -242,18 +264,22 @@ Token<> Parser::Impl::parse_level6(Token<>& left)
 			right = lex.getstricttoken();
 	}
 
+std::cout << "</level6>";
 	return right;
 }
 
 // Level 7: literals $id @macro
 Token<> Parser::Impl::parse_level7(Token<>& left)
 {
+std::cout << "<level7>" << left.value;
 	switch (left.type) {
 	case token_id:
+		std::cout << "<id>" << left.value << "</id>" << std::endl;
 		left.value = symbols.get(left.value);
 		left.type = token_string;
 		break;
 	case token_integer:
+		std::cout << "<integer>" << left.value << "</integer>" << std::endl;
 		left.type = token_string;
 		break;
 	case token_include:
@@ -284,11 +310,14 @@ Token<> Parser::Impl::parse_level7(Token<>& left)
 		// TODO
 		break;
 	case token_string:
+		std::cout << "<string>" << left.value << "</string>" << std::endl;
 		// string is okay
+		break;
 	default:
 		break;
 	}
 
+std::cout << "</level7>";
 	return lex.getstricttoken();
 }
 
