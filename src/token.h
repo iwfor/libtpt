@@ -41,9 +41,12 @@ enum TokenTypes {
 	token_last,			// @last
 	token_if,			// @if
 	token_else,			// @else
+
 	token_empty,		// @empty
 	token_rand,			// @rand
 	token_concat,		// @concat
+	token_length,		// @length
+	token_count,		// @count
 };
 
 template<typename E=TokenTypes> struct Token {

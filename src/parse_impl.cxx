@@ -29,7 +29,7 @@ bool Parser::Impl::pass1(std::ostream* os)
 }
 
 
-void Parser::Impl::parse_block(std::ostream* os, bool istop)
+void Parser::Impl::parse_block(std::ostream* os, bool istop, bool isloop)
 {
 //	int x = rand() % 100;
 	if (!istop)
@@ -97,6 +97,14 @@ void Parser::Impl::parse_block(std::ostream* os, bool istop)
 		// Concatenate some variables, but is this needed raw?
 		case token_concat:
 			tok = parse_concat();
+			*os << tok.value;
+			break;
+		case token_length:
+			tok = parse_length();
+			*os << tok.value;
+			break;
+		case token_count:
+			tok = parse_count();
 			*os << tok.value;
 			break;
 		case token_usermacro:

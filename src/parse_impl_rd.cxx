@@ -268,10 +268,22 @@ Token<> Parser::Impl::parse_level7(Token<>& left)
 		left = parse_rand();
 		break;
 	case token_usermacro:
-		// TODO
+		// TEST
+		{
+			std::stringstream tempstr;
+			user_macro(tok.value, &tempstr);
+			left.value = tempstr.str();
+			left.type = token_string;
+		}
 		break;
 	case token_concat:
 		left = parse_concat();
+		break;
+	case token_length:
+		left = parse_length();
+		break;
+	case token_count:
+		left = parse_count();
 		break;
 	case token_string:
 		// string is okay

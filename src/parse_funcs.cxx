@@ -6,6 +6,7 @@
  */
 
 #include "parse_impl.h"
+#include "ttypes.h"
 
 #include <algorithm>
 #include <sstream>
@@ -148,6 +149,74 @@ Token<> Parser::Impl::parse_concat()
 			result.value+= (*it);
 	}
 
+	return result;
+}
+
+/*
+ * Get length of string.
+ *
+ */
+Token<> Parser::Impl::parse_length()
+{
+	ParamList pl;
+	Token<> result;
+	result.type = token_string;
+	if (getparamlist(pl))
+		return result;
+
+	int64_t lwork=0;
+
+	if (pl.size() != 1)
+		recorderror("@length takes one parameter");
+	else
+		lwork = pl[0].size();
+	num2str(lwork, result.value);
+	return result;
+}
+
+/*
+ * Return number of words in a string, separated
+ * by spaces.
+ *
+ */
+Token<> Parser::Impl::parse_count()
+{
+	ParamList pl;
+	Token<> result;
+	result.type = token_string;
+	if (getparamlist(pl))
+		return result;
+
+	int64_t lwork=0;
+
+	if (!pl.empty())
+	{
+		if (pl.size() != 1)
+			recorderror("@length takes one parameter");
+		bool inword(false);
+		std::string::const_iterator it(pl[0].begin()),
+			end(pl[0].end());
+		for (; it != end; ++it)
+		{
+			if (inword)
+			{
+				if ((*it) == ' ' && (*it) == '\t' &&
+					(*it) == '\r' && (*it) == '\n')
+					inword = false;
+			}
+			else
+			{
+				if ((*it) != ' ' && (*it) != '\t' &&
+					(*it) != '\r' && (*it) != '\n')
+				{
+					inword = true;
+					++lwork;
+				}
+			}
+		} // for
+	}
+
+	num2str(lwork, result.value);
 	return result;
 }
 

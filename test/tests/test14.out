@@ -1,0 +1,17 @@
+Main Body
+vara=Old Var A
+varb=Old Var B
+varc=Old Var C
+mymac2()
+varc=New Var C
+varb=New Var B
+vara=New Var A
+mymac1()
+vara=New Var A
+varb=New Var B
+varc=New Var C
+Main Body
+vara=Old Var A
+varb=Old Var B
+varc=Old Var C
+

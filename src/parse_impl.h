@@ -83,8 +83,10 @@ struct Parser::Impl {
 
 	Token<> parse_empty();
 	Token<> parse_concat();
+	Token<> parse_length();
+	Token<> parse_count();
 
-	void parse_block(std::ostream* os, bool istop=false);
+	void parse_block(std::ostream* os, bool istop=false, bool isloop=false);
 	void parse_include(std::ostream* os);
 	void parse_if(std::ostream* os);
 	void parse_set();
