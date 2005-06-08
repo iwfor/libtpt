@@ -152,11 +152,8 @@ CXX environment variable.
 EOT
 		exit;
 	}
-} else {
-	if (not -e $opt_cxx) {
-		print "ERROR The C++ compiler does not appear to be valid: $opt_cxx\n";
-		exit;
-	}
+}
+else {
 	print "Using C++ compiler... $opt_cxx\n";
 }
 $ENV{'CXX'} = $opt_cxx;		# This will be passed into mkmf
