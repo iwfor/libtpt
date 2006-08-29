@@ -1,0 +1,440 @@
+<appendix id="tpt-reference">
+	<title>TPT Reference</title>
+
+	<!-- PREPROCESSOR STUFF -->
+	<sect1 id="tpt-preprocessor">
+		<title>Preprocessor control</title>
+		<para>
+The following functions affect the flow of the Lexical Analyzer, and are never parsed.
+		</para>
+		<sect2 id="tpt-preproc-comment">
+			<title>@# comment</title>
+			<para>
+Ignore everything until the end of the line.  If the comment is the first item
+on the line, the entire line will be ignored.
+			</para>
+			<programlisting>
+@# This is a whole line comment, so this line will be ignored
+	@# This is not
+
+@mymacro(a, b, c)	@# describe my macro
+</programlisting>
+		</sect2>
+		<sect2 id="tpt-preproc-ignoreindent">
+			<title>@tpt_ignoreindent, @tpt_noignoreindent</title>
+			<para>
+When @tpt_ignoreindent is called (with no parenthesis), all indentation on the
+following lines will be ignored.  Use @tpt_noignoreindent to stop ignoring
+indentation.
+			</para>
+			<programlisting>
+@itpt_ignoreindent\
+	@if (x) {
+		Four score and seven years ago...
+	} @else {
+		We the people of the United States...
+	}
+</programlisting>
+			<para>
+Note: @ignoreindent and @noignoreindent are depricated.
+			</para>
+		</sect2>
+		<sect2 id="tpt-preproc-ignoreblankline">
+			<title>@tpt_ignoreblankline, @tpt_noignoreblankline</title>
+			<para>
+When @tpt_ignoreblankline is called (with no parenthesis), any line with no content
+(including white-space) will be ignored.
+			</para>
+			<programlisting>
+@tpt_ignoreblankline\
+@macro1() {...}
+
+@macro2() {...}
+
+@macro3() {...}
+
+@tpt_noignoreblankline
+</programlisting>
+			<para>
+Note: @ignoreblankline and @noignoreblankline are depricated.
+			</para>
+		</sect2>
+		<sect2 id="tpt-preprocessor-ignorespace">
+			<title>@&lt;, @&gt;</title>
+			<para>
+The ignore space operators instruct the lexical analyzer to ignore any space
+preceding @&lt;, or any space following @&gt;.
+			</para>
+			<programlisting>
+@# ignore spaces after @&gt;
+@&gt;	This should be flush to the left
+@# ignore spaces before @&lt;
+	@&lt;This should be flush to the left
+</programlisting>
+		</sect2>
+		<sect2 id="tpt-include">
+			<title>@include</title>
+			<para>
+Include and parse a TPT header file, usually a filename ending in .tph.
+			</para>
+			<programlisting>
+@include("macros.tph")\
+@include('heading.tph')\
+			</programlisting>
+		</sect2>
+		<sect2 id="tpt-includetext">
+			<title>@includetext</title>
+			<subtitle>(1.20+)</subtitle>
+			<para>
+Include a raw text file without parsing.  This is useful when including some kind of raw
+statement, like a license agreement.
+			</para>
+			<programlisting>
+@includetext("license.txt")\
+			</programlisting>
+		</sect2>
+	</sect1>
+
+	<!-- SETTING VARIABLES -->
+	<sect1 id="tpt-set-functions">
+		<title>Setting Variables</title>
+		<sect2 id="tpt-set">
+			<title>@set</title>
+			<para>
+Assign a value or values to a variable.
+			</para>
+			<programlisting>
+@set(<emphasis>identifier</emphasis>, <emphasis>expression</emphasis>)
+</programlisting>
+			<programlisting>
+@set(<emphasis>identifier</emphasis>, <emphasis>expression1</emphasis>, <emphasis>expression2</emphasis>, ...)
+</programlisting>
+		</sect2>
+		<sect2 id="tpt-setif">
+			<title>@setif</title>
+			<para>
+Assign a value or values to a variable only if the variable is empty.
+			</para>
+			<programlisting>
+@set(<emphasis>identifier</emphasis>, <emphasis>expression</emphasis>)
+</programlisting>
+			<programlisting>
+@set(<emphasis>identifier</emphasis>, <emphasis>expression1</emphasis>, <emphasis>expression2</emphasis>, ...)
+</programlisting>
+		</sect2>
+		<sect2 id="tpt-unset">
+			<title>@unset</title>
+			<para>
+Clear a variable.
+			</para>
+			<programlisting>
+@unset(<emphasis>identifier</emphasis>)
+</programlisting>
+		</sect2>
+		<sect2 id="tpt-push">
+			<title>@push</title>
+			<para>
+Push a value onto the back of an array.
+			</para>
+			<programlisting>
+@push(<emphasis>identifier</emphasis>, <emphasis>expression</emphasis>)
+</programlisting>
+		</sect2>
+		<sect2>
+			<title>@pop</title>
+			<para>
+Pop a value off the back of an array.
+			</para>
+			<programlisting>
+@pop(<emphasis>target identifier</emphasis>, <emphasis>array identifier</emphasis>)
+</programlisting>
+		</sect2>
+	</sect1>
+
+	<!-- CONDITIONAL PARSING -->
+	<sect1 id="tpt-conditionals">
+		<title>Conditional Parsing</title>
+		<sect2 id="tpt-if-else">
+			<title>@if/@elsif/@else</title>
+			<para>
+Perform conditional processing.
+			</para>
+			<programlisting>
+@if (<emphasis>expression</emphasis>) {
+	<emphasis>conditional block</emphasis>
+} @elsif (<emphasis>expression</emphasis>) {
+	<emphasis>conditional block</emphasis>
+} @elsif (<emphasis>expression</emphasis>) {
+	<emphasis>conditional block</emphasis>
+} @else {
+	<emphasis>conditional block</emphasis>
+}
+</programlisting>
+		</sect2>
+	</sect1>
+
+	<!-- LOOPS -->
+	<sect1 id="tpt-loops">
+		<title>Loops</title>
+		<sect2 id="tpt-while">
+			<title>@while</title>
+			<para>
+				Loop over a block of code while the loop expression is true.
+			</para>
+			<programlisting>
+@while (<emphasis>expression</emphasis>) {
+	<emphasis>loop block</emphasis>
+}
+</programlisting>
+		</sect2>
+		<sect2 id="tpt-foreach">
+			<title>@foreach</title>
+			<para>
+				Loop over an array, assigning the value of the current index to
+				the specified identifier on each iteration.
+			</para>
+			<programlisting>
+@foreach <emphasis>identifier</emphasis> (<emphasis>array</emphasis>) {
+	<emphasis>loop block</emphasis>
+}
+</programlisting>
+		</sect2>
+	</sect1>
+
+	<!-- STRING FUNCTIONS -->
+	<sect1 id="tpt-string-functions">
+		<title>String Functions</title>
+		<sect2 id="tpt-compare">
+			<title>@compare, @comp, @strcmp</title>
+			<para>
+Compare two strings, giving -1 if string1 is less than string2, 0 if string1 is
+equal to string2, or 1 if string1 is greater than string 2.  @comp and @strcmp
+are aliases for @compare.
+			</para>
+		</sect2>
+		<sect2 id="tpt-concat">
+			<title>@concat</title>
+			<para>
+Concatenate a list of strings together, and return the new string.
+			</para>
+			<programlisting>
+@set(newstring, @concat("prefix", "suffix"))
+</programlisting>
+		</sect2>
+		<sect2 id="tpt-substr">
+			<title>@substr</title>
+			<para>
+Get a substring of the given string.
+			</para>
+			<programlisting>
+@# Extract one character from the alphabet
+@set(x, "abcdefghijklmnopqrstuvwxyz")\
+@set(i, 9)\
+@substr(x, i, 1)
+</programlisting>
+			<para>
+This sample will return "j" from the x symbol.
+			</para>
+		</sect2>
+		<sect2 id="tpt-length">
+			<title>@length</title>
+			<para>
+Give the length of the given string.
+			</para>
+			<programlisting>
+@if (@length(x) > 80) {
+	x is too long
+}
+</programlisting>
+		</sect2>
+		<sect2 id="tpt-empty">
+			<title>@empty</title>
+			<para>
+Return 1 if string is empty or 0 if string is not empty.  If given a hash or
+array, @empty will report an error and return nothing.
+			</para>
+			<programlisting>
+@if (@empty(x)) {
+	@set(x, "[empty]")\
+}
+</programlisting>
+		</sect2>
+		<sect2 id="tpt-lc">
+			<title>@lc</title>
+			<para>
+Give the lowercase version of the given string.
+			</para>
+			<programlisting>
+@if (@compare(@lc(x), "foo")) {
+	x is not foo
+}
+</programlisting>
+		</sect2>
+		<sect2 id="tpt-uc">
+			<title>@uc</title>
+			<para>
+Give the uppercase version of the given string.
+			</para>
+			<programlisting>
+@if (@compare(@uc(x), "FOO")) {
+	x is not FOO
+}
+</programlisting>
+		</sect2>
+		<sect2 id="tpt-lpad">
+			<title>@lpad</title>
+			<subtitle>(1.10+)</subtitle>
+			<para>
+Pad the left side of the specified string with spaces until the string is the
+specified width.  If the string is already greater than or equal to the
+specified width, @lpad simply returns the original string.
+			</para>
+			<programlisting>
+@lpad(string, width)
+</programlisting>
+		</sect2>
+		<sect2 id="tpt-rpad">
+			<title>@rpad</title>
+			<subtitle>(1.10+)</subtitle>
+			<para>
+Pad the right side of the specified string with spaces until the string is the
+specified width.  If the string is already greater than or equal to the
+specified width, @rpad simply returns the original string.
+			</para>
+			<programlisting>
+@rpad(string, width)
+</programlisting>
+		</sect2>
+		<sect2 id="tpt-repeat">
+			<title>@repeat</title>
+			<subtitle>(1.20+)</subtitle>
+			<para>
+				Repeat the specified text or expression the specified number of
+				times.  Any repeat value of 0 or less will produce nothing.
+			</para>
+			<programlisting>
+@# Fill the next line with a solid line of dashes
+@repeat("-", 80)
+			</programlisting>
+		</sect2>
+	</sect1>
+
+	<!-- MATH FUNCTIONS -->
+	<sect1 id="tpt-math-functions">
+		<title>Math Functions</title>
+		<sect2 id="tpt-avg">
+			<title>@avg</title>
+			<para>
+Get the average of the specified list of integers.  Numbers may be passed as
+part of an array, or individually as parameters.  The result will be returned
+as a truncated integer (i.e. the result will always be rounded down).
+			</para>
+			<programlisting>
+@set(numlist, 1, 2, 3)\
+@avg(numlist)
+@avg(1, 2, 3)
+</programlisting>
+		</sect2>
+		<sect2 id="tpt-sum">
+			<title>@sum</title>
+			<para>
+Get the sum of the specified list of integers.  Numbers may be passed as part
+of an array, or individually as parameters.
+			</para>
+			<programlisting>
+@set(numlist, 1, 2, 3)\
+@sum(numlist)
+@sum(1, 2, 3)
+</programlisting>
+		</sect2>
+	</sect1>
+
+	<!-- ARRAY FUNCTIONS -->
+	<sect1 id="tpt-array-functions">
+		<title>Array Functions</title>
+		<sect2 id="tpt-isarray">
+			<title>@isarray</title>
+			<para>
+Check a variable to see if it holds an array.  Gives 1 if the variable is
+array, or 0 if the variable holds a different type or is not defined.
+			</para>
+			<programlisting>
+@if (@isarray(x)) {
+	x is an array
+}
+</programlisting>
+		</sect2>
+		<sect2 id="tpt-size">
+			<title>@size</title>
+			<para>
+Get the size of an array.  Given a scalar, @size will return 0 if the scalar
+is an empty string (i.e. "").  Given a hash, @size will return the number of
+keys and values in the hash.  So, a hash with 2 keys will have a size of 4.
+			</para>
+			<para>
+When given multiple parameters, @size will return the sum of the sizes of all
+parameters.  
+			</para>
+			<para>
+@size is not recursive.  The sum returned by @size will not include the sizes of
+sub-arrays or hashes.
+			</para>
+		</sect2>
+	</sect1>
+
+	<!-- HASH FUNCTIONS -->
+	<sect1 id="tpt-hash-functions">
+		<title>Hash Functions</title>
+		<sect2 id="tpt-ishash">
+			<title>@ishash</title>
+			<para>
+Check a variable to see if it holds a hash.  Gives 1 if the variable is a hash,
+or 0 if the variable holds a different type or is not defined.
+			</para>
+			<programlisting>
+@if (@ishash(x)) {
+	x is a hash
+}
+</programlisting>
+		</sect2>
+		<sect2 id="tpt-keys">
+			<title>@keys</title>
+			<para>
+Populate the specified array (parameter 1) with the keys from the specified
+hash (parameter 2).
+			</para>
+			<programlisting>
+@keys(keylist, myhash)\
+@foreach key (keylist) {
+	${key} = ${myhash.${key}}
+}
+</programlisting>
+		</sect2>
+	</sect1>
+
+	<!-- GENERAL FUNCTIONS -->
+	<sect1 id="tpt-general-functions">
+		<title>General Functions</title>
+		<sect2 id="tpt-eval">
+			<title>@eval</title>
+			<para>
+Evaluate the given expression and give the result of the evaluation.
+			</para>
+			<programlisting>
+The sum is @eval(x+y+z).
+			</programlisting>
+		</sect2>
+		<sect2 id="tpt-rand">
+			<title>@rand</title>
+			<para>
+Give a pseudorandom 32-bit integer.  @rand can be given a modulus to reduce its
+range.  For example @rand(10) will return a number between 0 and 9.
+			</para>
+			<programlisting>
+@set(x, @rand())
+	or
+@set(x, @rand(<emphasis>modulus</emphasis>))
+</programlisting>
+		</sect2>
+	</sect1>
+</appendix>

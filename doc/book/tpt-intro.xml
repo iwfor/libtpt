@@ -1,0 +1,267 @@
+<chapter id="tpt-language">
+	<title>The TPT template language</title>
+	<para>
+		This introduction to the TPT template language is intended for users
+		who are already familiar with programming.  If you are not familiar
+		with the concepts of numbers, strings, arrays, functions, and
+		expressions, you may want to read an introductory level programming
+		book.
+	</para>
+
+	<!-- A QUICK SAMPLE -->
+	<sect1 id="tpt-quick-sample">
+		<title>A quick sample</title>
+		<example>
+			<title>helloworld.tpt</title>
+			<blockquote>
+				<programlisting>
+@set(hello_world, "Hello World!")\
+@# Output Hello World or the value of ${hello_world} if it is set
+@if (@empty(hello_world)) {
+Hello World!
+} @else {
+${hello_world}
+}
+</programlisting>
+			</blockquote>
+		</example>
+	</sect1>
+
+	<!-- RESERVED CHARACTERS -->
+	<sect1 id="tpt-reserved">
+		<title>Reserved Characters</title>
+		<para>
+			TPT reserves the following characters.
+		</para>
+		<blockquote>
+			<para>
+				@ { } " ' \
+			</para>
+		</blockquote>
+		<para>
+			To use one of these characters in text, use the backslash (\) escape
+			character.  For example, \\ in TPT will evaluate to a single \.  Not
+			escaping these reserved characters can lead to undesirable effects.
+		</para>
+	</sect1>
+
+	<!-- VARIABLES -->
+	<sect1 id="tpt-variables">
+		<title>Variables</title>
+		<para>
+			Variables are objects that hold values.  In TPT, a variable may
+			hold a value of type integer, string, array of values, or hash
+			of values.
+		</para>
+		<para>
+			A variable in TPT is identified in plain-text as
+			<emphasis>${id}</emphasis> and in an expression as just
+			<emphasis>id</emphasis>, where id is the name of the variable.
+			The value of a variable is set using the @set TPT command.
+		</para>
+		<blockquote>
+			<para>
+				@set(<emphasis>id</emphasis>, 123)
+			</para>
+		</blockquote>
+		<blockquote>
+			<para>
+				@set(<emphasis>id</emphasis>, "The red fox runs.")
+			</para>
+		</blockquote>
+		<para>
+			A variable may also be cleared using the @unset TPT command.
+		</para>
+		<blockquote>
+			<para>
+				@unset(<emphasis>id</emphasis>)
+			</para>
+		</blockquote>
+		<para>
+			See <xref linkend="apple-basket"/> for an example of how variables
+			may be used in a template.
+		</para>
+		<example id="apple-basket">
+			<title>Contents of a fruit basket</title>
+			<blockquote>
+				<title>Listing of fruitbasket.tpt</title>
+				<programlisting>
+@set(fruit, "Apple")
+@set(basket, 12)
+The basket holds ${basket} ${fruit}s.
+</programlisting>
+		</blockquote>
+		<blockquote>
+			<title>Output of fruitbasket.tpt</title>
+			<programlisting>
+
+
+The basket holds 12 Apples.
+</programlisting>
+			</blockquote>
+		</example>
+		<para>
+			Variables can also hold more complex values, such as arrays or
+			hashes.  Array variables look like,
+		</para>
+		<blockquote>
+			<para>
+				${array[<emphasis>index</emphasis>]}
+			</para>
+		</blockquote>
+		<para>
+			and hashes look like,
+		</para>
+		<blockquote>
+			<para>
+				${array.<emphasis>member</emphasis>}
+			</para>
+		</blockquote>
+		<para>
+			In arrays, the index can be either a number or an expression that
+			evaluates to a number.  <xref linkend="fruit-basket"/> demonstrates
+			how to set a variable to an array, then read the variable.
+		</para>
+		<example id="fruit-basket">
+			<title>A fruit basket array</title>
+			<blockquote>
+				<title>Listing of fruity.tpt</title>
+				<programlisting>
+@set(basket, "apple", "orange", "lime", "banana", "pear")\
+The fruit basket contains \
+@foreach fruit (basket) { ${fruit} }.
+</programlisting>
+			</blockquote>
+			<blockquote>
+				<title>Output of fruity.tpt</title>
+				<programlisting>
+The fruit basket contains apple orange lime banana pear .
+</programlisting>
+			</blockquote>
+		</example>
+		<para>
+			Note the use of spaces in this example.  Backslashes are used to
+			join lines.  For more details about controlling whitespace and
+			carriage returns, see <xref linkend="tpt-space"/>.
+		</para>
+		<para>
+			<xref linkend="random-fruit"/> demonstrates how to use an array index
+			in a creative fashion.
+		</para>
+		<example id="random-fruit">
+			<title>Random array index</title>
+			<blockquote>
+				<title>Listing of randfruit.tpt</title>
+				<programlisting>
+@set(basket, "apple", "orange", "lime", "banana", "pear")\
+The fruit of the day is ${basket[@rand(@size(basket))]}.
+</programlisting>
+			</blockquote>
+			<blockquote>
+				<title>Possible output of randfruit.tpt</title>
+				<programlisting>
+The fruit of the day is banana.
+</programlisting>
+			</blockquote>
+		</example>
+		<para>
+			To determine the type of variable, use @isarray, @isscalar, and
+			@ishash.
+		</para>
+	</sect1>
+
+	<!-- COMMENTS -->
+	<sect1 id="tpt-comments">
+		<title>Comments</title>
+		<para>
+			Comments are denoted by the @# (at-pound) symbols.  TPT only
+			supports to end-of-line comments.  I.e. everything on the line
+			following @# is a part of the comment.
+		</para>
+		<blockquote>
+			<programlisting>
+Hello World!	@# This is the Hello World Comment.
+</programlisting>
+		</blockquote>
+		<para>
+			In the above example, everything after <emphasis>Hello
+			World!</emphasis> will be ignored by the TPT parser, including the
+			whitespace.  Comments affect whitespace depending on use.  All
+			whitespace immediately preceeding a comment is ignored.  In the case
+			of a full line comment,
+		</para>
+		<blockquote>
+			<programlisting>
+@# This is a full line comment
+	@# This is not
+</programlisting>
+		</blockquote>
+		<para>
+			the entire line, including carriage returns, is ignored.  In order
+			to be classified as a full line comment, @# must be the very first
+			characters on the line.  Preceding the @# with whitespace will only
+			cause the whitespace and comment to be ignored.  This is useful if
+			you need to insert a certain number of blank lines into a template.
+		</para>
+		<blockquote>
+			<programlisting>
+@# Insert some blank lines
+	@# blank line 1
+	@# blank line 2
+	@# blank line 3
+	@# blank line 4
+	@# blank line 5
+</programlisting>
+		</blockquote>
+	</sect1>
+
+	<!-- EXPRESSIONS -->
+	<sect1 id="tpt-expressions">
+		<title>Expressions</title>
+		<para>
+			Expressions in TPT can only be executed when placed inside a TPT
+			wrapper like a function, macro, array [], loop, or conditional
+			expression.  TPT employs a full Recursive Descent parser, so complex
+			infix expressions are supported.  Use <link
+			linkend="tpt-eval">@eval</link> to evaluate an expression in text.
+		</para>
+	</sect1>
+
+	<!-- WHITESPACE & CARRIAGE RETURNS -->
+	<sect1 id="tpt-space">
+		<title>Whitespace &amp; Carriage Returns</title>
+		<para>
+			Since the primary purpose of TPT is to format templates into text,
+			controls are provided to remove whitespace and carriage returns.
+			Using a backslash (\) at the end of a line will join lines.  Any
+			whitespace before @&lt; will be ignored, and any whitespace after @&gt;
+			will also be ignored.
+		</para>
+	</sect1>
+
+	<!-- MACROS -->
+	<sect1 id="tpt-macros">
+		<title>Macros</title>
+		<para>
+			Macros are a powerful feature of TPT.  User defined Macros in TPT
+			are very similar to user defined functions or subroutines in other
+			languages.  A macro must be defined before it is used.  A macro
+			definition looks like:
+		</para>
+		<blockquote>
+			<programlisting>
+@macro(mymacro, param1, param2, ...) {
+	<emphasis>macro body</emphasis>
+}
+</programlisting>
+		</blockquote>
+		<para>
+			To access this macro once its defined would look like:
+		</para>
+		<blockquote>
+			<programlisting>
+@mymacro(param1, param2, ...)
+</programlisting>
+		</blockquote>
+	</sect1>
+</chapter>

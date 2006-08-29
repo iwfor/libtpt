@@ -1,0 +1,40 @@
+<appendix id="tpt-cli">
+	<title>TPT Command Line Interface</title>
+
+	<sect1 id="cli-description">
+		<title>CLI Description</title>
+		<para>
+			The LibTPT Comand Line Interface (CLI) provides a simple platform
+			for testing templates.  The CLI has basic support for generating
+			web pages on-the-fly.  However, to get the full power of LibTPT,
+			you must compile an application specific to your requirements.
+		</para>
+	</sect1>
+	<sect1 id="cli-options">
+		<title>Command Line Options</title>
+		<programlisting>
+--cgiheader           Print a basic CGI header
+-C, --check           Perform syntax checking only
+-D string             Set the value of a variable
+-I, --include string  Specify an alternate include directory
+-V, --version         Display the version string
+-c, --console         Read template from the standard input
+-w, --warnings        Enable error reporting
+		</programlisting>
+	</sect1>
+	<sect1 id="cli-web">
+		<title>TPT CLI and CGI</title>
+		<para>
+			The CLI has basic support for being called to generate web pages.
+			It does not support all of CGI (Common Gateway Interface), but it
+			can print an HTTP header.
+		</para>
+		<para>
+			For a CGI enabled web directory, prepend the shell command to run
+			tpt to the top of your template.
+		</para>
+		<programlisting>
+#!/usr/local/bin/tpt --cgiheader
+		</programlisting>
+	</sect1>
+</appendix>

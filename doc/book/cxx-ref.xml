@@ -1,0 +1,147 @@
+<appendix id="cxx-reference">
+    <title>C++ Reference</title>
+    <sect1 id="cxx-namespace">
+        <title>Namespace TPT</title>
+        <para>
+All LibTPT library classes, functions, and variables exist in the
+<emphasis>TPT</emphasis> C++ namespace.
+        </para>
+        <para>
+All TPT header files can be included with:
+        </para>
+        <programlisting>
+#include &lt;libtpt/tpt.h&gt;
+</programlisting>
+    </sect1>
+    <sect1 id="cxx-classes">
+        <title>Classes</title>
+        <sect2 id="class-libtpt-parser">
+            <title>TPT::Parser</title>
+            <programlisting>
+#include &lt;libtpt/parse.h&gt;
+</programlisting>
+            <para>
+The TPT::Parser class is the primary interface to the TPT library.  For basic
+template processing, TPT::Parser is the only class you will need.
+            </para>
+            <blockquote>
+                <programlisting>
+Parser(const char* filename);
+Parser(const char* filename, const Symbols&amp; st);
+Parser(const char* buf, unsigned long size);
+Parser(const char* buf, unsigned long size, const Symbols&amp; st);
+Parser(Buffer&amp; buf);
+Parser(Buffer&amp; buf, const Symbols&amp; st);
+</programlisting>
+            </blockquote>
+        </sect2>
+        <sect2 id="class-libtpt-iparser">
+            <title>TPT::IParser</title>
+            <subtitle>(1.20+)</subtitle>
+            <programlisting>
+#include &lt;libtpt/iparse.h&gt;
+</programlisting>
+            <para>
+The TPT::IParser class is the Interactive version of the TPT::Parser class.
+This version writes updates to the Symbols table back to the Symbols table
+passed in by the user.  This is useful when there is a need to maintain state
+information between processing templates, or to pass state information back to
+the calling C++ program.
+            </para>
+            <blockquote>
+                <programlisting>
+IParser(const char* filename, Symbols&amp; st);
+IParser(const char* buf, unsigned long size, Symbols&amp; st);
+IParser(Buffer&amp; buf, Symbols&amp; st);
+</programlisting>
+            </blockquote>
+        </sect2>
+        <sect2 id="class-libtpt-buffer">
+            <title>TPT::Buffer</title>
+            <programlisting>
+#include &lt;libtpt/buffer.h&gt;
+</programlisting>
+            <para>
+The TPT::Buffer class is the base IO class for reading TPT source.
+Instantiating a TPT::Buffer directly is a useful optimization when you will be
+parsing the same template repeatedly.  A TPT::Buffer is not required to parse a
+TPT template.
+            </para>
+            <blockquote>
+                <programlisting>
+explicit Buffer(const char* filename);
+explicit Buffer(std::istream* is);
+explicit Buffer(const char* buffer, unsigned long size);
+explicit Buffer(const Buffer&amp; buf, unsigned long start, unsigned long end);
+</programlisting>
+            </blockquote>
+        </sect2>
+        <sect2 id="class-libtpt-symbols">
+            <title>TPT::Symbols</title>
+            <programlisting>
+#include &lt;libtpt/symbols.h&gt;
+</programlisting>
+            <para>
+The TPT::Symbols class may be used to predefine a symbols table for a TPT
+template before the template is passed to TPT::Parser.  The TPT::Symbols object
+must be populated <emphasis>before</emphasis> it is passed to the TPT::Parser.
+A TPT::Symbols table is not required to parse a TPT template.
+            </para>
+        </sect2>
+        <sect2 id="class-libtpt-object">
+            <title>TPT::Object</title>
+            <programlisting>
+#include &lt;libtpt/object.h&gt;
+</programlisting>
+            <para>
+The TPT::Object class is intended for intermediate to advanced users.  The
+TPT::Object is the internal representation of data used within LibTPT.
+TPT::Object is designed with speed and exception safety in mind.  The
+TPT::Object will automatically become whatever type it is referenced as.
+            </para>
+            <para>
+There are two basic uses for TPT::Object in your code.  First, to access
+variables passed to a user defined <link linkend="callback">callback</link>
+function.  Second, to set up complex data structures before entering the TPT
+Parser.
+            </para>
+            <para>
+An object may be a scalar (std::string), an array using integer indexes, or a
+hash keys on a string.  For ease, the following members are provided for access
+to Objects.
+            </para>
+            <programlisting>
+        TPT::Object::scalar(void)       Returns a reference to the std::string
+                                        object.
+        TPT::Object::operator[](index)  Returns a reference to the TPT::Object
+                                        at the specified array index.
+        TPT::Object::operator[](key)    Returns a reference to the TPT::Object
+                                        at the specified hash key.
+            </programlisting>
+            <para>
+Using these functions, complex objects can easily be constructed for use inside
+templates.
+            </para>
+            <programlisting>
+        TPT::Object fruits;
+        TPT::Symbols sym;
+
+        // Build a complicated hash of hashes easily
+        fruits["good"]["apple"]["desc"][0] = "Red";
+        fruits["good"]["apple"]["desc"][1] = "Green";
+        fruits["good"]["apple"]["desc"][2] = "Delicious";
+        fruits["good"]["apple"]["calories"] = "75";
+        fruits["good"]["banana"]["desc"][0] = "Yellow";
+        fruits["good"]["banana"]["desc"][1] = "Long";
+        fruits["good"]["banana"]["desc"][2] = "Yummy";
+        fruits["good"]["banana"]["calories"] = "110";
+        fruits["bad"]["grapefruit"]["desc"][0] = "Yellow";
+        fruits["bad"]["grapefruit"]["desc"][1] = "Bitter";
+        fruits["bad"]["grapefruit"]["calories"] = "70";
+
+        // Assign this object to a TPT symbol
+        sym.set("fruits", fruits);
+            </programlisting>
+        </sect2>
+    </sect1>
+</appendix>

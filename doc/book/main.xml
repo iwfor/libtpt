@@ -1,0 +1,54 @@
+<?xml version='1.0'?>
+<!DOCTYPE BOOK [
+<!ENTITY chapter.introduction SYSTEM "intro.xml">
+<!ENTITY chapter.installation SYSTEM "installation.xml">
+<!ENTITY chapter.tpt-intro SYSTEM "tpt-intro.xml">
+<!ENTITY chapter.cxx-intro SYSTEM "cxx-intro.xml">
+<!ENTITY chapter.cxx-callback SYSTEM "callback.xml">
+<!ENTITY chapter.tpt-ref SYSTEM "tpt-ref.xml">
+<!ENTITY chapter.cxx-ref SYSTEM "cxx-ref.xml">
+<!ENTITY chapter.tpt-cli SYSTEM "tpt-cli.xml">
+<!ENTITY chapter.conv-pml2tpt SYSTEM "conv-pml2tpt.xml">
+<!ENTITY chapter.proj-info SYSTEM "proj-info.xml">
+]>
+<book>
+	<bookinfo>
+    	<title>The LibTPT Book</title>
+		<subtitle>A Template Language for C++</subtitle>
+
+		<authorgroup>
+			<author>
+				<firstname>Isaac</firstname>
+				<othername>W.</othername>
+				<surname>Foraker</surname>
+			</author>
+		</authorgroup>
+
+		<copyright>
+			<year>2002-2006</year>
+			<holder>Isaac W. Foraker</holder>
+		</copyright>
+
+		<abstract>
+			<para>
+				This is for the LibTPT template scripting language for C++,
+				based on version 1.30.  For the most up to date documentation,
+                go to <ulink url="http://content.noscience.net/projects/libtpt/">
+                    http://content.noscience.net/projects/libtpt/</ulink>.
+			</para>
+	</abstract>
+	</bookinfo>
+	<toc></toc>
+
+	&chapter.introduction;
+	&chapter.installation;
+	&chapter.tpt-intro;
+	&chapter.cxx-intro;
+	&chapter.cxx-callback;
+	&chapter.tpt-ref;
+	&chapter.cxx-ref;
+	&chapter.tpt-cli;
+	&chapter.conv-pml2tpt;
+	&chapter.proj-info;
+	
+</book>

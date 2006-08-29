@@ -1,0 +1,34 @@
+<chapter id="cxx-interface">
+	<title>The C++ Interface</title>
+	<sect1 id="cxx-quick-sample">
+		<title>A quick sample</title>
+		<blockquote>
+			<title>dumptpt.cxx</title>
+			<programlisting>
+#include &lt;libtpt/tpt.h&gt;
+#include &lt;iostream&gt;
+#include &lt;stdexcept&gt;
+
+// Dump the parsed template output straight to std::cout
+void dumptemplate(const char* filename)
+{
+	try {
+		// Instantiate a parser
+		TPT::Parser p(filename);
+
+		// Add an include path (only ./ searched by default)
+		p.addincludepath("./include");
+
+		// Parse the template directly to standard output
+		if (p.run(std::cout))
+		{
+			// handle reporting of template errors
+		}
+	} catch(const std::exception&amp; e) {
+		std::cout &lt;&lt; "EXCETPION: " &lt;&lt; e.what() &lt;&lt; std::endl;
+	}
+}
+</programlisting>
+		</blockquote>
+	</sect1>
+</chapter>

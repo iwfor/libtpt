@@ -1,0 +1,140 @@
+<chapter id="callback">
+	<title>Writing a TPT callback function</title>
+	<sect1 id="what-is-callback">
+		<title>What is a callback?</title>
+		<para>
+In C++, it is sometimes handy to specify that a library function call a user
+defined function for customizable behavior.  In the standard library, the
+generic binary search and quick sort functions do this.
+		</para>
+		<programlisting>
+void *bsearch( const void *key, const void *base, size_t num, size_t width, int
+	(*compare ) ( const void *elem1, const void *elem2 ) );
+void qsort( void *base, size_t num, size_t width, int (*compare )(const void
+	*elem1, const void *elem2 ) );
+</programlisting>
+		<para>
+Each of these functions allows the user to specify a custom compare function
+for a user defined data type.  LibTPT provides a similar method to allow the
+user to specify a C++ function that will be called from a TPT template.
+		</para>
+	</sect1>
+	<sect1 id="callback-uses">
+		<title>Uses for Callbacks</title>
+		<para>
+Callbacks give the user the power to extend TPT beyond its core functionality.
+For instance, a project may require TPT to do some floating point math, which is
+not available in the core language.  On the more extreme, a user may decide to
+extend TPT with CGI or Database functionality.  Whatever the reason, callbacks
+let the user implement fast TPT functions within the C++ code.
+		</para>
+		<para>
+Remember, while it is tempting to write callback modules that allow TPT to do
+anything a full blown language can do, TPT was designed to take advantage of the
+speed of C++ for variable management.  Therefore, functionality like database
+access or CGI processing should remain in your C++ code for optimal performance.
+		</para>
+	</sect1>
+	<sect1 id="callback-interface">
+		<title>The Callback Interface</title>
+		<para>
+A TPT callback must be declared in the form:
+		</para>
+		<programlisting>
+	bool mycallback(std::ostream&amp; os, TPT::Object&amp; params);
+</programlisting>
+		<para>
+Note that the first parameter is a reference to an output stream.  All
+communication between the callback and the LibTPT parser are handled with
+streams.  So, to have the callback print a message would look like:
+		</para>
+		<programlisting>
+	os &lt;&lt; "My Message";
+</programlisting>
+		<para>
+The second parameter is of type TPT::Object, which represents a generic object
+in LibTPT.  The object may hold a type of scalar, array, or hash.  The
+<emphasis>params</emphasis> variable passed to the callback is guaranteed to
+hold an array, but that array may hold scalars, arrays, hashes, or any
+combination of those types, depending on how the callback was called from within
+the TPT template.  The enumerated types of object available to a callback
+function are TPT::Object::type_scalar, TPT::Object::type_array, and
+TPT::Object::type_hash, with the corresponding access methods
+TPT::Object::scalar(), TPT::Object::array(), and TPT::Object::hash().  If a call
+to the incorrect access method is made, an exception will be thrown.  The
+parser does its best to handle these exceptions without interrupting the
+template translation.
+		</para>
+		<para>
+When accessing a member of Object::array() or Object::hash(), be sure to use the
+get() method to get the member's real address.  Member of Object arrays and
+hashes are stored in a smart pointer to ensure proper memory management.  Refer
+to the example below for how to properly access a member of an Object array.
+		</para>
+		<para>
+As mentioned earlier, TPT does not have any built-in functionality for dealing
+with floating point numbers.  Suppose you needed a function to sum a list of
+floating point numbers populated into variables from a database or user form.
+See <xref linkend="example-fsum"/> for an example of what the code might look
+like for a floating point summation function.
+		</para>
+		<example id="example-fsum">
+			<title>A callback example: @fsum()</title>
+			<blockquote>
+				<programlisting>
+#include &lt;libtpt/tpt&gt;
+#include &lt;ostream&gt;
+
+// Define a function for summing floating point numbers
+bool fsum(std::ostream&amp; os, TPT::Object&amp; params)
+{
+	// Make a reference to the array for easier typing.
+	TPT::Object::ArrayType&amp; pl = params.array();
+	// initialize the work variable
+	double work=0;
+
+	// Set up iterators and loop.
+	TPT::Object::ArrayType::const_iterator it(pl.begin()), end(pl.end());
+	for (; it != end; ++it)
+	{
+		// Make a reference to the object for easier typing.
+		TPT::Object&amp; obj = *(*it).get();
+		// Only add the object if it is a scalar.
+		if (obj.gettype() == TPT::Object::type_scalar)
+			work+= atof(obj.scalar().c_str());
+		else
+			return true; // expected a scalar!
+	}
+	os &lt;&lt; work;
+	return false;
+}
+</programlisting>
+			</blockquote>
+		</example>
+		<para>
+This callback is then registered with the TPT::Parser::addfunction() method.
+		</para>
+		<programlisting>
+	TPT::Parser p(buf);
+	p.addfunction("fsum", &amp;fsum);
+		</programlisting>
+		<para>
+The above example demonstrates how simple it is to loop through an array of
+scalar examples.  As an exercise, modify fsum to be able to process sub-arrays
+of floats.
+		</para>
+	</sect1>
+	<sect1 id="callback-security">
+		<title>TPT Callbacks and Security</title>
+		<para>
+As with most programming interfaces, using TPT callbacks can open some serious
+security holes if you are not paying attention.  It is recommended that you do
+not create callbacks that can execute arbitrary programs, and when processing
+user input, always bounds check the input.  Bounds checking is already handled
+by the std::string class, so the best bet is to stick with std::string.  Do not
+use sprintf for formatting strings.  If you must format a string, and absolutely
+cannot use iostreams, use snprintf instead, and double check your format string
+for any errors.
+		</para>
+	</sect1>
+</chapter>

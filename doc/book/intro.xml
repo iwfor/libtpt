@@ -1,0 +1,48 @@
+<preface id="introduction">
+	<title>Introduction</title>
+	<sect1 id="what-is-libtpt">
+		<title>What is LibTPT?</title>
+		<para>
+			TPT is a template scripting language implemented in C++, designed
+			to be integrated with C++ programs.  It is intended as a fast,
+			lightweight replacement for fullblown scripting languages,
+			providing an easy interface for embedding TPT scripts in C++ code.
+			The TPT language was originally based on PML.
+		</para>
+		<para>
+			Known uses for TPT include generating CGI web pages, C and C++
+			source code, Make files, and e-mail messages.
+		</para>
+	</sect1>
+	<sect1 id="why-libtpt">
+		<title>Why LibTPT?</title>
+		<para>
+			I find many of today's template languages frustrating and hard to
+			work with.  Originally, I simply wanted to perform on-the-fly
+			variable substitution, but as my needs grew, so did the idea for
+			TPT.  For a time, I used the PML language, but that was written
+			entirely in Perl and lost the support of its creator.
+		</para>
+		<para>
+			Though I initially only intended to use TPT for generating HTML
+			responses for CGI scripts, it was quickly adopted by the clo++
+			project for C++ code generation, and I have since used it for
+			generating E-mail, Makefiles, and C source code as well.
+		</para>
+	</sect1>
+	<sect1>
+		<title>Who needs LibTPT?</title>
+		<para>
+			As with most language choices, the decision to use TPT is usually a
+			matter of personal tastes.  TPT has a low learning curve and can be
+			integrated into a project quickly.
+		</para>
+		<para>
+			One important point to note is that TPT is not about I/O.  It is
+			optimized for output only (like generating source files or web
+			pages), so if you are designing interactive applications, TPT is
+			not for you.  However, if you are looking for a simple solution for
+			generating customized text files, give TPT a try.
+		</para>
+	</sect1>
+</preface>

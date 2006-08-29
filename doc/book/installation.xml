@@ -1,0 +1,106 @@
+<chapter id="build">
+	<title>Compilation and Installation</title>
+	<sect1 id="platforms">
+		<title>Supported Platforms/Compilers</title>
+		<para>
+LibTPT has been compiled and tested under the following platforms:
+		</para>
+		<simplelist>
+			<member>FreeBSD 4.5 GCC 3.x</member>
+			<member>Linux GCC 3.x</member>
+			<member>Win32 MSVC 6.0</member>
+		</simplelist>
+		<para>
+LibTPT is also rumored to build on:
+		</para>
+		<simplelist>
+			<member>Sparc Solaris Forte C++</member>
+			<member>Sparc Solaris GCC 3.x</member>
+			<member>Mac OS X GCC 3.x</member>
+			<member>Win32 MSVC++.Net (VC 7.0)</member>
+		</simplelist>
+	</sect1>
+	<sect1 id="sources">
+		<title>Where to get LibTPT</title>
+		<simplelist>
+			<member>
+                <ulink url="http://content.noscience.net/projects/libtpt/">
+                    http://content.noscience.net/projects/libtpt/</ulink>
+			</member>
+		</simplelist>
+	</sect1>
+	<sect1 id="build-windows">
+		<title>Building on Windows</title>
+		<para>
+Currently, LibTPT officially supports Microsoft Visual C++ 6.0, but is known to
+work with Visual C++.Net (7.0) as well.  For optimal performance, it is highly
+recommended that you install the STLPort (<ulink
+url="http://www.stlport.org/">http://www.stlport.org/</ulink>).
+		</para>
+		<para>
+After installing the STLPort, add the following line to
+%INCLUDE%\stlport\stl_user_config.h:
+		</para>
+		<blockquote><para>
+#define _STLP_DO_IMPORT_CSTD_FUNCTIONS 1
+		</para></blockquote>
+		<para>
+The %INCLUDE% variable is the path where the stlport directory was installed.
+This will make the STL import the standard C library functions into the "std"
+namespace, making Visual C++ act more like a standard C++ compiler.
+		</para>
+		<para>
+Make sure you set %INCLUDE%\stlport as your first include path, or the wrong
+version of the header files will be included.  Also, since MSVC 6 does not
+properly handle the standard library in the std namespace, avoid broad
+statements like
+		</para>
+		<blockquote><para>
+			using namespace std;
+		</para></blockquote>
+		<para>
+Once your build environment is set up correctly, open w32/libtpt.dsw.  The
+libtpt workspace includes all projects necessary to build libtpt and its tests.
+The default build configuration is intended for a generic x86 platform.  Change
+these options if you so desire.
+		</para>
+		<para>
+Both debug and release configurations are available for build.  Each project
+should build with "debug" in its name when compiled as a debug project.
+		</para>
+		<para>
+Batch build all the release versions, then run tests:
+		</para>
+		<blockquote>
+			<programlisting>
+cd test/
+test.bat
+</programlisting>
+		</blockquote>
+	</sect1>
+	<sect1 id="build-unix">
+		<title>Building on Unix</title>
+		<para>
+At the time of the writing of this document, LibTPT has only been tested with
+GCC 3.x.  GCC 2.95.x is known to have problems compiling LibTPT.
+		</para>
+		<para>
+The LibTPT configuration system requires Perl 5.005 or later.  The configure.pl
+script requires that either the CXX environment variable is set to the path of
+your C++ compiler, or that you specify the path to you C++ compiler with the
+--cxx command line option.
+		</para>
+		<blockquote>
+			<programlisting>
+./configure.pl --cxx /path/to/g++ [--help]
+make
+./test.sh
+make install
+</programlisting>
+		</blockquote>
+		<para>
+			By default, configure.pl will use /usr/local as the install directory.  Use
+			--prefix=/new/install/path to override this.
+		</para>
+	</sect1>
+</chapter>

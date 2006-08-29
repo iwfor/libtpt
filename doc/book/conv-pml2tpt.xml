@@ -1,0 +1,152 @@
+<appendix id="convert-pml-tpt">
+	<title>Converting from PML to TPT</title>
+	<sect1>
+		<title>Strings</title>
+		<para>
+			In PML, strings may be passed bare (i.e. without quotes) to
+			macros and functions.  TPT requires strings to be in enclosed in
+			either single or double quotes (' or ").
+		</para>
+		<example>
+			<title>Strings in PML and TPT</title>
+			<blockquote>
+				<title>String parameters in PML</title>
+				<programlisting>
+@include(file.pmlh)
+</programlisting>
+			</blockquote>
+			<blockquote>
+				<title>String parameters in TPT</title>
+				<programlisting>
+@include("file.tph")
+or
+@include('file.tph')
+</programlisting>
+			</blockquote>
+		</example>
+	</sect1>
+	<sect1>
+		<title>Carriage returns</title>
+		<para>
+			TPT does not automatically remove carriage returns on lines
+			that only contain function calls.  To make TPT ignore the
+			carriage return, use a backslash.
+		</para>
+		<example>
+			<title>Carriage Returns in PML and TPT</title>
+			<blockquote>
+				<title>PML ignores carriage returns</title>
+				<programlisting>
+@include(file.pmlh)
+</programlisting>
+			</blockquote>
+			<blockquote>
+				<title>TPT must be told to ignore carriage returns</title>
+				<programlisting>
+@include("file.tph")\
+</programlisting>
+			</blockquote>
+		</example>
+	</sect1>
+	<sect1>
+		<title>Functions</title>
+		<para>
+			@concat is different in TPT.  @concat concatenates a variable
+			list of strings together, with no added spaces.  The PML version
+			concatenated values onto an existing symbol.
+		</para>
+		<blockquote>
+			<para>
+				PML: @concat(id, value)
+			</para>
+		</blockquote>
+		<blockquote>
+			<para>
+				TPT: @set(id, @concat(id, "value"))
+			</para>
+		</blockquote>
+		<para>
+			"value" may be either a string or an expression.
+		</para>
+		<para>
+			The new @concat also replaces prepend and append.  Instead use:
+		</para>
+		<blockquote>
+			<para>
+				PML: @prepend(id, value)
+			</para>
+		</blockquote>
+		<blockquote>
+			<para>
+				TPT: @set(id, @concat("value", " ", id))
+			</para>
+		</blockquote>
+		<blockquote>
+			<para>
+				PML: @append(id, value)
+			</para>
+		</blockquote>
+		<blockquote>
+			<para>
+				TPT: @set(id, @concat(id, " ", "value"))
+			</para>
+		</blockquote>
+		<para>
+			Why is this different?  Most functions in TPT are designed to be
+			usable within the expression processor.  Some functions of PML,
+			like concat, prepend, and acted on a symbol, instead of
+			returning a value that could be used by the expression parser.
+		</para>
+		<para>
+			TPT adds the following new functions for your pleasure.
+		</para>
+		<blockquote>
+			<simplelist>
+				<member>
+					@lc(expr) - lowercase string or expression
+				</member>
+				<member>
+					@uc(expr) - uppercase string or expression
+				</member>
+				<member>
+					@length(expr) - get number of characters in string or
+					expression
+				</member>
+			</simplelist>
+		</blockquote>
+	</sect1>
+	<sect1>
+		<title>Unsupported PML</title>
+		<simplelist>
+			<member>
+				@need keyword supported by PML for loading PML modules.
+			</member>
+			<member>
+				@perl keyword for eval'ing perl expressions.
+			</member>
+			<member>
+				@unless keyword.  Just use if (!expr) instead.
+			</member>
+			<member>
+				@until keyword.  Just use while (!expr) instead.
+			</member>
+			<member>
+				@rib keyword for default value.  Just use @else { nbsp; }
+				for now.  Another workaround is to use if (@empty(var)) if
+				you were using @rib to only test a variable.
+			</member>
+			<member>
+				${ARGV} array variable.
+			</member>
+			<member>
+				@append keyword for appending string to a symbol.  Just use
+				new @concat.
+			</member>
+			<member>
+				@prepend keyword for prepending string to a symbol.  Just
+				use new @concat.
+			</member>
+		</simplelist>
+		<para></para>
+	</sect1>
+</appendix>
