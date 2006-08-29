@@ -1,12 +1,7 @@
 /*
  * object.h
  *
- * $Id$
- *
- */
-
-/*
- * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +29,6 @@
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  */
 
 #ifndef include_libtpt_object_impl_h
@@ -44,6 +38,7 @@
 #include "token.h"
 #include "smartptr.h"
 #include "tptexcept.h"
+#include "tpttypes.h"
 #include <string>
 #include <map>
 #include <vector>
@@ -87,6 +82,8 @@ public:
 	Object(const ArrayType& a);
 	Object(const HashType& h);
 	Object(const TokenType& tok);
+    Object(const TArrayType& v);
+    Object(const THashType& h);
 
 	// dtor
 	~Object() { deallocate(); }
@@ -96,11 +93,14 @@ public:
 
 	// Various assignments
 	Object& operator=(const std::string& s) ;
+    Object& operator=(const char* s);
 	Object& operator=(const ArrayType& a);
 	Object& operator=(const HashType& h);
 	Object& operator=(const TokenType& tok);
 	Object& operator=(const Object& obj) throw(tptexception);
 	Object& operator=(obj_types t) throw(tptexception);
+    Object& operator=(const TArrayType& v);
+    Object& operator=(const THashType& h);
 
 	// Boolean operator: true=object defined; false=object undefined
 	operator bool() { return type != type_notalloc; }
@@ -114,6 +114,10 @@ public:
 	ArrayType& array() throw(tptexception);
 	HashType& hash() throw(tptexception);
 	TokenType& token() throw(tptexception);
+
+    Object& operator[](unsigned) throw(tptexception);
+    Object& operator[](const std::string& k) throw(tptexception);
+    Object& operator[](const char* k) throw(tptexception);
 
 private:
 	void create(obj_types t) throw(tptexception);

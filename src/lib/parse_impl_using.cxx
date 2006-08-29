@@ -1,7 +1,7 @@
 /*
- * shared.inl
+ * parse_impl_using.cxx
  *
- * Some common code shared by the test apps.
+ * Handle the @using instruction, loading the specified shared library.
  *
  * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
@@ -33,60 +33,53 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-bool mycallback(std::ostream& os, TPT::Object& params)
-{
-	TPT::Object::ArrayType& pl = params.array();
+#include "conf.h"
+#include "parse_impl.h"
+#include <algorithm>
+#include <sstream>
+#include <iostream>
+#include <cstdio>
 
-	TPT::Object::ArrayType::const_iterator it(pl.begin()), end(pl.end());
-	for (; it != end; ++it)
+namespace {
+#ifdef WIN32
+	const char* shlib_ext = ".dll";
+#else
+	const char* shlib_ext = ".so";
+#endif
+} // end anonymous namespace
+
+namespace TPT {
+
+
+/*
+ * Handle inclusion of shared library code.  File will be a DLL on Windows or
+ * SO on Unix.
+ */
+void Parser_Impl::parse_using()
+{
+	Object params;
+	if (getparamlist(params))
+		return;
+	Object::ArrayType& pl = params.array();
+
+	if (pl.size() != 1)
 	{
-		TPT::Object& obj = *(*it).get();
-		if (obj.gettype() == TPT::Object::type_scalar)
-			os << obj.scalar();
-		else
-			os << "[non-scalar]";
+		recorderror("Error: @using takes exactly 1 parameter");
+		return;
 	}
-	return false;
-}
 
-// Get sum of set of floats
-bool fsum(std::ostream& os, TPT::Object& params)
-{
-	TPT::Object::ArrayType& pl = params.array();
-	double work=0;
-
-	TPT::Object::ArrayType::const_iterator it(pl.begin()), end(pl.end());
-	for (; it != end; ++it)
+	Object& obj = *pl[0].get();		// obj now contains parameter
+	if (obj.gettype() != Object::type_scalar)
 	{
-		TPT::Object& obj = *(*it).get();
-		if (obj.gettype() == TPT::Object::type_scalar)
-			work+= std::atof(obj.scalar().c_str());
-		else
-			return true;	// expected scalar!
+		recorderror("Error: @using excpects string");
+		return;
 	}
-	os << work;
-	return false;
+
+	// Construct the filename
+	std::string filename(obj.scalar());
+	filename+= shlib_ext;
+
+	// Search for the file
 }
 
-// Dump a string buffer (for debug use)
-void dumpstr(const char* title, const std::string& s)
-{
-    bool newline = true;
-    unsigned lineno = 1;
-    std::string::const_iterator it(s.begin()), end(s.end());
-    std::cout << "\n" << title << " = (" << s.size() << ") <quote>\n";
-    for (; it != end; ++it) {
-        if (newline) {
-            char numbuf[16];
-            std::sprintf(numbuf, "%03u ", lineno++);
-            std::cout << numbuf;
-            newline = false;
-        }
-        if (*it == '\n') {
-            std::cout << '|';
-            newline = true;
-        }
-        std::cout << *it;
-    }
-    std::cout << "</quote> (" << lineno-1 << " lines)" <<std::endl;
-}
+} // end namespace TPT

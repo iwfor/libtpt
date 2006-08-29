@@ -1,0 +1,9 @@
+Object Test
+@foreach (obj.fruit) { ${.} }
+
+@foreach (obj.count) { ${.} }
+
+@keys(k, obj.fruitid)\
+@foreach (k) {
+${.} = ${obj.fruitid.${.}}
+}

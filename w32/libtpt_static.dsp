@@ -116,6 +116,10 @@ SOURCE=..\src\lib\func_str.cxx
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\lib\iparse.cxx
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\lib\lexical.cxx
 
 !IF  "$(CFG)" == "libtpt_static - Win32 Release"
@@ -175,6 +179,10 @@ SOURCE=..\src\lib\parse_impl_rd.cxx
 # Begin Source File
 
 SOURCE=..\src\lib\parse_impl_set.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\lib\parse_impl_using.cxx
 # End Source File
 # Begin Source File
 

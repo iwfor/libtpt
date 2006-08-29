@@ -1,7 +1,7 @@
 <cloxx>
 	<!--	This is the command line generation file for use with clo++
-			You must have clo++ installed to generate the command line
-			parsing source code.
+	You must have clo++ installed to generate the command line
+	parsing source code.
 	-->
 	<progname name="tpt">
 		<description>
@@ -13,11 +13,12 @@
 	</progname>
 	<config>
 		<autohelp/>
+		<variable name="cxx_include_files" value="libtpt/compat.h"/>
 	</config>
 	<options>
 		<option id="check" type="flag">
 			<name>check</name>
-			<name>c</name>
+			<name>C</name>
 			<comment>Perform syntax checking only</comment>
 		</option>
 		<option id="warnings" type="flag">
@@ -38,6 +39,15 @@
 		<option id="cgiheader" type="flag">
 			<name>cgiheader</name>
 			<comment>Print a basic CGI header</comment>
+		</option>
+		<option id="defines" type="string" modifier="map">
+			<name>D</name>
+			<comment>Set the value of a variable</comment>
+		</option>
+		<option id="console" type="flag">
+			<name>console</name>
+			<name>c</name>
+			<comment>Read template from the standard input</comment>
 		</option>
 	</options>
 </cloxx>

@@ -1,11 +1,7 @@
 /*
  * test1.cxx
  *
- * $Id$
- */
-
-/*
- * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -125,8 +121,8 @@ bool test1(unsigned testcount)
 			result|= true;
 			std::cout << "test" << (i+1) << ".tpt: ";
 			std::cout << "failed" << std::endl;
-std::cout << "\ntptstr = (" << strs.str().size() << ")\n<quote>" << strs.str() << "</quote>" <<std::endl;
-std::cout << "\noutstr = (" << outstr.size() << ")\n<quote>" << outstr << "</quote>" <<std::endl;
+dumpstr("tptstr", strs.str());
+dumpstr("outstr", outstr);
 		}
 	}
 

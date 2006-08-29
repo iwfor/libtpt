@@ -1,8 +1,10 @@
 #/bin/sh
 
-echo buffertest
+echo "Buffer test"
 ./buffertest buffertest.cxx
-echo Parser test
+echo "Parser test"
 ./test1 54
-echo IParser test
+echo "IParser test"
 ./test2 2
+echo "Object test"
+./test3 1

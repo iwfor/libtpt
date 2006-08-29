@@ -1,10 +1,9 @@
 #! /usr/bin/perl
 #
 # configure.pl (bootstrap libtpt)
-# Isaac W. Foraker (isaac@tazthecat.net)
 # Use on *nix platforms.
 #
-# Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
+# Copyright (C) 2002-2006 Isaac W. Foraker (isaac@noscience.net)
 # All Rights Reserved
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -36,8 +35,6 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # 
 # This tools uses elements of cxxtools, written by Peter J Jones.
-#
-# $Id$
 #
 
 #####

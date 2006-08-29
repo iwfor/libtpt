@@ -1,12 +1,9 @@
 /*
  * tpt.cxx
  *
- * $Id$
+ * The LibTPT command line interface.
  *
- */
-
-/*
- * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +31,6 @@
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  */
 
 /*
@@ -53,9 +49,11 @@
 #include "clo.h"
 
 #include <libtpt/tpt.h>
+#include <libtpt/smartptr.h>
 #include <libtpt/compat.h>
 
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <sstream>
 #include <cstring>
@@ -70,7 +68,7 @@ int main(int argc, char* argv[])
 	clo::options options;
 	if (argc < 2)
 	{
-		std::cout << "Usage: tpt <filename>" << std::endl;
+		std::cout << "Usage: tpt [options] <filename>" << std::endl;
 		return 0;
 	}
 
@@ -110,7 +108,7 @@ void dumptemplate(clo::parser& parser)
 	}
 
 	// Make sure a filename was specified.
-	if (other.empty())
+	if (other.empty() && !options.console)
 	{
 		std::cout << "Must specify a template file" << std::endl;
 		return;
@@ -120,7 +118,27 @@ void dumptemplate(clo::parser& parser)
 	if (options.cgiheader)
 		std::cout << "Content-type: text/html" << std::endl << std::endl;
 	
-	TPT::Parser p(other[0].c_str());
+    notboost::shared_ptr< TPT::Parser > p;
+    notboost::shared_ptr< TPT::Buffer > buf;
+    TPT::Symbols sym;
+    
+    // Add variables defined on the command line
+    if (!options.defines.empty())
+    {
+        std::map< std::string, std::string >::const_iterator
+            it(options.defines.begin()), end(options.defines.end());
+        for (; it != end; ++it)
+            sym.set(it->first, it->second);
+    }
+
+    // Construct the parser based on the input source
+    if (options.console)
+    {
+        buf = new TPT::Buffer(&std::cin);
+        p = new TPT::Parser(*buf, sym);
+    }
+    else
+        p = new TPT::Parser(other[0].c_str(), sym);
 
 	// Add Include directories.
 	if (!options.include.empty())
@@ -128,12 +146,12 @@ void dumptemplate(clo::parser& parser)
 		std::vector< std::string >::const_iterator it(options.include.begin()),
 			end(options.include.end());
 		for (; it != end; ++it)
-			p.addincludepath(it->c_str());
+			p->addincludepath(it->c_str());
 	}
 
 	std::stringstream str;
 
-	p.run(str);
+	p->run(str);
 	if (!options.check)
 	{
 		std::cout << str.str();
@@ -143,7 +161,7 @@ void dumptemplate(clo::parser& parser)
 	if (options.warnings || options.check)
 	{
 		TPT::ErrorList errlist;
-		if (p.geterrorlist(errlist))
+		if (p->geterrorlist(errlist))
 		{
 			TPT::ErrorList::const_iterator it(errlist.begin()), end(errlist.end());
 			for (; it != end; ++it)
@@ -154,4 +172,3 @@ void dumptemplate(clo::parser& parser)
 			std::cout << "No errors" << std::endl;
 	}
 }
-

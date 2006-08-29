@@ -1,0 +1,13 @@
+Object Test
+Apple Orange Grapes Banana Lemon Lime Kiwi Peach Pear Nectarine 
+0 1 2 3 4 5 6 7 8 9 
+Apple = 0
+Banana = 3
+Grapes = 2
+Kiwi = 6
+Lemon = 4
+Lime = 5
+Nectarine = 9
+Orange = 1
+Peach = 7
+Pear = 8

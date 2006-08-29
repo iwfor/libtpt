@@ -1,6 +1,28 @@
 LibTPT Revisions
 ================
 
+Version 1.30
+------------
+- Added new options to the LibTPT CLI (command line interface).
+- Enhanced Object class interface.
+- Cleaned up documentation.
+
+Version 1.22-beta
+-----------------
+- Replaced Object::aval() and Object::hval() with overloaded [] brackets,
+  making code using this feature easier to read.
+- Cleaned up documentation in the code comments.
+
+Version 1.21-beta
+-----------------
+- Enhanced the interface to the Object class to make it easier to create
+  complex objects in C++ code.
+- Fixed problem in configure.pl making it not work in the FreeBSD ports tree.
+- Removed obsolete objtest from test directory.
+- The compat.h file is now included by default in tpt.h.
+- Updated Visual Studio project files for MS Visual C++ 6.0.
+- Removed Visual Studio.Net project files since they are not being maintained.
+
 Version 1.20.1a
 ---------------
 - Bundled with a new version of cxxtools which work around a problem in Perl

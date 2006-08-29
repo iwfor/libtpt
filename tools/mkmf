@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 ######################################################################
-# Copyright (C) 2001-2002 Peter J Jones (pjones@pmade.org)
+# Copyright (C) 2001-2002 Peter J Jones (pjones at pmade dot org)
 # All Rights Reserved
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 ################################################################################
 #
 # mkmf (Make a Makefile)
-# Peter J Jones (pjones@pmade.org)
+# Peter J Jones (pjones at pmade dot org)
 #
 # This file is part of cxxtools (http://pmade.org/pjones/software/cxxtools/)
 #

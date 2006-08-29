@@ -1,5 +1,5 @@
 #!/bin/sh
 
-chdir test
+cd test
 ./test.sh
-chdir ..
+cd ..

@@ -1,16 +1,16 @@
 LibTPT Class Library Template Processor
-Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
+Copyright (C) 2002-2006 Isaac W. Foraker (isaac@noscience.net)
 All Rights Reserved
 
 See LICENSE file for licensing information.
 
 Isaac W. Foraker
-isaac@tazthecat.net
+isaac at noscience dot net
 LibTPT, the TPT template processor library.
 tpt, command line tool.
 
 Peter J. Jones
-http://pmade.org/~pjones/
+http://pmade.org/
 PML, the language on which TPT is based.
 The tpt2c++.pl tool.
 clo++, the command line parser generator.

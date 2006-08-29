@@ -3,12 +3,7 @@
  *
  * Handle file read buffering.
  *
- * $Id$
- *
- */
-
-/*
- * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,13 +31,13 @@
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  */
 
 #ifndef include_libtpt_buffer_h
 #define include_libtpt_buffer_h
 
 #include <iosfwd>	// Forward declare std::fstream
+#include <string>
 
 namespace TPT {
 
@@ -83,14 +78,20 @@ public:
 	/// Current size
 	unsigned long size() const;
 
+	/// Set buffer name
+	void setname(const char* name);
+	/// Get buffer name
+	const char* getname();
+
 private:
-	std::istream* instr;
-	unsigned long buffersize;
-	unsigned long bufferalloc;
-	char* buffer;
-	unsigned bufferindex;
-	bool freestreamwhendone;
-	bool done;
+	std::istream* instr_;
+	std::string name_;
+	unsigned long buffersize_;
+	unsigned long bufferallocsize_;
+	char* buffer_;
+	unsigned bufferidx_;
+	bool freestreamwhendone_;
+	bool done_;
 
 	void openfile(const char* filename);
 	bool readfile();

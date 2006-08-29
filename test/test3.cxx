@@ -1,5 +1,5 @@
 /*
- * test2.cxx
+ * test3.cxx
  *
  * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
@@ -40,21 +40,23 @@
 #include <ostream>
 #include <fstream>
 #include <cstring>
+#include <cstdio>
 
-bool test2(unsigned testcount);
-bool loadvars(const char* filename, std::map< std::string, std::string >& vars);
+#include "shared.inl"
+
+bool test1(unsigned testcount);
 
 int main(int argc, char* argv[])
 {
 	bool result=false, r;
 
 	if (argc != 2) {
-		std::cout << "Usage: test1 <testcount>" << std::endl;
+		std::cout << "Usage: test3 <testcount>" << std::endl;
 		return 0;
 	}
 
 	try {
-		r = test2(std::atoi(argv[1]));
+		r = test1(std::atoi(argv[1]));
 		result|= r;
 	} catch(const std::exception& e) {
 		result = true;
@@ -71,39 +73,48 @@ int main(int argc, char* argv[])
 	return result;
 }
 
-#include "shared.inl"
+const char* fruits[] = {
+    "Apple", "Orange", "Grapes", "Banana", "Lemon", "Lime", "Kiwi", "Peach",
+    "Pear", "Nectarine"
+};
 
-bool test2(unsigned testcount)
+const unsigned numfruits = sizeof(fruits)/sizeof(char*);
+
+bool test1(unsigned testcount)
 {
 	TPT::ErrorList errlist;
 	bool result = false;
+	TPT::Object obj;
 	TPT::Symbols sym;
+    char numbuf[16];
+	unsigned i;
 
-	sym.set("var", "this is the value of var");
-	sym.set("var1", "Supercalifragilisticexpialidocious");
-	sym.set("var2", "The red fox runs through the plain and jumps over the fence.");
-	sym.set("title", "TEST TITLE");
-	sym.push("myarray", "value1");
-	sym.push("myarray", "value2");
-	sym.push("myarray", "value3");
-	sym.push("myarray", "value4");
+    for (i=0; i < 10; ++i) {
+        std::sprintf(numbuf, "%u", i);
+        obj["count"][i] = numbuf;
+    }
+    for (i=0; i < numfruits; ++i) {
+        obj["fruit"][i] = fruits[i];
+    }
+    for (i=0; i < 10; ++i) {
+        std::sprintf(numbuf, "%u", i);
+        obj["fruitid"][fruits[i]] = numbuf;
+    }
+
+    sym.set("obj", obj);
 
 	char tptfile[256], varfile[256];
-	unsigned i;
 	std::map< std::string, std::string > vars;
 
 	for (i = 0; i < testcount; ++i) {
 		// generate test file names by rule
-		snprintf(tptfile, sizeof(tptfile), "tests/itest%u.tpt", i+1);
-		snprintf(varfile, sizeof(varfile), "tests/itest%u.var", i+1);
+		snprintf(tptfile, sizeof(tptfile), "tests/objtest%u.tpt", i+1);
+		snprintf(varfile, sizeof(varfile), "tests/objtest%u.out", i+1);
 
 		// Process the tpt file and store the result in a string
 		TPT::IParser p(tptfile, sym);
 		std::string tptstr;
 		std::stringstream strs(tptstr);
-		p.addfunction("mycallback", &mycallback);
-		p.addfunction("fsum", &fsum);
-		p.addincludepath("tests");
 		p.run(strs);
 
 		if (p.geterrorlist(errlist)) {
@@ -119,54 +130,15 @@ bool test2(unsigned testcount)
 		while (outbuf)
 			outstr+= outbuf.getnextchar();
 
-		if (!loadvars(varfile, vars)) {
-			std::map< std::string, std::string >::iterator it(vars.begin()), end(vars.end());
-			std::string val;
-			for (; it != end; ++it) {
-				if (sym.get(it->first, val) || val != it->second) {
-					result|= true;
-					std::cout << "test " << i+1 << ": failed\n";
-					std::cout << it->first << "=" << it->second << std::endl;
-					break;
-				}
-			}
-		} else {
+		// Compare tptstr to outstr
+		if (strs.str() != outstr) {
 			result|= true;
-			std::cout << "test " << i+1 << ": failed\n";
+			std::cout << "test" << (i+1) << ".tpt: ";
+			std::cout << "failed" << std::endl;
+dumpstr("tptstr", strs.str());
+dumpstr("outstr", outstr);
 		}
 	}
 
 	return result;
-}
-
-// Load string variables.
-bool loadvars(const char* filename, std::map< std::string, std::string >& vars)
-{
-	std::string line, var, val;
-	std::ifstream f(filename);
-	if (!f.is_open())
-	{
-		std::cout << "Failed to open " << filename << std::endl;
-		return true;
-	}
-
-	vars.clear();
-	while (std::getline(f, line)) {
-		std::string::iterator it(line.begin()), end(line.end());
-		var.erase();
-		val.erase();
-		for (; it != end && *it != '='; ++it) {
-			var+= *it;
-		}
-		if (*it != '=') {
-			std::cerr << "Error in variables file: " << filename << std::endl;
-			continue;
-		}
-		++it;
-		for (; it != end; ++it) {
-			val+= *it;
-		}
-		vars[var] = val;
-	}
-	return false;
 }

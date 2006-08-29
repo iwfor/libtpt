@@ -3,10 +3,7 @@
  *
  * A shared pointer template implementation.
  *
- */
-
-/*
- * Written by Isaac W. Foraker (isaac@tazthecat.net)
+ * Written by Isaac W. Foraker (isaac at noscience dot net)
  *
  * Where's the copyright?
  *	The smart pointer types are fairly universal constructs, so it
@@ -96,11 +93,19 @@ public:
 	{
 		if (ptr && !--ptr->count) delete ptr;
 		ptr = 0;	// just in cast new throws
-		if (p) ptr = new sp_refcount_s<T>(p);
+		if (ap) ptr = new sp_refcount_s<T>(ap);
 		else ptr = 0;	// allow ptr to be cleared when p is 0
 		ap.release();
 		return *this;
 	}
+	T& operator*()
+	{
+		return *ptr->obj;
+	}
+    T* operator->()
+    {
+        return ptr->obj;
+    }
 };
 
 } // end namespace notboost

@@ -4,41 +4,55 @@ Upcoming functionality
 The following functionality is planned for future releases of LibTPT.  The
 version numbers may change.
 
+Accelerate releases - Ongoing
+	Some corporate users have requested that the interval between non-beta
+	releases be reduced so they may use new features in their commercial
+	software.  This is because management has an aversion to using products
+	that use the term "beta".  To accommodate these users, there will be more
+	intermediate production releases with fewer new features added.
+
 optimizations - Ongoing
 	There is always room for improved speed and memory usage.  Optimization of
 	existing TPT will be ongoing.
 
-Stream class for formatting text - Version 1.3
+@using(library) - Version 1.x
+	Loads the specified library.a or library.dll and autoloads all TPT
+	callbacks in the library. (Win32 - LoadLibrary, FreeLibrary,
+	GetProcAddress) (Unix - dlopen, dlclose, dlsym)
+
+Stream class for formatting text - Version 1.x
 	This class will be inserted between the Parser and the user's output
 	stream, formatting text as it is output.
 
-@tpt_wraptext(x) - Version 1.3
+Indent ignore when:
+	- An open or close brace is the first thing on the line.
+	- @if is the first think on a line.
+	- A comment is the only thing on a line.
+
+@tpt_wraptext(x) - Version 1.x
 	Tells TPT to ignore carriage returns (\n) and wrap text at the specified
 	width.  Use a blank line to force a carriage return.  0 means text wrapping
 	is off.  The default is 0.
 
-@tpt_settabstop(x) - Version 1.4
+@tpt_settabstop(x) - Version 1.x
 	Tells LibTPT how many spaces are in a tab.  For use with
 	@tpt_ignoreindentcount(x).  1<=x<=8.  The default is 8 spaces.
 
-@tpt_tabtospace - Version 1.4
+@tpt_tabtospace - Version 1.x
 	Converts all tab characters (\t) to spaces.  Use @tpt_settabstop(x) to
 	determine the number of spaces in a tab.
 	
-@tpt_ignoreindentcount(x) - Version 1.4
+@tpt_ignoreindentcount(x) - Version 1.x
 	Tells TPT to ignore the first x tabs on a line.  LibTPT will count either a
 	tab character (\t) or the number of spaces specified by @tpt_settabstop(x)
 	as one indent.  0 means indent is not ignored.  The default is 0.
 	@tpt_ignoreindentcount(x) and @tpt_ignoreindent are mutually exclusive.
 
-@using(library) - Version 2.0
-	Loads the specified library.a or library.dll and autoloads all TPT
-	callbacks in the library.
-
 ${string(index)} - Version 2.x
-	Allow direct access to a character at a string index.
+	Allow direct access to a character at a string index instead of requiring
+	the use of @substr..
 
-${x="string}, ${x=<expr>}, ${x++} - 2.x
+${x="string"}, ${x=<expr>}, ${x++} - 2.x
 	Allow easier assignment of a variable.
 
 @tpt_echovariable(0|1) - 2.x

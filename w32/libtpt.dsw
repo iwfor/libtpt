@@ -3,7 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "buffertest"=.\buffertest.dsp - Package Owner=<4>
+Project: "buffertest"=".\buffertest.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -18,7 +18,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "dump"=.\dump.dsp - Package Owner=<4>
+Project: "dump"=".\dump.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -33,7 +33,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libtpt_static"=.\libtpt_static.dsp - Package Owner=<4>
+Project: "libtpt_static"=".\libtpt_static.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -45,22 +45,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "objtest"=.\objtest.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name libtpt_static
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "test1"=.\test1.dsp - Package Owner=<4>
+Project: "test1"=".\test1.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -75,7 +60,37 @@ Package=<4>
 
 ###############################################################################
 
-Project: "tpt"=.\tpt.dsp - Package Owner=<4>
+Project: "test2"=".\test2.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libtpt_static
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "test3"=".\test3.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libtpt_static
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "tpt"=".\tpt.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{

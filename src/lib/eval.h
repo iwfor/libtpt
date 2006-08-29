@@ -1,8 +1,5 @@
 /*
  * eval.h
- *
- * $Id$
- *
  */
 
 #include <libtpt/symbols.h>

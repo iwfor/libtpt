@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 ######################################################################
-# Copyright (C) 2002 Peter J Jones (pjones@pmade.org)
+# Copyright (C) 2002 Peter J Jones (pjones at pmade dot org)
 # All Rights Reserved
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 ################################################################################
 #
 # tpt2c++ (Convert a group of libtpt template files to one big char*)
-# Peter J Jones (pjones@pmade.org)
+# Peter J Jones (pjones at pmade dot org)
 #
 ################################################################################
 #

@@ -1,12 +1,7 @@
 /*
  * bench.cxx
  *
- * $Id$
- *
- */
-
-/*
- * Copyright (C) 2002,2003 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +29,6 @@
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  */
 
 #include <libtpt/tpt.h>

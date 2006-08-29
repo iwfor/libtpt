@@ -3,12 +3,7 @@
  *
  * Some constant vars defined by default.
  *
- * $Id$
- *
- */
-
-/*
- * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,14 +31,13 @@
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  */
 
 #ifndef include_libtpt_vars_h
 #define include_libtpt_vars_h
 
 // Ack!  A define!  Defines allow easy concatenation on strings
-#define LIBTPT_VERSION	"1.20.1"
+#define LIBTPT_VERSION	"1.30"
 
 namespace TPT {
 
@@ -53,9 +47,9 @@ namespace TPT {
 		"LibTPT Template Processor Version " LIBTPT_VERSION;
 	const char* libtpt_author = "Isaac W. Foraker";
 	const char* libtpt_copyright =
-		"Copyright (C) 2002-2003 Isaac W. Foraker, All Rights Reserved";
+		"Copyright (C) 2002-2006 Isaac W. Foraker, All Rights Reserved";
 	const char* libtpt_license =
-		"Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)\n"
+		"Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)\n"
 		"All Rights Reserved\n"
 		"\n"
 		"Redistribution and use in source and binary forms, with or without\n"

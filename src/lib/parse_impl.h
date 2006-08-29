@@ -3,11 +3,7 @@
  *
  * Parser Implementation
  *
- * $Id$
- */
-
-/*
- * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -169,6 +165,7 @@ public:
 
 	void parse_include(std::ostream* os);
 	void parse_includetext(std::ostream* os);
+	void parse_using();
 	void parse_if(std::ostream* os);
 	bool parse_ifexpr(std::ostream* os);
 	void parse_foreach(std::ostream* os);

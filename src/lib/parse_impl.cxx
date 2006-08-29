@@ -3,12 +3,7 @@
  *
  * Parser Implementation
  *
- * $Id$
- *
- */
-
-/*
- * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +31,6 @@
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  */
 
 #include "conf.h"
@@ -232,6 +226,9 @@ void Parser_Impl::parse_dotoken(std::ostream* os, Token<> tok)
 	// Include a raw text file.
 	case token_includetext:
 		parse_includetext(os);
+		break;
+	case token_using:
+		parse_using();
 		break;
 	// Set a variable.
 	case token_set:
@@ -556,6 +553,8 @@ const char* toktypestr(const Token<>& tok)
 		return "include";
 	case token_includetext:
 		return "includetext";
+	case token_using:
+		return "using";
 	case token_set:
 		return "set";
 	case token_setif:

@@ -1,12 +1,7 @@
 /*
  * buffertest.cxx
  *
- * $Id$
- *
- */
-
-/*
- * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +29,6 @@
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  */
 
 #include <libtpt/buffer.h>
@@ -60,22 +54,19 @@ int main(int argc, char* argv[])
 	bool result=false, r;
 
 	try {
-		std::cout << "Test1: ";
 		r = test1(argv[1]);
-		if (r) std::cout << "failed" << std::endl;
-		else std::cout << "passed" << std::endl;
+        if (r)
+            std::cout << "Buffer test 1: failed" << std::endl;
 		result|= r;
 
-		std::cout << "Test2: ";
 		r = test2(argv[1]);
-		if (r) std::cout << "failed" << std::endl;
-		else std::cout << "passed" << std::endl;
+        if (r)
+            std::cout << "Buffer test 2: failed" << std::endl;
 		result|= r;
 
-		std::cout << "Test3: ";
 		r = test2(argv[1]);
-		if (r) std::cout << "failed" << std::endl;
-		else std::cout << "passed" << std::endl;
+        if (r)
+            std::cout << "Buffer test 3: failed" << std::endl;
 		result|= r;
 
 	} catch(const std::exception& e) {

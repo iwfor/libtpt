@@ -1,12 +1,7 @@
 /*
  * symbols_impl.cxx
  *
- * $Id$
- *
- */
-
-/*
- * Copyright (C) 2002-2003 Isaac W. Foraker (isaac@tazthecat.net)
+ * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +29,6 @@
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  */
 
 #include "conf.h"
@@ -70,11 +64,11 @@ void Symbols_Impl::copy(Object& object)
  */
 Object& Symbols_Impl::getobject(const SymbolKeyType& id, Object& table)
 {
-	Object::PtrType ptr;
-	if (getobjectforget(id, table, ptr))
+	Object::PtrType pobj;
+	if (getobjectforget(id, table, pobj))
 		return emptyobject;
-	assert(ptr.get());
-	return *(ptr.get());
+	assert(pobj.get());
+	return *pobj;
 }
 
 /*
@@ -87,15 +81,13 @@ bool Symbols_Impl::setobject(const SymbolKeyType& id,
 							  const std::string& value,
 							  Object& table)
 {
-	Object::PtrType ptr;
-	if (getobjectforset(id, table, ptr))
+	Object::PtrType pobj;
+	if (getobjectforset(id, table, pobj))
 		return true;
 
 	// To make code more readable, assign new object pointer to a
 	// reference variable.
-	Object& obj = *(ptr.get());
-	obj.settype(Object::type_scalar);
-	obj.scalar() = value;
+	pobj->scalar() = value;
 	return false;
 }
 
@@ -110,25 +102,11 @@ bool Symbols_Impl::setobject(const SymbolKeyType& id,
 							  const SymbolArrayType& value,
 							  Object& table)
 {
-	Object::PtrType ptr;
-	if (getobjectforset(id, table, ptr))
+	Object::PtrType pobj;
+	if (getobjectforset(id, table, pobj))
 		return true;
 
-	// To make code more readable, assign new object pointer to a
-	// reference variable.
-	Object& obj = *(ptr.get());
-	// Reset this object to type array
-	obj = Object::type_array;
-	Object::ArrayType& array = obj.array();
-	array.clear();
-	array.resize(value.size());
-
-	size_t i = 0;
-	SymbolArrayType::const_iterator it(value.begin()),
-		end(value.end());
-	for (; it != end; ++it)
-		array[i++] = new Object((*it));
-
+    *pobj = value;
 	return false;
 }
 
@@ -141,21 +119,11 @@ bool Symbols_Impl::setobject(const SymbolKeyType& id,
 bool Symbols_Impl::setobject(const SymbolKeyType& id,
 	const SymbolHashType& value, Object& table)
 {
-	Object::PtrType ptr;
-	if (getobjectforset(id, table, ptr))
+	Object::PtrType pobj;
+	if (getobjectforset(id, table, pobj))
 		return true;
 
-	// To make code more readable, assign new object pointer to a
-	// reference variable.
-	Object& obj = *(ptr.get());
-	// Reset this object to type hash
-	obj = Object::type_hash;
-	Object::HashType& hash = obj.hash();
-
-	SymbolHashType::const_iterator it(value.begin()),
-		end(value.end());
-	for (; it != end; ++it)
-		hash[it->first] = new Object(it->second);
+    *pobj = value;
 	return false;
 }
 
@@ -169,15 +137,11 @@ bool Symbols_Impl::setobject(const SymbolKeyType& id,
 bool Symbols_Impl::setobject(const SymbolKeyType& id,
 	Object& value, Object& table)
 {
-	Object::PtrType ptr;
-	if (getobjectforset(id, table, ptr))
+	Object::PtrType pobj;
+	if (getobjectforset(id, table, pobj))
 		return true;
 
-	// To make code more readable, assign new object pointer to a
-	// reference variable.
-	Object& obj = *(ptr.get());
-	obj = value;
-
+	*pobj = value;
 	return false;
 }
 
@@ -192,16 +156,11 @@ bool Symbols_Impl::pushobject(const SymbolKeyType& id,
 							  const std::string& value,
 							  Object& table)
 {
-	Object::PtrType ptr;
-	if (getobjectforset(id, table, ptr))
+	Object::PtrType pobj;
+	if (getobjectforset(id, table, pobj))
 		return true;
 
-	Object& obj = *(ptr.get());
-
-	if (obj.gettype() != Object::type_array)
-		obj = Object::type_array;
-	obj.array().push_back(new Object(value));
-
+	pobj->array().push_back(new Object(value));
 	return false;
 }
 
@@ -216,25 +175,11 @@ bool Symbols_Impl::pushobject(const SymbolKeyType& id,
 							  const SymbolArrayType& value,
 							  Object& table)
 {
-	Object::PtrType ptr;
-	if (getobjectforset(id, table, ptr))
+	Object::PtrType pobj;
+	if (getobjectforset(id, table, pobj))
 		return true;
 
-	Object& obj = *(ptr.get());
-
-	if (obj.gettype() != Object::type_array)
-		obj = Object::type_array;
-	// Create temporary array object
-	Object temp(Object::type_array);
-	temp.array().resize(value.size());
-	size_t i = 0;
-	SymbolArrayType::const_iterator it(value.begin()),
-		end(value.end());
-	for (; it != end; ++it)
-		temp.array()[i++] = new Object((*it));
-
-	obj.array().push_back(new Object(temp));
-
+	pobj->array().push_back(new Object(value));
 	return false;
 }
 
@@ -249,23 +194,11 @@ bool Symbols_Impl::pushobject(const SymbolKeyType& id,
 							  const SymbolHashType& value,
 							  Object& table)
 {
-	Object::PtrType ptr;
-	if (getobjectforset(id, table, ptr))
+	Object::PtrType pobj;
+	if (getobjectforset(id, table, pobj))
 		return true;
 
-	Object& obj = *(ptr.get());
-
-	if (obj.gettype() != Object::type_array)
-		obj = Object::type_array;
-	// Create temporary hash object
-	Object temp(Object::type_hash);
-	SymbolHashType::const_iterator it(value.begin()),
-		end(value.end());
-	for (; it != end; ++it)
-		temp.hash()[it->first] = new Object(it->second);
-
-	obj.array().push_back(new Object(temp));
-
+	pobj->array().push_back(new Object(value));
 	return false;
 }
 
@@ -280,29 +213,25 @@ bool Symbols_Impl::pushobject(const SymbolKeyType& id,
 							  Object& value,
 							  Object& table)
 {
-	Object::PtrType ptr;
-	if (getobjectforset(id, table, ptr))
+	Object::PtrType pobj;
+	if (getobjectforset(id, table, pobj))
 		return true;
 
-	Object& obj = *(ptr.get());
-	if (obj.gettype() != Object::type_array)
-		obj = Object::type_array;
-	obj.array().push_back(new Object(value));
-
+	pobj->array().push_back(new Object(value));
 	return false;
 }
 
 
 
 bool Symbols_Impl::getobjectforget(const SymbolKeyType& id, Object& table,
-									Object::PtrType& rptr)
+									Object::PtrType& rpobj)
 {
 	// if table is not a hash, then can't process symbols
 //	if (table.gettype() != Object::type_hash)
 //		return true;
 
 	if (id[0] == '$')
-		return getobjectforget(id.substr(2, id.length()-3), symbols, rptr);
+		return getobjectforget(id.substr(2, id.length()-3), symbols, rpobj);
 	else if (id.find('$') != SymbolKeyType::npos)
 	{
 		// When id contains embedded ${id}, recurse to build new id.
@@ -314,7 +243,7 @@ bool Symbols_Impl::getobjectforget(const SymbolKeyType& id, Object& table,
 		SymbolKeyType newid(p.run());
 		if (p.geterrorcount())
 			return true;	// couldn't parse
-		return getobjectforget(newid, symbols, rptr);
+		return getobjectforget(newid, symbols, rpobj);
 	}
 
 	// Read ID character by character to determine if there is a
@@ -337,12 +266,10 @@ bool Symbols_Impl::getobjectforget(const SymbolKeyType& id, Object& table,
 				// This is a hash
 				if (!table.exists(newid))
 					return true;
-				Object& tempobj = (*table.hash()[newid].get());
-				if (tempobj.gettype() != Object::type_hash)
+				if (table.hash()[newid]->gettype() != Object::type_hash)
 					return true;
-				Object::HashType& hash = table.hash();
 				return getobjectforget(id.substr(index),
-					*(hash[newid].get()), rptr);
+					*table.hash()[newid], rpobj);
 			}
 			else if (id[index] == '[')
 			{
@@ -362,7 +289,7 @@ bool Symbols_Impl::getobjectforget(const SymbolKeyType& id, Object& table,
 					// If this object isn't an array, return empty
 					if (!table.exists(newid))
 						return true;
-					if (table.hash()[newid].get()->gettype() != Object::type_array)
+					if (table.hash()[newid]->gettype() != Object::type_array)
 						return true;
 				}
 				else if (table.gettype() != Object::type_array)
@@ -371,12 +298,12 @@ bool Symbols_Impl::getobjectforget(const SymbolKeyType& id, Object& table,
 				// Get a reference to the new array based on whether this
 				// object is part of a multidimensional array or a hash.
 				Object::ArrayType& array = !newid.empty() ?
-					table.hash()[newid].get()->array() : table.array();
+					table.hash()[newid]->array() : table.array();
 
 				// If index > arraysize, return empty
 				if (arrayindex >= array.size())
 					return true;
-				Object::PtrType ptr(array[arrayindex]);
+				Object::PtrType pobj(array[arrayindex]);
 				// Check if there is more stuff to process
 				index = cbracket + 1;
 				if (index < id.length())
@@ -384,11 +311,12 @@ bool Symbols_Impl::getobjectforget(const SymbolKeyType& id, Object& table,
 					// The next character better be a hash . or array []
 					if ((id[index] != '[') && (id[index++] != '.'))
 						return true;
-					return getobjectforget(id.substr(index), *(array[arrayindex].get()), rptr);
+                    return getobjectforget(id.substr(index),
+                            *array[arrayindex], rpobj);
 				}
 				else
 				{
-					rptr = ptr;
+					rpobj = pobj;
 					return false;
 				}
 			}
@@ -405,17 +333,17 @@ bool Symbols_Impl::getobjectforget(const SymbolKeyType& id, Object& table,
 	Object::HashType::iterator it = table.hash().find(newid);
 	if (it == table.hash().end())
 		return true;
-	rptr = table.hash()[newid];
-	if (!rptr.get())	// value did not exist
+	rpobj = table.hash()[newid];
+	if (!rpobj.get())	// value did not exist
 		return true;
 	return false;
 }
 
 bool Symbols_Impl::getobjectforset(const SymbolKeyType& id, Object& table,
-									Object::PtrType& rptr)
+									Object::PtrType& rpobj)
 {
 	if (id[0] == '$')
-		return getobjectforset(id.substr(2, id.size()-3), symbols, rptr);
+		return getobjectforset(id.substr(2, id.size()-3), symbols, rpobj);
 	else if (id.find('$') != SymbolKeyType::npos)
 	{
 		// When id contains embedded ${id}, recurse to build new id.
@@ -426,7 +354,7 @@ bool Symbols_Impl::getobjectforset(const SymbolKeyType& id, Object& table,
 		SymbolKeyType newid(p.run());
 		if (p.geterrorcount())
 			return true;	// couldn't parse
-		return getobjectforset(newid, symbols, rptr);
+		return getobjectforset(newid, symbols, rpobj);
 	}
 
 	// Read ID character by character to determine if there is a hash
@@ -445,17 +373,13 @@ bool Symbols_Impl::getobjectforset(const SymbolKeyType& id, Object& table,
 				// Make sure the symbol name is not empty.
 				if (newid.empty())
 					return true;
-				// If this object is not a hash, convert a hash.
-				if (table.gettype() != Object::type_hash)
-					table.settype(Object::type_hash);
 				// Get reference to the hash
 				Object::HashType& hash = table.hash();
 				// Make sure the new symbol exists
 				if (hash.find(newid) == hash.end())
 					hash[newid] = new Object(Object::type_hash);
 				// Recurse on key part of hash
-				return getobjectforset(id.substr(index),
-					*(hash[newid].get()), rptr);
+                return getobjectforset(id.substr(index), *hash[newid], rpobj);
 			}
 			else if (id[index] == '[')
 			{
@@ -472,16 +396,12 @@ bool Symbols_Impl::getobjectforset(const SymbolKeyType& id, Object& table,
 				// the parent must be a hash.
 				if (!newid.empty())
 				{
-					// This table must be a hash, or there is something wrong
-					// with LibTPT.
-					if (table.gettype() != Object::type_hash)
-						return true;
 					// Get reference to the parent hash.
 					Object::HashType& hash = table.hash();
 					// Make sure this symbol exists as an array object.
 					if (hash.find(newid) == hash.end())
 						hash[newid] = new Object(Object::type_array);
-					else if (hash[newid].get()->gettype() != Object::type_array)
+					else if (hash[newid]->gettype() != Object::type_array)
 						hash[newid] = new Object(Object::type_array);
 				}
 				else if (table.gettype() != Object::type_array)
@@ -489,7 +409,7 @@ bool Symbols_Impl::getobjectforset(const SymbolKeyType& id, Object& table,
 				// Get a reference to the new array based on whether this
 				// object is part of a multidimensional array or a hash.
 				Object::ArrayType& array = !newid.empty() ?
-					table.hash()[newid].get()->array() : table.array();
+					table.hash()[newid]->array() : table.array();
 				// Make sure target array is large enough for array index.
 				if (arrayindex >= array.size())
 					array.resize(arrayindex+1);
@@ -508,14 +428,14 @@ bool Symbols_Impl::getobjectforset(const SymbolKeyType& id, Object& table,
 					else
 						return true;
 					return getobjectforset(id.substr(index),
-							*(array[arrayindex].get()), rptr);
+							*array[arrayindex], rpobj);
 				}
 				else
 				{
 					// If the array index is the last part of the identifier,
 					// then this call must be setting a scalar object.
 					array[arrayindex] = new Object(Object::type_scalar);
-					rptr = array[arrayindex];
+					rpobj = array[arrayindex];
 					return false;
 				}
 			}
@@ -534,12 +454,12 @@ bool Symbols_Impl::getobjectforset(const SymbolKeyType& id, Object& table,
 	Object::HashType::iterator it(table.hash().find(newid));
 	if (it != table.hash().end())
 	{
-		rptr = it->second;
+		rpobj = it->second;
 	}
 	else
 	{
-		rptr = new Object(Object::type_scalar);
-		table.hash()[newid] = rptr;
+		rpobj = new Object(Object::type_scalar);
+		table.hash()[newid] = rpobj;
 	}
 	return false;
 }
