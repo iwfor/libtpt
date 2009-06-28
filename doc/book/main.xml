@@ -32,7 +32,7 @@
 		<abstract>
 			<para>
 				This is for the LibTPT template scripting language for C++,
-				based on version 1.30.  For the most up to date documentation,
+				based on version 1.31.  For the most up to date documentation,
                 go to <ulink url="http://content.noscience.net/projects/libtpt/">
                     http://content.noscience.net/projects/libtpt/</ulink>.
 			</para>

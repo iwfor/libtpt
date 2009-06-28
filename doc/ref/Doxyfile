@@ -22,7 +22,7 @@ PROJECT_NAME           = LibTPT
 # This could be handy for archiving the generated documentation or 
 # if some version control system is used.
 
-PROJECT_NUMBER         = 1.30
+PROJECT_NUMBER         = 1.31
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) 
 # base path where the generated documentation will be put. 
