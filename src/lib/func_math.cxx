@@ -1,7 +1,7 @@
 /*
  * func_math.cxx
  *
- * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
+ * Copyright (C) 2002-2009 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without

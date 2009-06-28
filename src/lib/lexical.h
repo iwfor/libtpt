@@ -1,7 +1,7 @@
 /*
  * lexical.h
  *
- * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
+ * Copyright (C) 2002-2009 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ public:
 	bool ignoreblock();
 
 	// Handle spaces and comments after braces {}
-	void Lex::handlebraceignore(Token<>&);
+	void handlebraceignore(Token<>&);
 
 	char safeget()
 	{ if (!buf_) return 0; ++column_; return buf_.getnextchar(); }

@@ -11,10 +11,6 @@
 			</para>
 		</description>
 	</progname>
-	<config>
-		<autohelp/>
-		<variable name="cxx_include_files" value="libtpt/compat.h"/>
-	</config>
 	<options>
 		<option id="check" type="flag">
 			<name>check</name>

@@ -4,7 +4,7 @@
  * Combined include file.  This header includes all the LibTPT headers
  * in one shot.
  *
- * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
+ * Copyright (C) 2002-2009 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "compat.h"
 #include "buffer.h"
 #include "symbols.h"
 #include "parse.h"

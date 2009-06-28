@@ -3,7 +3,7 @@
 # configure.pl (bootstrap libtpt)
 # Use on *nix platforms.
 #
-# Copyright (C) 2002-2006 Isaac W. Foraker (isaac@noscience.net)
+# Copyright (C) 2002-2009 Isaac W. Foraker (isaac@noscience.net)
 # All Rights Reserved
 # 
 # Redistribution and use in source and binary forms, with or without

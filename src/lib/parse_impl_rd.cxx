@@ -4,7 +4,7 @@
  * The recursive descent part of the parser.  Since all variables
  * are treated as strings, numeric operations are expensive.
  *
- * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
+ * Copyright (C) 2002-2009 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without

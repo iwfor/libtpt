@@ -14,8 +14,6 @@
 #ifndef __clo_h__
 #define __clo_h__
 
-#include "libtpt/compat.h"
-
 // standard includes
 #include <stdexcept>
 #include <string>

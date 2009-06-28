@@ -3,7 +3,7 @@
  *
  * Some constant vars defined by default.
  *
- * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
+ * Copyright (C) 2002-2009 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,9 +47,9 @@ namespace TPT {
 		"LibTPT Template Processor Version " LIBTPT_VERSION;
 	const char* libtpt_author = "Isaac W. Foraker";
 	const char* libtpt_copyright =
-		"Copyright (C) 2002-2006 Isaac W. Foraker, All Rights Reserved";
+		"Copyright (C) 2002-2009 Isaac W. Foraker, All Rights Reserved";
 	const char* libtpt_license =
-		"Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)\n"
+		"Copyright (C) 2002-2009 Isaac W. Foraker (isaac at noscience dot net)\n"
 		"All Rights Reserved\n"
 		"\n"
 		"Redistribution and use in source and binary forms, with or without\n"

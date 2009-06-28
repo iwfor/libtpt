@@ -1,7 +1,7 @@
 /*
  * func_str.cxx
  *
- * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
+ * Copyright (C) 2002-2009 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@
 #include "funcs.h"
 #include <libtpt/object.h>
 #include <cstring>
+#include <cstdlib>
 
 namespace TPT {
 
@@ -101,7 +102,7 @@ bool func_length(std::ostream& os, Object& params)
 bool func_substr(std::ostream& os, Object& params)
 {
 	Object::ArrayType& pl = params.array();
-	unsigned int start=0, end=std::string::npos;
+    std::size_t start = 0, end = std::string::npos;
 	bool iserr = false;
 
 	if (!pl.empty())

@@ -1,6 +1,10 @@
 LibTPT Revisions
 ================
 
+Version 1.31
+------------
+- Drop support for compat.h and msvc6.
+
 Version 1.30
 ------------
 - Added new options to the LibTPT CLI (command line interface).

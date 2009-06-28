@@ -1,7 +1,7 @@
 /*
  * test1.cxx
  *
- * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
+ * Copyright (C) 2002-2009 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,13 +32,13 @@
  */
 
 #include <libtpt/tpt.h>
-#include <libtpt/compat.h>
 
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
 #include <ostream>
 #include <cstring>
+#include <cstdlib>
 
 bool test1(unsigned testcount);
 

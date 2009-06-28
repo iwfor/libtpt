@@ -1,7 +1,7 @@
 /*
  * object.h
  *
- * Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
+ * Copyright (C) 2002-2009 Isaac W. Foraker (isaac at noscience dot net)
  * All Rights Reserved
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@
 #ifndef include_libtpt_object_impl_h
 #define include_libtpt_object_impl_h
 
-#include "compat.h"
 #include "token.h"
 #include "smartptr.h"
 #include "tptexcept.h"

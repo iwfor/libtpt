@@ -3,7 +3,7 @@
 	<sect1 id="license">
 		<title>License</title>
 		<literallayout>LibTPT Template Language for C++
-Copyright (C) 2002-2006 Isaac W. Foraker (isaac at noscience dot net)
+Copyright (C) 2002-2009 Isaac W. Foraker (isaac at noscience dot net)
 All Rights Reserved</literallayout>
 		<para>
 			Redistribution and use in source and binary forms, with or without
