@@ -68,6 +68,7 @@ Symbols::Symbols(bool setdefaults)
  */
 Symbols::Symbols(const Symbols& s)
 {
+    imp = new Symbols_Impl(*this);
     imp->copy(s.imp->symbols);
 }
 
