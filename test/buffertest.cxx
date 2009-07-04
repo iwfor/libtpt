@@ -185,7 +185,7 @@ bool test3(const char* filename)
 		falloc+= 65536;
 		char* t = new char[falloc];
 		std::memcpy(t, buffer, fsize);
-		delete buffer;
+		delete [] buffer;
 		buffer = t;
 	}
 
