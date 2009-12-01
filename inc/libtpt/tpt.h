@@ -34,6 +34,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "compat.h"
 #include "buffer.h"
 #include "symbols.h"
 #include "parse.h"

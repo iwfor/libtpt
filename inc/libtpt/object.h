@@ -34,6 +34,7 @@
 #ifndef include_libtpt_object_impl_h
 #define include_libtpt_object_impl_h
 
+#include "compat.h"
 #include "token.h"
 #include "smartptr.h"
 #include "tptexcept.h"
