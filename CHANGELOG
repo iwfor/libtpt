@@ -4,10 +4,12 @@ LibTPT Revisions
 Version 1.32
 ------------
 - Fix a serious unallocated buffer bug.
+- Restored compat.h for msvc6 support.
 
 Version 1.31
 ------------
 - Drop support for compat.h and msvc6.
+- Fixes for 64-bit Linux.
 
 Version 1.30
 ------------
