@@ -1,6 +1,10 @@
 LibTPT Revisions
 ================
 
+Version 1.33
+------------
+- Updated code to compile with G++ 4.4
+
 Version 1.32
 ------------
 - Fix a serious unallocated buffer bug.
