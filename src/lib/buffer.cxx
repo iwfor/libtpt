@@ -241,7 +241,7 @@ unsigned long Buffer::offset() const
  * @return  character at index;
  * @return  undefined if invalid index
  */
-const char Buffer::operator[](unsigned long index)
+char Buffer::operator[](unsigned long index) const
 {
     while (!done_ && (index >= buffersize_))
         readfile();
@@ -331,7 +331,7 @@ void Buffer::openfile(const char* filename)
  * @return  false on success;
  * @return  true if no more data
  */
-bool Buffer::readfile()
+bool Buffer::readfile() const
 {
     if (!done_ && instr_ && !instr_->eof())
     {
@@ -358,7 +358,7 @@ bool Buffer::readfile()
 /*
  * Increase the size of the buffer by BUFFER_SIZE
  */
-void Buffer::enlarge()
+void Buffer::enlarge() const
 {
     bufferallocsize_+= BUFFER_SIZE;
     // Create a new buffer and swap it for the old buffer
