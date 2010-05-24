@@ -1,0 +1,3 @@
+
+ADD_EXECUTABLE( ${TPT_EXE} clo.cxx tpt.cxx )
+TARGET_LINK_LIBRARIES( ${TPT_EXE} ${TPT_LIB} )
