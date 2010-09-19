@@ -287,7 +287,7 @@ Token<> Lex::getspecialtoken()
 		if (std::isalpha(c) || c == '_' || c == '.')
 		{
 			buildidentifier(t.value);
-			t.type = checkreserved(&t.value[1]);
+			t.type = checkreserved(t.value.c_str() + 1);
 		}
 		else if (c == '#') // this is a @# comment
 			buildcomment(t);
