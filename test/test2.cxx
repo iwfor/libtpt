@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 	bool result=false, r;
 
 	if (argc != 2) {
-		std::cout << "Usage: test1 <testcount>" << std::endl;
+		std::cout << "Usage: test2 <testcount>" << std::endl;
 		return 0;
 	}
 
