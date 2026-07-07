@@ -1,6 +1,15 @@
 LibTPT Revisions
 ================
 
+Version 1.34
+------------
+- Security: fixed a use-after-free on self-assignment and a reference-count
+  data race in the shared pointer by reimplementing it over std::shared_ptr
+  (its control block is atomic and self-assignment safe).
+- Added test/smartptrtest.cxx covering the shared pointer, including a
+  multi-threaded stress test verified clean under ThreadSanitizer.
+- Added SECURITY.md documenting a prioritized security review of the codebase.
+
 Version 1.33
 ------------
 - Updated code to compile with G++ 4.4
