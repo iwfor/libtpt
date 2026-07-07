@@ -203,7 +203,20 @@ bool Parser::geterrorlist(ErrorList& errlist)
  */
 void Parser::addincludepath(const char* path)
 {
-    imp->inclist.push_back(path);
+    imp->incctx.roots.push_back(path);
+}
+
+
+/**
+ * Set the security policy for @include and @includetext.  The default is
+ * include_confined, which restricts includes to the configured include roots.
+ *
+ * @param   mode    Include resolution policy.
+ * @return  nothing
+ */
+void Parser::setincludemode(IncludeMode mode)
+{
+    imp->incctx.mode = mode;
 }
 
 

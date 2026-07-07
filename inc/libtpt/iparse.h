@@ -75,7 +75,10 @@ public:
 
 	/// Add an include search path.
 	void addincludepath(const char* path);
-	
+
+	/// Set the @include/@includetext security policy (default: confined).
+	void setincludemode(IncludeMode mode);
+
 	/// Add a callback function.
 	bool addfunction(const char* name,
 			bool (*func)(std::ostream&, Object&));

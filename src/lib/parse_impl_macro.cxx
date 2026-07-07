@@ -158,7 +158,7 @@ void Parser_Impl::user_macro(const std::string& name, std::ostream* os)
 
 	// Call the macro
 	Buffer newbuf(mac.body.c_str(), mac.body.size()+1);
-	Parser_Impl imp(newbuf, symbols, macros, funcs, inclist);
+	Parser_Impl imp(newbuf, symbols, macros, funcs, incctx);
 	imp.lex.setlineno(mac.lineno);
 	imp.parse_block(os);
 

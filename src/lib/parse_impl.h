@@ -49,6 +49,20 @@ enum loop_control { loop_ign = 0, loop_next, loop_last };
 
 typedef std::vector< std::string > IncludeList;
 
+/*
+ * Shared include state, threaded by reference through every nested
+ * Parser_Impl so the whole parse tree honors one policy and shares one
+ * live include stack (used for cycle detection and depth limiting).
+ */
+struct IncludeContext {
+	IncludeMode mode;	// security policy (default: confined)
+	IncludeList roots;	// include search roots (from addincludepath)
+	IncludeList stack;	// canonical paths of includes currently open
+	unsigned maxdepth;	// maximum nested @include depth
+
+	IncludeContext() : mode(include_confined), maxdepth(40) { }
+};
+
 class Parser_Impl {
 public:
 	Buffer* allocbuf;
@@ -62,8 +76,8 @@ public:
 	FunctionList localfuncs;
 	FunctionList& funcs;
 	ErrorList errlist;
-	IncludeList localinclist;
-	IncludeList& inclist;
+	IncludeContext localincctx;
+	IncludeContext& incctx;
 	bool isseeded;
 	loop_control loop_cmd;
 
@@ -79,45 +93,45 @@ public:
 
 	Parser_Impl(Buffer& buf) : allocbuf(0), lex(buf), level(0),
 		looplevel(0), symbols(localsymmap), macros(localmacros),
-		funcs(localfuncs), inclist(localinclist), isseeded(false)
+		funcs(localfuncs), incctx(localincctx), isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(Buffer& buf, Symbols& sm) : allocbuf(0), lex(buf),
 		level(0), looplevel(0), symbols(sm),
-		macros(localmacros), funcs(localfuncs), inclist(localinclist),
+		macros(localmacros), funcs(localfuncs), incctx(localincctx),
 		isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(const char* filename) : allocbuf(new Buffer(filename)),
 		lex(*allocbuf), level(0), looplevel(0), symbols(localsymmap),
-		macros(localmacros), funcs(localfuncs), inclist(localinclist),
+		macros(localmacros), funcs(localfuncs), incctx(localincctx),
 		isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(const char* filename, Symbols& sm) : 
 		allocbuf(new Buffer(filename)), lex(*allocbuf), level(0),
 		looplevel(0), symbols(sm),
-		macros(localmacros), funcs(localfuncs), inclist(localinclist),
+		macros(localmacros), funcs(localfuncs), incctx(localincctx),
 		isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(const char* buffer, unsigned long size) :
 		allocbuf(new Buffer(buffer, size)), lex(*allocbuf), level(0),
 		looplevel(0), symbols(localsymmap), macros(localmacros),
-		funcs(localfuncs), inclist(localinclist), isseeded(false)
+		funcs(localfuncs), incctx(localincctx), isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(const char* buffer, unsigned long size, Symbols& sm) :
 		allocbuf(new Buffer(buffer, size)), lex(*allocbuf), level(0),
 		looplevel(0), symbols(sm),
-		macros(localmacros), funcs(localfuncs), inclist(localinclist),
+		macros(localmacros), funcs(localfuncs), incctx(localincctx),
 		isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(Buffer& buf, Symbols& sm, MacroList& ml, FunctionList& fns,
-			IncludeList& il) :
+			IncludeContext& ic) :
 		allocbuf(0), lex(buf), level(0), looplevel(0), symbols(sm), macros(ml),
-		funcs(fns), inclist(il), isseeded(false)
+		funcs(fns), incctx(ic), isseeded(false)
 	{ }
 	
 	~Parser_Impl() { if (allocbuf) delete allocbuf; }
@@ -165,6 +179,13 @@ public:
 
 	void parse_include(std::ostream* os);
 	void parse_includetext(std::ostream* os);
+	// Resolve a requested include name under the active security policy.
+	// On success returns false and sets resolved to an openable path; on
+	// failure records an error and returns true.
+	bool resolveincludepath(const std::string& requested, std::string& resolved);
+	// Guard against include cycles and excessive nesting depth. Returns
+	// true (and records an error) if the include must not proceed.
+	bool checkincludeguard(const std::string& canonpath);
 	void parse_using();
 	void parse_if(std::ostream* os);
 	bool parse_ifexpr(std::ostream* os);

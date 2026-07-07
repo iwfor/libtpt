@@ -53,6 +53,25 @@ typedef std::string TScalarType;
 typedef std::vector< std::string > TArrayType;
 typedef std::map< std::string, std::string > THashType;
 
+/**
+ * Security policy for @include and @includetext file resolution.
+ *
+ * - include_confined (default): a template may only include files that are
+ *   relative and resolve, after canonicalization, to a location inside one
+ *   of the configured include roots (see addincludepath).  Absolute paths,
+ *   "..", and symlinks that escape a root are rejected.  With no roots
+ *   configured, includes are confined to the current directory.
+ * - include_unrestricted: legacy behavior; any path the process can open,
+ *   including absolute paths, is accepted.  Only use with fully trusted
+ *   templates.
+ * - include_disabled: @include and @includetext always fail.
+ */
+enum IncludeMode {
+	include_confined = 0,
+	include_unrestricted,
+	include_disabled
+};
+
 }
 
 #endif // include_tpt_tpttypes_h

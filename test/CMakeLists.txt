@@ -3,6 +3,7 @@ SET( TPT_TESTS
     bench
     buffertest
     smartptrtest
+    includetest
     dump
     test1
     test2
