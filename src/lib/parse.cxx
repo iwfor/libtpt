@@ -203,7 +203,7 @@ bool Parser::geterrorlist(ErrorList& errlist)
  */
 void Parser::addincludepath(const char* path)
 {
-    imp->incctx.roots.push_back(path);
+    imp->ctx.roots.push_back(path);
 }
 
 
@@ -216,7 +216,7 @@ void Parser::addincludepath(const char* path)
  */
 void Parser::setincludemode(IncludeMode mode)
 {
-    imp->incctx.mode = mode;
+    imp->ctx.mode = mode;
 }
 
 

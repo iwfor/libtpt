@@ -132,6 +132,17 @@ void Parser_Impl::user_macro(const std::string& name, std::ostream* os)
 	}
 
 	const Macro& mac = (*it).second;
+
+	// Guard against runaway recursion: each nested macro call constructs a
+	// new Parser_Impl on the native stack, so a self-referential macro would
+	// otherwise overflow the stack and crash.
+	if (ctx.macrodepth >= ctx.macromaxdepth)
+	{
+		recorderror("Error: maximum @macro recursion depth exceeded in "
+			+ name);
+		return;
+	}
+
 	// While processing parameters, preserve existing symbols
 	// if there is a name collision.
 	Object saveobj(Object::type_hash);
@@ -156,11 +167,22 @@ void Parser_Impl::user_macro(const std::string& name, std::ostream* os)
 			symimp.symbols.hash()[*pit] = new Object(*pl[i++].get());
 	}
 
-	// Call the macro
+	// Call the macro.  The count guard raises the shared macro depth for the
+	// duration of this expansion (and restores it even if parsing throws), so
+	// nested macro calls see the increased depth.
+	cntguard<unsigned> macroguard(ctx.macrodepth);
 	Buffer newbuf(mac.body.c_str(), mac.body.size()+1);
-	Parser_Impl imp(newbuf, symbols, macros, funcs, incctx);
+	Parser_Impl imp(newbuf, symbols, macros, funcs, ctx);
 	imp.lex.setlineno(mac.lineno);
 	imp.parse_block(os);
+	// Propagate any errors from the macro body (including a recursion-depth
+	// error) up to this parser; otherwise they would be silently discarded.
+	if (!imp.errlist.empty())
+	{
+		ErrorList::iterator eit(imp.errlist.begin()), eend(imp.errlist.end());
+		for (; eit != eend; ++eit)
+			errlist.push_back(*eit);
+	}
 
 	// Pop saved symbols off the stack
 	Object::HashType::iterator hit;

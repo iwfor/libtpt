@@ -13,6 +13,9 @@ Version 1.34
   include_unrestricted (legacy), and include_disabled policies.
 - Security: added an @include cycle check and nesting-depth limit so a
   self- or mutually-including template can no longer recurse without bound.
+- Security: added an @macro recursion-depth limit so a self-referential
+  macro can no longer overflow the stack. Errors raised inside a macro body
+  are now propagated to the caller instead of being silently discarded.
 - Added test/smartptrtest.cxx (shared pointer, incl. a ThreadSanitizer-clean
   multi-threaded stress test) and test/includetest.cxx (include confinement
   and cycle guard).

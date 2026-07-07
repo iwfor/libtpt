@@ -6,6 +6,8 @@ echo "Smart pointer test"
 ./smartptrtest
 echo "Include security test"
 ./includetest
+echo "Macro recursion test"
+./macrotest
 echo "Parser test"
 ./test1 54
 echo "IParser test"

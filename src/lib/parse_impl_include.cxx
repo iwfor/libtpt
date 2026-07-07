@@ -147,7 +147,7 @@ bool within_root(const std::string& canonroot, const std::string& canonpath)
 bool Parser_Impl::resolveincludepath(const std::string& requested,
 	std::string& resolved)
 {
-	if (incctx.mode == include_disabled)
+	if (ctx.mode == include_disabled)
 	{
 		recorderror("Security Error: file inclusion is disabled");
 		return true;
@@ -159,11 +159,11 @@ bool Parser_Impl::resolveincludepath(const std::string& requested,
 		return true;
 	}
 
-	if (incctx.mode == include_unrestricted)
+	if (ctx.mode == include_unrestricted)
 	{
 		// Legacy behavior: search the roots, then try the raw path.
-		IncludeList::iterator it(incctx.roots.begin()),
-			end(incctx.roots.end());
+		IncludeList::iterator it(ctx.roots.begin()),
+			end(ctx.roots.end());
 		for (; it != end; ++it)
 		{
 			std::string path(*it);
@@ -194,7 +194,7 @@ bool Parser_Impl::resolveincludepath(const std::string& requested,
 	}
 
 	// With no roots configured, confine includes to the current directory.
-	IncludeList roots(incctx.roots);
+	IncludeList roots(ctx.roots);
 	if (roots.empty())
 		roots.push_back(".");
 
@@ -233,12 +233,12 @@ bool Parser_Impl::resolveincludepath(const std::string& requested,
  */
 bool Parser_Impl::checkincludeguard(const std::string& canonpath)
 {
-	if (incctx.stack.size() >= incctx.maxdepth)
+	if (ctx.stack.size() >= ctx.maxdepth)
 	{
 		recorderror("Error: maximum @include depth exceeded");
 		return true;
 	}
-	IncludeList::iterator it(incctx.stack.begin()), end(incctx.stack.end());
+	IncludeList::iterator it(ctx.stack.begin()), end(ctx.stack.end());
 	for (; it != end; ++it)
 	{
 		if (*it == canonpath)
@@ -291,7 +291,7 @@ void Parser_Impl::parse_include(std::ostream* os)
 	if (checkincludeguard(path))
 		return;
 
-	incstackguard guard(incctx.stack, path);
+	incstackguard guard(ctx.stack, path);
 
 	// Create another Impl which inherits the shared parse state (symbols,
 	// macros, functions, and include context) to process the include.
@@ -301,7 +301,7 @@ void Parser_Impl::parse_include(std::ostream* os)
 		recorderror("File Error: Could not read " + obj.scalar());
 		return;
 	}
-	Parser_Impl incl(buf, symbols, macros, funcs, incctx);
+	Parser_Impl incl(buf, symbols, macros, funcs, ctx);
 	if (incl.pass1(os))
 	{
 		// copy incl's error list, if any

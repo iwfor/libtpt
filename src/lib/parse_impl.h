@@ -50,17 +50,22 @@ enum loop_control { loop_ign = 0, loop_next, loop_last };
 typedef std::vector< std::string > IncludeList;
 
 /*
- * Shared include state, threaded by reference through every nested
- * Parser_Impl so the whole parse tree honors one policy and shares one
- * live include stack (used for cycle detection and depth limiting).
+ * Shared parse state, threaded by reference through every nested Parser_Impl
+ * so the whole parse tree honors one policy and shares the runaway-recursion
+ * guards (each nested @include and @macro call constructs a new Parser_Impl).
  */
-struct IncludeContext {
-	IncludeMode mode;	// security policy (default: confined)
-	IncludeList roots;	// include search roots (from addincludepath)
-	IncludeList stack;	// canonical paths of includes currently open
-	unsigned maxdepth;	// maximum nested @include depth
+struct ParseContext {
+	IncludeMode mode;		// include security policy (default: confined)
+	IncludeList roots;		// include search roots (from addincludepath)
+	IncludeList stack;		// canonical paths of includes currently open
+	unsigned maxdepth;		// maximum nested @include depth
+	unsigned macrodepth;	// current @macro call nesting depth
+	unsigned macromaxdepth;	// maximum @macro call nesting depth
 
-	IncludeContext() : mode(include_confined), maxdepth(40) { }
+	ParseContext()
+		: mode(include_confined), maxdepth(40),
+		  macrodepth(0), macromaxdepth(100)
+	{ }
 };
 
 class Parser_Impl {
@@ -76,8 +81,8 @@ public:
 	FunctionList localfuncs;
 	FunctionList& funcs;
 	ErrorList errlist;
-	IncludeContext localincctx;
-	IncludeContext& incctx;
+	ParseContext localctx;
+	ParseContext& ctx;
 	bool isseeded;
 	loop_control loop_cmd;
 
@@ -93,45 +98,45 @@ public:
 
 	Parser_Impl(Buffer& buf) : allocbuf(0), lex(buf), level(0),
 		looplevel(0), symbols(localsymmap), macros(localmacros),
-		funcs(localfuncs), incctx(localincctx), isseeded(false)
+		funcs(localfuncs), ctx(localctx), isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(Buffer& buf, Symbols& sm) : allocbuf(0), lex(buf),
 		level(0), looplevel(0), symbols(sm),
-		macros(localmacros), funcs(localfuncs), incctx(localincctx),
+		macros(localmacros), funcs(localfuncs), ctx(localctx),
 		isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(const char* filename) : allocbuf(new Buffer(filename)),
 		lex(*allocbuf), level(0), looplevel(0), symbols(localsymmap),
-		macros(localmacros), funcs(localfuncs), incctx(localincctx),
+		macros(localmacros), funcs(localfuncs), ctx(localctx),
 		isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(const char* filename, Symbols& sm) : 
 		allocbuf(new Buffer(filename)), lex(*allocbuf), level(0),
 		looplevel(0), symbols(sm),
-		macros(localmacros), funcs(localfuncs), incctx(localincctx),
+		macros(localmacros), funcs(localfuncs), ctx(localctx),
 		isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(const char* buffer, unsigned long size) :
 		allocbuf(new Buffer(buffer, size)), lex(*allocbuf), level(0),
 		looplevel(0), symbols(localsymmap), macros(localmacros),
-		funcs(localfuncs), incctx(localincctx), isseeded(false)
+		funcs(localfuncs), ctx(localctx), isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(const char* buffer, unsigned long size, Symbols& sm) :
 		allocbuf(new Buffer(buffer, size)), lex(*allocbuf), level(0),
 		looplevel(0), symbols(sm),
-		macros(localmacros), funcs(localfuncs), incctx(localincctx),
+		macros(localmacros), funcs(localfuncs), ctx(localctx),
 		isseeded(false)
 	{ installfuncs(); }
 
 	Parser_Impl(Buffer& buf, Symbols& sm, MacroList& ml, FunctionList& fns,
-			IncludeContext& ic) :
+			ParseContext& ic) :
 		allocbuf(0), lex(buf), level(0), looplevel(0), symbols(sm), macros(ml),
-		funcs(fns), incctx(ic), isseeded(false)
+		funcs(fns), ctx(ic), isseeded(false)
 	{ }
 	
 	~Parser_Impl() { if (allocbuf) delete allocbuf; }

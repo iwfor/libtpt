@@ -169,7 +169,7 @@ bool IParser::geterrorlist(ErrorList& errlist)
  */
 void IParser::addincludepath(const char* path)
 {
-    imp->incctx.roots.push_back(path);
+    imp->ctx.roots.push_back(path);
 }
 
 
@@ -182,7 +182,7 @@ void IParser::addincludepath(const char* path)
  */
 void IParser::setincludemode(IncludeMode mode)
 {
-    imp->incctx.mode = mode;
+    imp->ctx.mode = mode;
 }
 
 

@@ -4,6 +4,7 @@ SET( TPT_TESTS
     buffertest
     smartptrtest
     includetest
+    macrotest
     dump
     test1
     test2
