@@ -41,6 +41,7 @@
 bool test1(const char* filename);	// file
 bool test2(const char* filename);	// stream
 bool test3(const char* filename);	// memory
+bool test4();						// boundary reads (empty / past end)
 // TODO: Test unget, seek, reset, and []
 
 int main(int argc, char* argv[])
@@ -67,6 +68,11 @@ int main(int argc, char* argv[])
 		r = test2(argv[1]);
         if (r)
             std::cout << "Buffer test 3: failed" << std::endl;
+		result|= r;
+
+		r = test4();
+        if (r)
+            std::cout << "Buffer test 4: failed" << std::endl;
 		result|= r;
 
 	} catch(const std::exception& e) {
@@ -222,6 +228,50 @@ bool test3(const char* filename)
 	if (filehasdata != bufhasdata)
 	{
 		std::cout << "Buffer is wrong size" << std::endl;
+		return true;
+	}
+
+	return false;
+}
+
+
+/*
+ * Boundary conditions: reading an empty buffer, and reading past the end of
+ * a buffer, must not index outside the heap allocation.  With a checked
+ * getnextchar() these return '\0' and leave the buffer marked "done"; without
+ * the check they read out of bounds (caught by a sanitizer).
+ */
+bool test4()
+{
+	// Empty buffer: no data available, and a read must be safe.
+	TPT::Buffer empty("", 0);
+	if (empty)
+	{
+		std::cout << "Empty buffer should report no data" << std::endl;
+		return true;
+	}
+	if (empty.getnextchar() != '\0')
+	{
+		std::cout << "Empty buffer read should return '\\0'" << std::endl;
+		return true;
+	}
+
+	// Exhaust a small buffer, then read one past the end.
+	TPT::Buffer buf("AB", 2);
+	if (buf.getnextchar() != 'A' || buf.getnextchar() != 'B')
+	{
+		std::cout << "Unexpected buffer contents" << std::endl;
+		return true;
+	}
+	if (buf)
+	{
+		std::cout << "Buffer should be exhausted" << std::endl;
+		return true;
+	}
+	// This read is past the end; it must be safe and report end-of-data.
+	if (buf.getnextchar() != '\0')
+	{
+		std::cout << "Past-end read should return '\\0'" << std::endl;
 		return true;
 	}
 

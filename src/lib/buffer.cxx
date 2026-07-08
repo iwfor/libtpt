@@ -156,6 +156,16 @@ Buffer::~Buffer()
  */
 char Buffer::getnextchar()
 {
+    // Guard against reading past the end of the buffer.  Callers are expected
+    // to check operator bool() first, but a miscount -- or an empty buffer,
+    // where buffer_ may be a zero-length allocation -- must not index out of
+    // bounds of the heap buffer.
+    if (bufferidx_ >= buffersize_)
+    {
+        done_ = true;
+        return '\0';
+    }
+
     register char c = buffer_[bufferidx_];
     ++bufferidx_;
 

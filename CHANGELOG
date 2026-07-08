@@ -19,6 +19,9 @@ Version 1.34
 - Security: division/modulo by zero, @rand(0), and int64min / -1 in template
   expressions no longer crash the process with SIGFPE; they record an error
   and yield 0 instead.
+- Security: Buffer::getnextchar() now bounds-checks before indexing, so
+  reading an empty buffer or past the end no longer reads out of bounds of
+  the heap allocation; it returns '\0' and marks the buffer done.
 - Added test/smartptrtest.cxx (shared pointer, incl. a ThreadSanitizer-clean
   multi-threaded stress test) and test/includetest.cxx (include confinement
   and cycle guard).
