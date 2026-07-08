@@ -184,16 +184,35 @@ Object Parser_Impl::parse_level4(Object& left)
 		Object nextop = parse_level5(right);
 		int64_t lwork = str2num(left.scalar().c_str()),
 			rwork = str2num(right.scalar().c_str());
+		// Most-negative int64_t, without relying on <stdint.h> limit macros.
+		const int64_t int64min = -9223372036854775807LL - 1;
 		switch (op.token().value[0])
 		{
 		case '*':
 			lwork*= rwork;
 			break;
 		case '/':
-			lwork/= rwork;
+			if (rwork == 0)
+			{
+				recorderror("Error: division by zero");
+				lwork = 0;
+			}
+			// int64min / -1 overflows and traps (SIGFPE) on x86; guard it.
+			else if (rwork == -1 && lwork == int64min)
+				lwork = int64min;
+			else
+				lwork/= rwork;
 			break;
 		case '%':
-			lwork%= rwork;
+			if (rwork == 0)
+			{
+				recorderror("Error: modulo by zero");
+				lwork = 0;
+			}
+			else if (rwork == -1 && lwork == int64min)
+				lwork = 0;	// n % -1 == 0, but the CPU op would trap
+			else
+				lwork%= rwork;
 			break;
 		}
 		num2str(lwork, left.scalar());

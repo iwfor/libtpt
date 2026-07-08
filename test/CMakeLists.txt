@@ -5,6 +5,7 @@ SET( TPT_TESTS
     smartptrtest
     includetest
     macrotest
+    mathtest
     dump
     test1
     test2

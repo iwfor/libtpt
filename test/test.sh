@@ -8,6 +8,8 @@ echo "Include security test"
 ./includetest
 echo "Macro recursion test"
 ./macrotest
+echo "Arithmetic safety test"
+./mathtest
 echo "Parser test"
 ./test1 54
 echo "IParser test"

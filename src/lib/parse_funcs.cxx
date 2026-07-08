@@ -115,7 +115,13 @@ Token<> Parser_Impl::parse_rand()
 		if (pl.size() > 1)
 			recorderror("Warning: @rand takes zero or one arguments");
 	}
-	lwork = random32() % lwork;
+	if (lwork == 0)
+	{
+		recorderror("Error: @rand argument must be non-zero");
+		lwork = 0;
+	}
+	else
+		lwork = random32() % lwork;
 	num2str(lwork, result.value);
 
 	return result;

@@ -16,6 +16,9 @@ Version 1.34
 - Security: added an @macro recursion-depth limit so a self-referential
   macro can no longer overflow the stack. Errors raised inside a macro body
   are now propagated to the caller instead of being silently discarded.
+- Security: division/modulo by zero, @rand(0), and int64min / -1 in template
+  expressions no longer crash the process with SIGFPE; they record an error
+  and yield 0 instead.
 - Added test/smartptrtest.cxx (shared pointer, incl. a ThreadSanitizer-clean
   multi-threaded stress test) and test/includetest.cxx (include confinement
   and cycle guard).
