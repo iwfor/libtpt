@@ -116,6 +116,21 @@ Buffer::Buffer(const char* buf, unsigned long bufsize) :
 }
 
 
+/*
+ * Validate a [start, end) subrange against a source Buffer.  Returns the
+ * length (end - start) on success, or throws if the range is inverted
+ * (end < start, which would underflow to a huge unsigned length) or reaches
+ * past the source's buffered data.
+ */
+unsigned long Buffer::checkedsubrange(const Buffer& buf,
+    unsigned long start, unsigned long end)
+{
+    if (end < start || end > buf.buffersize_)
+        throw tptexception("Buffer subrange out of bounds");
+    return end - start;
+}
+
+
 /**
  * Construct a read Buffer on a subspace of an existing Buffer.
  *
@@ -124,14 +139,17 @@ Buffer::Buffer(const char* buf, unsigned long bufsize) :
 Buffer::Buffer(const Buffer& buf, unsigned long start, unsigned long end) :
     instr_(0),
     name_("<buffer>"),
-    buffersize_(end-start),
-    bufferallocsize_(end-start),
-    buffer_(new char[end-start]),
+    // checkedsubrange() runs first (declaration order) and throws on an
+    // invalid range before any allocation, so the length below is always sane.
+    buffersize_(checkedsubrange(buf, start, end)),
+    bufferallocsize_(buffersize_),
+    buffer_(new char[buffersize_]),
     bufferidx_(0),
     freestreamwhendone_(false),
-    done_(!(end-start))
+    done_(!buffersize_)
 {
-    std::memcpy(buffer_, &buf.buffer_[start], end-start);
+    if (buffersize_)
+        std::memcpy(buffer_, &buf.buffer_[start], buffersize_);
 }
 
 

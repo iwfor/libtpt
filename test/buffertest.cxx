@@ -32,6 +32,7 @@
  */
 
 #include <libtpt/buffer.h>
+#include <libtpt/tptexcept.h>
 
 #include <iostream>
 #include <fstream>
@@ -42,6 +43,7 @@ bool test1(const char* filename);	// file
 bool test2(const char* filename);	// stream
 bool test3(const char* filename);	// memory
 bool test4();						// boundary reads (empty / past end)
+bool test5();						// subrange constructor bounds
 // TODO: Test unget, seek, reset, and []
 
 int main(int argc, char* argv[])
@@ -73,6 +75,11 @@ int main(int argc, char* argv[])
 		r = test4();
         if (r)
             std::cout << "Buffer test 4: failed" << std::endl;
+		result|= r;
+
+		r = test5();
+        if (r)
+            std::cout << "Buffer test 5: failed" << std::endl;
 		result|= r;
 
 	} catch(const std::exception& e) {
@@ -272,6 +279,65 @@ bool test4()
 	if (buf.getnextchar() != '\0')
 	{
 		std::cout << "Past-end read should return '\\0'" << std::endl;
+		return true;
+	}
+
+	return false;
+}
+
+
+/*
+ * Subrange constructor bounds: a valid [start, end) range copies the right
+ * bytes, an empty range is allowed, and an inverted or out-of-bounds range
+ * must throw rather than underflow to a huge allocation / out-of-bounds read.
+ */
+bool test5()
+{
+	TPT::Buffer src("Hello", 5);
+
+	// Valid subrange [1, 4) == "ell".
+	{
+		TPT::Buffer sub(src, 1, 4);
+		if (sub.size() != 3)
+		{
+			std::cout << "Subrange has wrong size" << std::endl;
+			return true;
+		}
+		if (sub.getnextchar() != 'e' || sub.getnextchar() != 'l' ||
+			sub.getnextchar() != 'l')
+		{
+			std::cout << "Subrange has wrong contents" << std::endl;
+			return true;
+		}
+	}
+
+	// Empty subrange [2, 2) is valid and holds no data.
+	{
+		TPT::Buffer sub(src, 2, 2);
+		if (sub)
+		{
+			std::cout << "Empty subrange should hold no data" << std::endl;
+			return true;
+		}
+	}
+
+	// Inverted range (end < start) must throw, not underflow.
+	bool threw = false;
+	try { (void)TPT::Buffer(src, 4, 1); }
+	catch (const TPT::tptexception&) { threw = true; }
+	if (!threw)
+	{
+		std::cout << "Inverted subrange should throw" << std::endl;
+		return true;
+	}
+
+	// Range past the end of the source must throw.
+	threw = false;
+	try { (void)TPT::Buffer(src, 0, 100); }
+	catch (const TPT::tptexception&) { threw = true; }
+	if (!threw)
+	{
+		std::cout << "Out-of-bounds subrange should throw" << std::endl;
 		return true;
 	}
 

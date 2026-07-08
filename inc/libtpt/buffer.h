@@ -96,6 +96,10 @@ private:
 	void openfile(const char* filename);
 	bool readfile() const;
 	void enlarge() const;	// increase buffer size
+	// Validate a [start, end) subrange against buf and return its length,
+	// throwing tptexception if the range is inverted or out of bounds.
+	static unsigned long checkedsubrange(const Buffer& buf,
+		unsigned long start, unsigned long end);
 
 	// Prevent use of this constructor
 	Buffer();

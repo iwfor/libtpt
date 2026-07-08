@@ -22,6 +22,9 @@ Version 1.34
 - Security: Buffer::getnextchar() now bounds-checks before indexing, so
   reading an empty buffer or past the end no longer reads out of bounds of
   the heap allocation; it returns '\0' and marks the buffer done.
+- Security: the Buffer subrange constructor now validates start/end; an
+  inverted range (which underflowed to a huge allocation) or a range past
+  the source now throws tptexception instead of over-reading.
 - Added test/smartptrtest.cxx (shared pointer, incl. a ThreadSanitizer-clean
   multi-threaded stress test) and test/includetest.cxx (include confinement
   and cycle guard).
