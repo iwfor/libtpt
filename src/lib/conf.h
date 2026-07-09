@@ -44,6 +44,7 @@
 #		include <native.h>
 #	else
 		typedef __int64 int64_t;
+		typedef unsigned __int64 uint64_t;
 #	endif
 #	pragma warning(disable:4786)
 #else

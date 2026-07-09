@@ -62,6 +62,8 @@ bool test_modulo_by_zero();
 bool test_int64min_over_neg1();
 bool test_rand_zero();
 bool test_normal_arithmetic();
+bool test_overflow_saturates();
+bool test_int64min_renders();
 
 int main()
 {
@@ -73,6 +75,8 @@ int main()
 		{ "int64min / -1 is safe",       test_int64min_over_neg1 },
 		{ "@rand(0) is safe",            test_rand_zero },
 		{ "normal arithmetic unchanged", test_normal_arithmetic },
+		{ "overflow saturates",          test_overflow_saturates },
+		{ "int64min renders correctly",  test_int64min_renders },
 		{ 0, 0 }
 	};
 	for (int i = 0; tests[i].fn; ++i)
@@ -130,4 +134,22 @@ bool test_normal_arithmetic()
 	errs = 0;
 	std::string mod = render("@set(x, 17 % 5)${x}", errs);
 	return (mod != "2") || (errs != 0);
+}
+
+// A value beyond int64 range in an arithmetic operation must saturate to the
+// limit rather than overflow (undefined behavior).
+bool test_overflow_saturates()
+{
+	unsigned errs = 0;
+	std::string out = render("@set(x, 99999999999999999999 + 0)${x}", errs);
+	return (out != "9223372036854775807") || (errs != 0);
+}
+
+// The most-negative int64 value must render correctly.  Before the num2str
+// fix, negating it overflowed and produced garbage output.
+bool test_int64min_renders()
+{
+	unsigned errs = 0;
+	std::string out = render("@set(x, -9223372036854775807 - 1)${x}", errs);
+	return (out != "-9223372036854775808") || (errs != 0);
 }

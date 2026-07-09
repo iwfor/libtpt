@@ -43,51 +43,70 @@ namespace TPT {
  */
 int64_t str2num(const char* str)
 {
-	int64_t value = 0;
-	bool isneg(false);
+	// Largest representable magnitudes, written without <stdint.h> limit
+	// macros: INT64_MAX for a positive result, INT64_MAX + 1 for the
+	// most-negative result.
+	const int64_t i64max = 9223372036854775807LL;
+	const int64_t i64min = -i64max - 1;
 
-	if (*str == '-')
+	// Accept a single leading sign.
+	bool isneg = false;
+	if (*str == '-') { isneg = true; ++str; }
+	else if (*str == '+') ++str;
+
+	const uint64_t limit = isneg
+		? static_cast<uint64_t>(i64max) + 1
+		: static_cast<uint64_t>(i64max);
+
+	// Accumulate digits only, stopping at the first non-digit (atoi-like),
+	// and saturate rather than overflowing on very long inputs.
+	uint64_t value = 0;
+	while (*str >= '0' && *str <= '9')
 	{
-		++str;
-		isneg = true;
-	}
-	while (*str)
-	{
-		value*= 10;
-		value+= (*str) - '0';
+		unsigned digit = static_cast<unsigned>(*str - '0');
+		if (value > (limit - digit) / 10)
+			return isneg ? i64min : i64max;	// saturate at the limit
+		value = value * 10 + digit;
 		++str;
 	}
+
 	if (isneg)
-		value = -value;
-	return value;
+	{
+		if (value == static_cast<uint64_t>(i64max) + 1)
+			return i64min;			// exactly INT64_MIN
+		return -static_cast<int64_t>(value);
+	}
+	return static_cast<int64_t>(value);
 }
 
 
 void num2str(int64_t value, std::string& str)
 {
-	char buf[32];
-
 	str.erase();
-	if (!value)
-		str = "0";
-	else
+	if (value == 0)
 	{
-		int i=0;
-		if (value < 0)
-		{
-			str = '-';
-			value = -value;
-		}
-		while (value)
-		{
-			buf[i++] = static_cast<char>(value % 10) + '0';
-			value/= 10;
-		}
-		do {
-			--i;
-			str+= buf[i];
-		} while (i);
+		str = "0";
+		return;
 	}
+
+	// Convert the magnitude in unsigned arithmetic so that INT64_MIN --
+	// whose negation overflows a signed int64_t -- is rendered correctly.
+	bool isneg = value < 0;
+	uint64_t mag = isneg
+		? 0 - static_cast<uint64_t>(value)
+		: static_cast<uint64_t>(value);
+
+	char buf[24];	// a 64-bit value is at most 20 decimal digits
+	int i = 0;
+	while (mag)
+	{
+		buf[i++] = static_cast<char>(mag % 10) + '0';
+		mag /= 10;
+	}
+	if (isneg)
+		str = '-';
+	while (i > 0)
+		str += buf[--i];
 }
 
 
