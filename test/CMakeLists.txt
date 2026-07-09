@@ -1,4 +1,7 @@
 
+# lextest includes the internal lexer header directly.
+include_directories( ${CMAKE_SOURCE_DIR}/src/lib )
+
 SET( TPT_TESTS
     bench
     buffertest
@@ -7,6 +10,7 @@ SET( TPT_TESTS
     macrotest
     mathtest
     strtest
+    lextest
     dump
     test1
     test2

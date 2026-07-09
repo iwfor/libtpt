@@ -12,6 +12,8 @@ echo "Arithmetic safety test"
 ./mathtest
 echo "String builtin test"
 ./strtest
+echo "Lexer test"
+./lextest
 echo "Parser test"
 ./test1 54
 echo "IParser test"

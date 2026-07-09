@@ -366,9 +366,18 @@ Token<> Lex::getspecialtoken()
  */
 void Lex::unget(const Token<>& tok)
 {
-	register size_t i = tok.value.size();
-	buf_.seek(buf_.offset() - i);
-	column_-= i;
+	size_t i = tok.value.size();
+	unsigned long off = buf_.offset();
+	// Never seek before the start of the buffer: buf_.offset() - i would
+	// otherwise underflow to a huge index and the seek would silently fail.
+	if (i > off)
+		i = off;
+	buf_.seek(off - i);
+	// Keep the (1-based) column counter from underflowing.
+	if (i < column_)
+		column_-= i;
+	else
+		column_ = 1;
 }
 
 
