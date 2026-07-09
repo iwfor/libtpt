@@ -11,6 +11,7 @@ SET( TPT_TESTS
     mathtest
     strtest
     lextest
+    looptest
     dump
     test1
     test2

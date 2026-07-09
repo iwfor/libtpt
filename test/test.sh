@@ -14,6 +14,8 @@ echo "String builtin test"
 ./strtest
 echo "Lexer test"
 ./lextest
+echo "Loop budget test"
+./looptest
 echo "Parser test"
 ./test1 54
 echo "IParser test"

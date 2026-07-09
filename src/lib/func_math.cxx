@@ -60,7 +60,7 @@ bool func_sum(std::ostream& os, TPT::Object& params)
 			Object::ArrayType::const_iterator ait(temp.begin()), aend(temp.end());
 			for (; ait != aend; ++ait)
 			{
-				Object& subobj = *(*it).get();
+				Object& subobj = *(*ait).get();
 				if (subobj.gettype() == Object::type_scalar)
 					lwork+= str2num(subobj.scalar().c_str());
 			}
@@ -83,8 +83,8 @@ bool func_avg(std::ostream& os, TPT::Object& params)
 	Object::ArrayType& pl = params.array();
 	std::string result;
 	int64_t lwork = 0, count = 0;
-	bool iserr = true;
-	
+	bool iserr = false;
+
 	Object::ArrayType::const_iterator it(pl.begin()), end(pl.end());
 	for (; it != end; ++it)
 	{
@@ -95,7 +95,7 @@ bool func_avg(std::ostream& os, TPT::Object& params)
 			Object::ArrayType::const_iterator ait(temp.begin()), aend(temp.end());
 			for (; ait != aend; ++ait)
 			{
-				Object& subobj = *(*it).get();
+				Object& subobj = *(*ait).get();
 				if (subobj.gettype() == Object::type_scalar)
 				{
 					lwork+= str2num(subobj.scalar().c_str());

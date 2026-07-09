@@ -82,9 +82,17 @@ void Parser_Impl::parse_while(std::ostream* os)
 	size_t whilestart = lex.index();
 	unsigned lineno = lex.getlineno();
 
-	// Keep calling ifexpr until the expression is false
+	// Keep calling ifexpr until the expression is false, but cap the number
+	// of iterations so a non-terminating loop (e.g. @while(1)) cannot hang
+	// the process.
+	unsigned long iterations = 0;
 	while (parse_whileexpr(os))
 	{
+		if (++iterations >= ctx.maxloop)
+		{
+			recorderror("Error: @while exceeded maximum iteration count");
+			break;
+		}
 		if (lex.seek(whilestart))
 		{
 			// This should never happen.

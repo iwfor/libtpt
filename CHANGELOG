@@ -37,6 +37,12 @@ Version 1.34
   pushed back.
 - Robustness: handlebraceignore() no longer dereferences rbegin() on a
   possibly-empty string (undefined behavior); it guards the empty case.
+- Security: @while now enforces a maximum iteration count (default 1,000,000,
+  configurable via Parser/IParser::setmaxloop) so a non-terminating loop such
+  as @while(1) can no longer hang the process.
+- Fix: @sum and @avg over an array now total the array's elements (the array
+  branch dereferenced the wrong iterator); @avg no longer always reports an
+  error on valid input.
 - Added test/smartptrtest.cxx (shared pointer, incl. a ThreadSanitizer-clean
   multi-threaded stress test) and test/includetest.cxx (include confinement
   and cycle guard).

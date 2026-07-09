@@ -81,6 +81,9 @@ public:
 	/// Set the @include/@includetext security policy (default: confined).
 	void setincludemode(IncludeMode mode);
 
+	/// Set the maximum iterations of a single @while loop (default 1000000).
+	void setmaxloop(unsigned long maxloop);
+
 	/// Add a callback function.
 	bool addfunction(const char* name,
 			bool (*func)(std::ostream&, Object&));

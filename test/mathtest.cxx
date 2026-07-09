@@ -64,6 +64,8 @@ bool test_rand_zero();
 bool test_normal_arithmetic();
 bool test_overflow_saturates();
 bool test_int64min_renders();
+bool test_sum_over_array();
+bool test_avg_over_array();
 
 int main()
 {
@@ -77,6 +79,8 @@ int main()
 		{ "normal arithmetic unchanged", test_normal_arithmetic },
 		{ "overflow saturates",          test_overflow_saturates },
 		{ "int64min renders correctly",  test_int64min_renders },
+		{ "@sum over array",             test_sum_over_array },
+		{ "@avg over array",             test_avg_over_array },
 		{ 0, 0 }
 	};
 	for (int i = 0; tests[i].fn; ++i)
@@ -152,4 +156,22 @@ bool test_int64min_renders()
 	unsigned errs = 0;
 	std::string out = render("@set(x, -9223372036854775807 - 1)${x}", errs);
 	return (out != "-9223372036854775808") || (errs != 0);
+}
+
+// @sum over an array must total its elements.  The array branch previously
+// dereferenced the outer iterator, so array elements contributed nothing.
+bool test_sum_over_array()
+{
+	unsigned errs = 0;
+	std::string out = render("@set(n, 10, 20, 30)@sum(n)", errs);
+	return (out != "60") || (errs != 0);
+}
+
+// @avg over an array must average its elements, and must not spuriously
+// report an error (iserr was previously initialized to true).
+bool test_avg_over_array()
+{
+	unsigned errs = 0;
+	std::string out = render("@set(n, 10, 20, 30)@avg(n)", errs);
+	return (out != "20") || (errs != 0);
 }

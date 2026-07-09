@@ -187,6 +187,19 @@ void IParser::setincludemode(IncludeMode mode)
 
 
 /**
+ * Set the maximum number of iterations allowed for a single @while loop, as a
+ * guard against a non-terminating loop.  The default is 1,000,000.
+ *
+ * @param   maxloop     Maximum iterations per @while loop.
+ * @return  nothing
+ */
+void IParser::setmaxloop(unsigned long maxloop)
+{
+    imp->ctx.maxloop = maxloop;
+}
+
+
+/**
  * Register a callback function to handle TPT calls to the specified
  * function name.
  *

@@ -61,10 +61,11 @@ struct ParseContext {
 	unsigned maxdepth;		// maximum nested @include depth
 	unsigned macrodepth;	// current @macro call nesting depth
 	unsigned macromaxdepth;	// maximum @macro call nesting depth
+	unsigned long maxloop;	// maximum iterations of a single @while loop
 
 	ParseContext()
 		: mode(include_confined), maxdepth(40),
-		  macrodepth(0), macromaxdepth(100)
+		  macrodepth(0), macromaxdepth(100), maxloop(1000000UL)
 	{ }
 };
 
