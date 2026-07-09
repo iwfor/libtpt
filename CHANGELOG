@@ -29,6 +29,9 @@ Version 1.34
   the int64 limits instead of folding in stray bytes and overflowing;
   num2str() now renders the most-negative int64 value correctly instead of
   emitting garbage.
+- Security: @substr clamps negative and out-of-range indices instead of
+  throwing; @lpad, @rpad, and @repeat now refuse an absurd width/count
+  instead of generating unbounded output (memory exhaustion).
 - Added test/smartptrtest.cxx (shared pointer, incl. a ThreadSanitizer-clean
   multi-threaded stress test) and test/includetest.cxx (include confinement
   and cycle guard).

@@ -38,6 +38,12 @@
 
 namespace TPT {
 
+namespace {
+	// Upper bound on characters a single string builtin may generate, to
+	// keep a hostile width/count from exhausting memory.
+	const unsigned long MAX_GENERATED = 1000000UL;
+}
+
 /*
  * Concatenate a series of string together.  Integer tokens will be
  * treated as strings.
@@ -102,25 +108,29 @@ bool func_length(std::ostream& os, Object& params)
 bool func_substr(std::ostream& os, Object& params)
 {
 	Object::ArrayType& pl = params.array();
-    std::size_t start = 0, end = std::string::npos;
+	std::size_t start = 0, len = std::string::npos;
 	bool iserr = false;
 
 	if (!pl.empty())
-	{   
+	{
 		if (pl.size() == 1)
 			return true;
 		else
-		{   
+		{
 			Object& obj1 = *pl[1].get();
 			if (obj1.gettype() != Object::type_scalar)
 				return true;
-			start = std::atoi(obj1.scalar().c_str());
+			// Clamp negatives to 0 so a negative index does not wrap to a
+			// huge size_t (which would make substr() throw).
+			long startval = std::atoi(obj1.scalar().c_str());
+			start = (startval < 0) ? 0 : static_cast<std::size_t>(startval);
 			if (pl.size() >= 3)
-			{   
+			{
 				Object& obj2 = *pl[2].get();
 				if (obj2.gettype() != Object::type_scalar)
 					return true;
-				end = std::atoi(obj2.scalar().c_str());
+				long lenval = std::atoi(obj2.scalar().c_str());
+				len = (lenval < 0) ? 0 : static_cast<std::size_t>(lenval);
 			}
 			if (pl.size() > 3)
 				iserr = true;
@@ -128,11 +138,15 @@ bool func_substr(std::ostream& os, Object& params)
 		Object& obj = *pl[0].get();
 		if (obj.gettype() != Object::type_scalar)
 			return true;
-		os << obj.scalar().substr(start,end);
+		// A start past the end yields an empty string rather than throwing.
+		const std::string& s = obj.scalar();
+		if (start > s.size())
+			start = s.size();
+		os << s.substr(start, len);
 	}
 	else
 		return true;
-	
+
 	return iserr;
 }
 
@@ -206,16 +220,16 @@ bool func_lpad(std::ostream& os, Object& params)
 			numobj.gettype() != Object::type_scalar)
 		return true;
 	std::string& str = strobj.scalar();
-	unsigned width = std::atoi(numobj.scalar().c_str());
+	long widthval = std::atoi(numobj.scalar().c_str());
+	unsigned long width = (widthval < 0) ? 0 : static_cast<unsigned long>(widthval);
+	if (width > MAX_GENERATED)
+		return true;	// refuse an absurd pad width
 	if (str.length() >= width)
 	{
 		os << str;
 		return false;
 	}
-	unsigned spacecnt = width - str.length();
-	std::string spaces(" ");
-	while (--spacecnt)
-		spaces+= ' '; 
+	std::string spaces(width - str.length(), ' ');
 	os << spaces << str;
 	return false;
 }
@@ -235,16 +249,16 @@ bool func_rpad(std::ostream& os, Object& params)
 			numobj.gettype() != Object::type_scalar)
 		return true;
 	std::string& str = strobj.scalar();
-	unsigned width = std::atoi(numobj.scalar().c_str());
+	long widthval = std::atoi(numobj.scalar().c_str());
+	unsigned long width = (widthval < 0) ? 0 : static_cast<unsigned long>(widthval);
+	if (width > MAX_GENERATED)
+		return true;	// refuse an absurd pad width
 	if (str.length() >= width)
 	{
 		os << str;
 		return false;
 	}
-	unsigned spacecnt = width - str.length();
-	std::string spaces(" ");
-	while (--spacecnt)
-		spaces+= ' '; 
+	std::string spaces(width - str.length(), ' ');
 	os << str << spaces;
 	return false;
 }
@@ -265,6 +279,12 @@ bool func_repeat(std::ostream& os, Object& params)
 		return true;
 	std::string& str = strobj.scalar();
 	int n = std::atoi(numobj.scalar().c_str());
+	if (n < 0)
+		n = 0;
+	// Refuse a count that would generate an unbounded amount of output.
+	if (str.length() != 0 &&
+			static_cast<unsigned long>(n) > MAX_GENERATED / str.length())
+		return true;
 	while (n-- > 0)
 		os << str;
 	return false;

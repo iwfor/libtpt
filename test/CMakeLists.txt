@@ -6,6 +6,7 @@ SET( TPT_TESTS
     includetest
     macrotest
     mathtest
+    strtest
     dump
     test1
     test2
