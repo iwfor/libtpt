@@ -43,6 +43,7 @@
 
 bool test_unget_clamps_to_start();
 bool test_unget_normal();
+bool test_handlebraceignore_empty_value();
 
 int main()
 {
@@ -56,6 +57,12 @@ int main()
 	r = test_unget_normal();
 	if (r)
 		std::cout << "lex test 2 (unget normal rewind): failed" << std::endl;
+	result |= r;
+
+	r = test_handlebraceignore_empty_value();
+	if (r)
+		std::cout << "lex test 3 (handlebraceignore empty value): failed"
+			<< std::endl;
 	result |= r;
 
 	std::cout << (result ? "FAILED" : "PASSED") << std::endl;
@@ -108,4 +115,19 @@ bool test_unget_normal()
 	lex.unget(t);
 
 	return lex.index() != 2;	// rewound by 2 -> offset 2
+}
+
+/*
+ * handlebraceignore() inspects the last character of the token value.  With
+ * an empty value -- which happens when there is no whitespace after the brace
+ * -- the old code dereferenced rbegin() on an empty string (undefined
+ * behavior).  Reaching the assertion safely proves the guard works.
+ */
+bool test_handlebraceignore_empty_value()
+{
+	TPT::Buffer buf("xyz", 3);	// no leading whitespace to accumulate
+	TPT::Lex lex(buf);
+	TPT::Token<> t;				// value is empty
+	lex.handlebraceignore(t);
+	return false;
 }

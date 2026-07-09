@@ -35,6 +35,8 @@ Version 1.34
 - Robustness: Lex::unget() now clamps instead of underflowing the buffer
   index and column counter when a token larger than the consumed input is
   pushed back.
+- Robustness: handlebraceignore() no longer dereferences rbegin() on a
+  possibly-empty string (undefined behavior); it guards the empty case.
 - Added test/smartptrtest.cxx (shared pointer, incl. a ThreadSanitizer-clean
   multi-threaded stress test) and test/includetest.cxx (include confinement
   and cycle guard).

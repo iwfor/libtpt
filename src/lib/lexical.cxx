@@ -494,7 +494,10 @@ void Lex::handlebraceignore(Token<>& t)
 {
 	// Ignore all whitespace after open brace
 	getwhitespace(t.value);
-	char c = *t.value.rbegin();	// Get last character in string
+	// Get last character in string.  Guard against an empty value, since
+	// dereferencing rbegin() on an empty string is undefined behavior; an
+	// empty value falls through to the comment check below.
+	char c = t.value.empty() ? '\0' : *t.value.rbegin();
 	// If the last character was not a <cr> or <lf>, then there may be a
 	// comment to process
 	if (c != '\r' && c != '\n')
